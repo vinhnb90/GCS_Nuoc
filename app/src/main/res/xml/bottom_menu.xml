@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        barColorWhenSelected="@color/barColorWhenSelected"
+        icon="@drawable/outline_backup_black_18"
+        id="@+id/nav_bot_download"
+        title="Tải về" />
+    <tab
+        barColorWhenSelected="@color/barColorWhenSelected"
+        icon="@drawable/outline_backup_black_18"
+        id="@+id/nav_bot_filter"
+        title="Lọc khách hàng chưa ghi" />
+    <tab
+        barColorWhenSelected="@color/barColorWhenSelected"
+        icon="@drawable/outline_backup_black_18"
+        id="@+id/nav_bot_upload"
+        title="Đẩy lên" />
+</tabs>

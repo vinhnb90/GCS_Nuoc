@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ac_book_manager_toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:theme="@style/Base.ThemeOverlay.AppCompat.ActionBar"
+    tools:context=".bookmanager.BookManagerActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.roughike.bottombar.BottomBar
+            android:id="@+id/ac_book_manager_bottom_menu"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:background="@color/barColorWhenSelected"
+            android:backgroundTint="@color/barColorBackground"
+            app:bb_activeTabColor="@color/barColorBackground"
+            app:bb_badgeBackgroundColor="@color/barColorBackground"
+            app:bb_behavior="shifting"
+            app:bb_inActiveTabAlpha="0.8"
+            app:bb_inActiveTabColor="@color/barColorBackground"
+            app:bb_showShadow="true"
+            app:bb_tabXmlResource="@xml/bottom_menu"
+            app:bb_titleTextAppearance="@style/CustomTitleTextAppearance" />
+
+        <LinearLayout
+            android:id="@+id/ac_book_manager_ll_top"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/ac_book_manager_name_emp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="NGUYỄN VĂN A" />
+
+            <TextView
+                android:id="@+id/ac_book_manager_address_emp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="ĐỘI 5" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/ac_book_manager_tv_title_perior"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Kỳ ghi chỉ số" />
+
+                <TextView
+                    android:id="@+id/ac_book_manager_tv_text_perior"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/ac_book_manager_tv_title_perior"
+                    android:text="25/6/2021" />
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/ac_book_manager_ll_top">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/ac_book_manager_rv_books"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </android.support.v7.widget.RecyclerView>
+        </RelativeLayout>
+    </RelativeLayout>
+
+</android.support.v7.widget.Toolbar>
