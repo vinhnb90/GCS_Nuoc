@@ -18,6 +18,9 @@
     <color name="pbarColor">#FF5722</color>
     <color name="pbarBorderColor">#50000000</color>
 
+    <!--common-->
+    <color name="buttonColor">#FF5722</color>
+
 
 
 </resources>

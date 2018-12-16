@@ -2,12 +2,14 @@ package freelancer.gcsnuoc.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -23,8 +25,12 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -43,8 +49,8 @@ import freelancer.gcsnuoc.app.GCSApplication;
 import static android.support.v4.app.ActivityCompat.requestPermissions;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
-import static freelancer.gcsnuoc.database.SqlHelper.DB_NAME;
-import static freelancer.gcsnuoc.database.SqlHelper.PATH_FOLDER_DB;
+import static freelancer.gcsnuoc.database.SqlHelperExamp.DB_NAME;
+import static freelancer.gcsnuoc.database.SqlHelperExamp.PATH_FOLDER_DB;
 
 /**
  * Created by VinhNB on 8/9/2017.
@@ -56,7 +62,79 @@ public class Common {
     public static final int TIME_DELAY_ANIM = 150;
 
     public static final String PREF_BOOK = "PREF_BOOK";
+    public static final String INTENT_KEY_ID_BOOK = "INTENT_KEY_ID_BOOK";
+    public static final int INTENT_REQUEST_KEY_CAMERA = 1113;
+    private static final String PROGRAM_PHOTOS_PATH = "/ES_GCS_H20/";
+    private static final float SIZE_HEIGHT_IMAGE = 600;
 
+    public static void scaleImage(String fileName, Context context) throws Exception {
+        File file = new File(fileName);
+
+        BufferedOutputStream bos = null;
+        if (!file.exists()) {
+            throw new IOException("Không tìm thấy ảnh");
+        }
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = BitmapFactory.decodeFile(fileName, options);
+
+        if (bitmap != null) {
+            float w = bitmap.getWidth();
+            float h = bitmap.getHeight();
+            if (h < w) {
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+                bitmap = Common.scaleDown(Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true), Common.SIZE_HEIGHT_IMAGE, true);
+            } else {
+                bitmap = Common.scaleDown(bitmap, Common.SIZE_HEIGHT_IMAGE, true);
+            }
+            //TODO w lúc nào cũng lớn hơn h và sau khi resize thì h luôn = 600, w > 0, ảnh được xoay nếu w < h tạo ra hình chữ nhật
+
+            bos = new BufferedOutputStream(new FileOutputStream(fileName));
+            bos.write(Common.encodeTobase64Byte(bitmap));
+            bos.close();
+            Common.scanFile(context, new String[]{fileName});
+        }
+
+    }
+
+    public static void scanFile(Context ctx, String[] allFiles) {
+        MediaScannerConnection.scanFile(ctx, allFiles, null,
+                new MediaScannerConnection.OnScanCompletedListener() {
+                    public void onScanCompleted(String path, Uri uri) {
+                        Log.d("ExternalStorage", "Scanned " + path + ":");
+                        Log.d("ExternalStorage", "uri=" + uri);
+                    }
+                });
+    }
+
+    public static byte[] encodeTobase64Byte(Bitmap image) {
+        Bitmap immagex = image;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immagex.compress(Bitmap.CompressFormat.JPEG, 90, baos);
+        byte[] b = baos.toByteArray();
+        return b;
+    }
+
+    public static Bitmap scaleDown(Bitmap realImage, float maxImageSize,
+                                   boolean filter) {
+        float ratio = Math.min(
+                (float) maxImageSize / realImage.getWidth(),
+                (float) maxImageSize / realImage.getHeight());
+        int width = Math.round((float) ratio * realImage.getWidth());
+        int height = Math.round((float) ratio * realImage.getHeight());
+
+        Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
+                height, filter);
+        return newBitmap;
+    }
+
+
+    public enum TRIGGER_NEED_ALLOW_PERMISSION {
+        NONE,
+        ON_CREATE,
+        ON_RESUME;
+    }
 
     public static void runAnimationClickView(final View view, int idAnimation, int timeDelayAnim) {
         if (view == null)
@@ -161,48 +239,69 @@ public class Common {
 
     //region Date time
     public enum DATE_TIME_TYPE {
-        HHmmss,
-        yyyyMMdd,
-        yyyyMMddHHmmssSSS,
-        yyyyMMddHHmmssSSZ,
-        MMddyyyyHHmmssa,
-        MMyyyy,
-        ddMMyyyyHHmm,
-        ddMMyyyy,
-        ddMMyyyyHHmmss,
-//        YYYY-MM-DD HH:MM:SS.SSS
+        type1("HHmmss"),
+        type2("yyyyMMdd"),
+        type3("yyyyMMddHHmmss"),
+        type4("yyyy-MM-dd'T'hh:mm:ssZ"),
+        type5("MM/yyyy"),
+        type6("dd/MM/yyyy"),
+        type7("dd/MM/yyyy HH:mm:ss"),
+        type8("dd/MM/yyyy HH:mm"),
+        //UI
+        type9("dd/MM/yyyy HH'h'mm"),
+        type10("MM/dd/yyyy HH:mm:ss a"),
+        type11("yyyy-MM-dd HH:mm:ss"),
+        type12("yyyyMMddHHmm"),
+        //2017-11-23T22:18
+        sqlite1("yyyy-MM-dd'T'HH:mm"),
+        sqlite2("yyyy-MM-dd'T'HH:mm:ss"),
 
-        FULL;
+        typeEx("typeEx");
 
-        @Override
-        public String toString() {
-            if (this == HHmmss)
-                return "HHmmss";
-            if (this == yyyyMMdd)
-                return "yyyyMMdd";
-            if (this == yyyyMMddHHmmssSSS)
-                return "yyyyMMddHHmmss";
-            if (this == yyyyMMddHHmmssSSZ)
-                return "yyyy-MM-dd'T'hh:mm:ssZ";
-            if (this == MMyyyy)
-                return "MM/yyyy";
-            if (this == ddMMyyyy)
-                return "dd/MM/yyyy";
-            if (this == ddMMyyyyHHmmss)
-                return "dd/MM/yyyy HH:mm:ss";
-            if (this == ddMMyyyyHHmm)
-                return "dd/MM/yyyy HH'h'mm";
+        public String content;
 
-            if (this == MMddyyyyHHmmssa)
-                //2017-08-01T00:00:00+07:00
-                return "MM/dd/yyyy HH:mm:ss a";
+        DATE_TIME_TYPE(String content) {
+            this.content = content;
+        }
 
-            if (this == FULL)
-                return "yyyy-MM-dd HH:mm:ss";
-            return super.toString();
+        public static DATE_TIME_TYPE findDATE_TIME_TYPE(String content) {
+            for (DATE_TIME_TYPE dateTimeType : values()) {
+                if (dateTimeType.content.equalsIgnoreCase(content))
+                    return dateTimeType;
+            }
+            return null;
         }
     }
+
     //endregion
+
+    public static String getRecordDirectoryFolder(String folderName) {
+        String path = Environment.getExternalStorageDirectory().getPath() + Common.PROGRAM_PHOTOS_PATH;
+        File f = new File(path);
+        if (!f.exists()) {
+            f.mkdir();
+            f.mkdirs();
+        }
+
+        File f1 = new File(path, folderName);
+        if (!f1.exists()) {
+            f1.mkdir();
+            f1.mkdirs();
+        }
+
+        return f1.getPath();
+    }
+
+    public static String getImageName(String PERIOD, String MA_NVIEN, String ID_BOOK, String ID_CUSTOMER, String DATETIME) {
+        //Image name: {PERIOD}_{MA_NVIEN}_{ID_BOOK}_{ID_CUSTOMER}_{DATETIME}
+        StringBuilder name = new StringBuilder()
+                .append(PERIOD).append("_")
+                .append(MA_NVIEN).append("_")
+                .append(ID_BOOK).append("_")
+                .append(ID_CUSTOMER).append("_")
+                .append(DATETIME).append(".jpg");
+        return name.toString();
+    }
 
     public enum KIEU_CHUONG_TRINH {
         PHAN_BO(0, "Chức năng phân bổ"),

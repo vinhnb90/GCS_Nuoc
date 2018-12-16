@@ -2,6 +2,7 @@ package freelancer.gcsnuoc.bookmanager;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -18,7 +19,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -33,7 +33,8 @@ import java.util.List;
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
 import freelancer.gcsnuoc.database.SqlConnect;
-import freelancer.gcsnuoc.database.SqlDAO;
+import freelancer.gcsnuoc.database.GCSH20DAO;
+import freelancer.gcsnuoc.detail.DetailActivity;
 import freelancer.gcsnuoc.entities.BookItem;
 import freelancer.gcsnuoc.entities.BookItemProxy;
 import freelancer.gcsnuoc.login.LoginActivity;
@@ -54,20 +55,13 @@ public class BookManagerActivity extends BaseActivity {
     private RecyclerView mRvBook;
     private BottomBar mBottomBar;
     private BooksAdapter booksAdapter;
-    private List<BookItemProxy> dataDump;
-    private SqlDAO mSqlDAO;
+    private List<BookItemProxy> dataDump = new ArrayList<>();
+    private GCSH20DAO mGCSH20DAO;
     private SQLiteDatabase mDatabase;
-    private int mPosFocus;
 
-    private TRIGGER_NEED_ALLOW_PERMISSION mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.NONE;
+    private Common.TRIGGER_NEED_ALLOW_PERMISSION mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.NONE;
     private TYPE_FILTER mTYPEFilter = TYPE_FILTER.NONE_FILTER;
     private BookActivitySharePref bookActivitySharePref;
-
-    private enum TRIGGER_NEED_ALLOW_PERMISSION {
-        NONE,
-        ON_CREATE,
-        ON_RESUME;
-    }
 
     private enum TYPE_FILTER {
         FILTER_BY_BOTTOM_MENU,
@@ -82,7 +76,7 @@ public class BookManagerActivity extends BaseActivity {
         super.onStart();
         try {
             mDatabase = SqlConnect.getInstance(this).open();
-            mSqlDAO = new SqlDAO(mDatabase, this);
+            mGCSH20DAO = new GCSH20DAO(mDatabase, this);
             //hiển thị folder trên sdcard
             if (!isLoadedFolder) {
                 Common.showFolder(this);
@@ -103,14 +97,15 @@ public class BookManagerActivity extends BaseActivity {
         setContentView(R.layout.activity_book_manager);
 
         if (Common.isNeedPermission(this)) {
-            mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.ON_CREATE;
+            mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.ON_CREATE;
             return;
         }
 
         doTaskOnCreate();
     }
 
-    private void doTaskOnCreate() {
+    @Override
+    public void doTaskOnCreate() {
         getInstance().setIsModeDebug(true);
 
         try {
@@ -125,6 +120,22 @@ public class BookManagerActivity extends BaseActivity {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 e1.printStackTrace();
             }
+        }
+    }
+
+    @Override
+    protected void doTaskOnResume() {
+        try {
+            refreshData();
+
+            //filter data
+            bookActivitySharePref = (BookActivitySharePref) SharePrefManager.getInstance().getSharePref(BookManagerActivity.class);
+            filterData(mTYPEFilter, String.valueOf(bookActivitySharePref.isFilteringBottomMenu));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
+            Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi chọn sổ!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -160,26 +171,11 @@ public class BookManagerActivity extends BaseActivity {
 
         //check permission
         if (Common.isNeedPermission(this)) {
-            mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.ON_RESUME;
+            mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.ON_RESUME;
             return;
         }
 
-        doTaskResume();
-    }
-
-    private void doTaskResume() {
-        try {
-            refreshData();
-
-            //filter data
-            bookActivitySharePref = (BookActivitySharePref) SharePrefManager.getInstance().getSharePref(BookManagerActivity.class);
-            filterData(mTYPEFilter, String.valueOf(bookActivitySharePref.isFilteringBottomMenu));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
-            Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi chọn sổ!", Toast.LENGTH_SHORT).show();
-        }
+        doTaskOnResume();
     }
 
     private void filterData(TYPE_FILTER typeFilter, String dataFiltering) throws Exception {
@@ -194,7 +190,7 @@ public class BookManagerActivity extends BaseActivity {
                         }
                     }
                 } else {
-                    dataFilter = mSqlDAO.selectAllTBL_BOOK();
+                    dataFilter = mGCSH20DAO.selectAllTBL_BOOK();
                 }
                 break;
 
@@ -208,7 +204,7 @@ public class BookManagerActivity extends BaseActivity {
                 break;
 
             case NONE_FILTER:
-                dataFilter = mSqlDAO.selectAllTBL_BOOK();
+                dataFilter = mGCSH20DAO.selectAllTBL_BOOK();
                 break;
         }
 
@@ -231,11 +227,11 @@ public class BookManagerActivity extends BaseActivity {
                         doTaskOnCreate();
                         break;
                     case ON_RESUME:
-                        doTaskResume();
+                        doTaskOnResume();
                         break;
                 }
 
-                mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.NONE;
+                mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.NONE;
         }
     }
 
@@ -390,7 +386,6 @@ public class BookManagerActivity extends BaseActivity {
         loadDataBook();
         //fill data
         fillDataBook();
-
     }
 
     private void fillDataBook() {
@@ -403,8 +398,8 @@ public class BookManagerActivity extends BaseActivity {
                 try {
                     //update database by ID
                     int ID = booksAdapter.getList().get(pos).getID();
-                    mSqlDAO.updateChooseTBL_BOOK(ID, isChecked);
-                    mSqlDAO.updateFocusTBL_BOOK(ID, true);
+                    mGCSH20DAO.updateChooseTBL_BOOK(ID, isChecked);
+                    mGCSH20DAO.updateFocusTBL_BOOK(ID, true);
 
                     //refresh data
                     refreshData();
@@ -423,10 +418,15 @@ public class BookManagerActivity extends BaseActivity {
                 try {
                     //update database by ID
                     int ID = booksAdapter.getList().get(pos).getID();
-                    mSqlDAO.updateFocusTBL_BOOK(ID, true);
+                    mGCSH20DAO.updateFocusTBL_BOOK(ID, true);
 
                     //refresh data
                     refreshData();
+
+                    //openActivity
+                    Intent intent = new Intent(BookManagerActivity.this, DetailActivity.class);
+                    intent.putExtra(Common.INTENT_KEY_ID_BOOK, ID);
+                    startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
@@ -436,7 +436,6 @@ public class BookManagerActivity extends BaseActivity {
 
             @Override
             public void scrollToPosition(int pos) {
-                mPosFocus = pos;
                 mRvBook.scrollToPosition(pos);
                 mRvBook.postInvalidate();
             }
@@ -449,32 +448,28 @@ public class BookManagerActivity extends BaseActivity {
     }
 
     private void refreshData() throws Exception {
-        List<BookItemProxy> dataNew = mSqlDAO.selectAllTBL_BOOK();
-        booksAdapter.setList(dataNew);
+
     }
 
     private void loadDataBook() throws Exception {
         //dump data
         //check exist data
         int rowDataTBL_BOOK = 0;
-        rowDataTBL_BOOK = mSqlDAO.getNumberRowTBL_BOOK();
+        rowDataTBL_BOOK = mGCSH20DAO.getNumberRowTBL_BOOK();
         if (rowDataTBL_BOOK == 0) {
             dumpData();
         }
-
-
+        dataDump = mGCSH20DAO.selectAllTBL_BOOK();
     }
 
     private void dumpData() throws Exception {
         //dumpData
-        dataDump = new ArrayList<>();
-//        String bookName, STATUS_BOOK statusBook, int customerWrited, int customerNotWrite, boolean isFocus, boolean isChoose
-        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 1", BookItem.STATUS_BOOK.NON_WRITING, 0, 43, false, false));
-        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 2", BookItem.STATUS_BOOK.NON_WRITING, 0, 12, false, false));
-        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 3", BookItem.STATUS_BOOK.NON_WRITING, 0, 54, false, false));
-        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 4", BookItem.STATUS_BOOK.NON_WRITING, 0, 21, false, false));
-        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 5", BookItem.STATUS_BOOK.NON_WRITING, 0, 23, false, false));
-        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 6", BookItem.STATUS_BOOK.NON_WRITING, 0, 52, false, false));
+        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 1", BookItem.STATUS_BOOK.NON_WRITING, 0, 43,"2017-11-23T22:18:45", false, false));
+        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 2", BookItem.STATUS_BOOK.NON_WRITING, 0, 12, "2017-11-23T22:18:45", false, false));
+        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 3", BookItem.STATUS_BOOK.NON_WRITING, 0, 54,"2017-11-23T22:18:45",  false, false));
+        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 4", BookItem.STATUS_BOOK.NON_WRITING, 0, 21,"2017-11-23T22:18:45",  false, false));
+        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 5", BookItem.STATUS_BOOK.NON_WRITING, 0, 23, "2017-11-23T22:18:45", false, false));
+        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 6", BookItem.STATUS_BOOK.NON_WRITING, 0, 52, "2017-11-23T22:18:45", false, false));
 
     }
 }

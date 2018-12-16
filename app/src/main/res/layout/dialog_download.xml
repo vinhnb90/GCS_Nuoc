@@ -39,13 +39,13 @@
 
         <TextView
             android:id="@+id/tv_capnhat"
-            style="@style/textStyle2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:text="Cập nhật dữ liệu"
             android:textStyle="normal" />
+        <!--style="@style/textStyle2"-->
 
 
         <ProgressBar
@@ -60,23 +60,23 @@
 
         <TextView
             android:id="@+id/dialog_download_tv_percent"
-            style="@style/textStyle4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/tv_capnhat"
             android:layout_alignParentRight="true"
             android:gravity="right"
             android:text="0%" />
+        <!--style="@style/textStyle4"-->
 
     </RelativeLayout>
 
     <Button
         android:id="@+id/dialog_download_btn_download"
-        style="@style/buttonStyle1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/_5sdp"
         android:text="Đồng bộ dữ liệu"
         />
+    <!--style="@style/buttonStyle1"-->
 </LinearLayout>

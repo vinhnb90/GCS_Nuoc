@@ -25,7 +25,8 @@
         </activity>
         <activity android:name=".login.LoginActivity" />
         <activity android:name=".setting.SettingActivity" />
-        <activity android:name=".bookmanager.BookManagerActivity"></activity>
+        <activity android:name=".bookmanager.BookManagerActivity" />
+        <activity android:name=".detail.DetailActivity"></activity>
     </application>
 
 </manifest>

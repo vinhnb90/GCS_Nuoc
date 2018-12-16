@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 
 public abstract class CursorItemProxy {
     private Cursor mCursor;
+    private Cursor[] mOtherCursor;
     private int mIndex;
 
     public CursorItemProxy(@NonNull Cursor mCursor, int mIndex) {
@@ -22,5 +23,13 @@ public abstract class CursorItemProxy {
 
     public int getmIndex() {
         return mIndex;
+    }
+
+    public void setOtherCursor(Cursor... otherCursor) {
+        mOtherCursor = otherCursor;
+    }
+
+    public Cursor getOtherCursor(int indexCursor) {
+        return mOtherCursor[indexCursor];
     }
 }

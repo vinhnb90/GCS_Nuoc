@@ -39,4 +39,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected abstract void handleListener() throws Exception;
 
     protected abstract void setAction(final Bundle savedInstanceState) throws Exception;
+
+    protected abstract void doTaskOnCreate();
+
+    protected abstract void doTaskOnResume();
 }

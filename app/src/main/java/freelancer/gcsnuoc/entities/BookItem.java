@@ -1,19 +1,21 @@
 package freelancer.gcsnuoc.entities;
 
-public class BookItem {
+public class BookItem implements Cloneable{
     private int ID;
     private String mBookName;
     private STATUS_BOOK mStatusBook;
     private int mCustomerWrited;
     private int mCustomerNotWrite;
+    private String mPeriod;
     private boolean mIsFocus;
     private boolean mIsChoose;
 
-    public BookItem(String bookName, STATUS_BOOK statusBook, int customerWrited, int customerNotWrite, boolean isFocus, boolean isChoose) {
+    public BookItem(String bookName, STATUS_BOOK statusBook, int customerWrited, int customerNotWrite, String period, boolean isFocus, boolean isChoose) {
         mBookName = bookName;
         mStatusBook = statusBook;
         mCustomerWrited = customerWrited;
         mCustomerNotWrite = customerNotWrite;
+        mPeriod = period;
         mIsFocus = isFocus;
         mIsChoose = isChoose;
     }
@@ -77,6 +79,14 @@ public class BookItem {
         mIsChoose = choose;
     }
 
+    public String getPeriod() {
+        return mPeriod;
+    }
+
+    public void setPeriod(String period) {
+        mPeriod = period;
+    }
+
     public enum STATUS_BOOK {
         UPLOADED("ĐÃ GỬI"),
         WRITED("ĐÃ GHI"),
@@ -102,4 +112,8 @@ public class BookItem {
         }
     }
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }
