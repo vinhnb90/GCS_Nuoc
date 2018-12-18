@@ -81,8 +81,8 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
                         break;
                 }
 
-                holder.tvWriteOk.setText(bookItemProxy.getCustomerWrited());
-                holder.tvWriteOk.setText(bookItemProxy.getCustomerNotWrite());
+                holder.tvWriteOk.setText(bookItemProxy.getCustomerWrited()+"");
+                holder.tvWriteOk.setText(bookItemProxy.getCustomerNotWrite()+"");
 
                 holder.itemView.setBackgroundColor(bookItemProxy.isFocus()? ContextCompat.getColor(mContext, R.color.rowBookColor): ContextCompat.getColor(mContext, R.color.colorTransparent));
 
@@ -105,12 +105,12 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
 
         public BookViewHolder(View itemView) {
             super(itemView);
-            tvStatus = itemView.findViewById(R.id.item_rv_book_adapter_tv_status);
-            cbChoose = itemView.findViewById(R.id.item_rv_book_adapter_cb_choose);
-            tvNameBook = itemView.findViewById(R.id.item_rv_book_adapter_tv_name_book);
-            tvWriteOk = itemView.findViewById(R.id.item_rv_book_adapter_tv_write_ok);
-            tvNotWriteOK = itemView.findViewById(R.id.item_rv_book_adapter_tv_not_write);
-            mView = itemView.findViewById(R.id.item_rv_book_adapter_rl_row);
+            tvStatus = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_status);
+            cbChoose = (CheckBox) itemView.findViewById(R.id.item_rv_book_adapter_cb_choose);
+            tvNameBook = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_name_book);
+            tvWriteOk = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_write_ok);
+            tvNotWriteOK = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_not_write);
+            mView = (RelativeLayout) itemView.findViewById(R.id.item_rv_book_adapter_rl_row);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

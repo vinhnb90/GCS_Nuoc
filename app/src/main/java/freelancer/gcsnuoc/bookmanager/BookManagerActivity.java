@@ -33,15 +33,16 @@ import java.util.List;
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
 import freelancer.gcsnuoc.database.SqlConnect;
-import freelancer.gcsnuoc.database.GCSH20DAO;
+import freelancer.gcsnuoc.database.SqlDAO;
 import freelancer.gcsnuoc.detail.DetailActivity;
 import freelancer.gcsnuoc.entities.BookItem;
 import freelancer.gcsnuoc.entities.BookItemProxy;
 import freelancer.gcsnuoc.login.LoginActivity;
 import freelancer.gcsnuoc.sharepref.baseSharedPref.SharePrefManager;
-import freelancer.gcsnuoc.sharepref.entity.BookActivitySharePref;
 import freelancer.gcsnuoc.utils.Common;
 
+import static freelancer.gcsnuoc.utils.Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM;
+import static freelancer.gcsnuoc.utils.Common.PREF_BOOK;
 import static freelancer.gcsnuoc.utils.Log.getInstance;
 
 public class BookManagerActivity extends BaseActivity {
@@ -56,12 +57,13 @@ public class BookManagerActivity extends BaseActivity {
     private BottomBar mBottomBar;
     private BooksAdapter booksAdapter;
     private List<BookItemProxy> dataDump = new ArrayList<>();
-    private GCSH20DAO mGCSH20DAO;
+    private SqlDAO mSqlDAO;
     private SQLiteDatabase mDatabase;
 
     private Common.TRIGGER_NEED_ALLOW_PERMISSION mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.NONE;
     private TYPE_FILTER mTYPEFilter = TYPE_FILTER.NONE_FILTER;
-    private BookActivitySharePref bookActivitySharePref;
+    private boolean isFilteringBottomMenu;
+    private SharePrefManager mPrefManager;
 
     private enum TYPE_FILTER {
         FILTER_BY_BOTTOM_MENU,
@@ -70,24 +72,6 @@ public class BookManagerActivity extends BaseActivity {
     }
 
     private static boolean isLoadedFolder = false;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        try {
-            mDatabase = SqlConnect.getInstance(this).open();
-            mGCSH20DAO = new GCSH20DAO(mDatabase, this);
-            //hiển thị folder trên sdcard
-            if (!isLoadedFolder) {
-                Common.showFolder(this);
-                isLoadedFolder = !isLoadedFolder;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "onStart: Gặp vấn đề khi load file dữ liệu sdcard! " + e.getMessage());
-            Toast.makeText(this, "Gặp vấn đề khi load file dữ liệu sdcard!", Toast.LENGTH_SHORT).show();
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,8 +93,9 @@ public class BookManagerActivity extends BaseActivity {
         getInstance().setIsModeDebug(true);
 
         try {
+
             //setup file debug
-            initView();
+            init();
             handleListener();
             setAction(savedInstanceState);
         } catch (Exception e) {
@@ -129,8 +114,11 @@ public class BookManagerActivity extends BaseActivity {
             refreshData();
 
             //filter data
-            bookActivitySharePref = (BookActivitySharePref) SharePrefManager.getInstance().getSharePref(BookManagerActivity.class);
-            filterData(mTYPEFilter, String.valueOf(bookActivitySharePref.isFilteringBottomMenu));
+            if (mPrefManager == null)
+                mPrefManager = SharePrefManager.getInstance(this);
+            isFilteringBottomMenu = mPrefManager.getSharePref(Common.PREF_BOOK, MODE_PRIVATE).
+                    getBoolean(Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, false);
+            filterData(mTYPEFilter, String.valueOf(isFilteringBottomMenu));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,7 +178,7 @@ public class BookManagerActivity extends BaseActivity {
                         }
                     }
                 } else {
-                    dataFilter = mGCSH20DAO.selectAllTBL_BOOK();
+                    dataFilter = mSqlDAO.selectAllTBL_BOOK();
                 }
                 break;
 
@@ -204,7 +192,7 @@ public class BookManagerActivity extends BaseActivity {
                 break;
 
             case NONE_FILTER:
-                dataFilter = mGCSH20DAO.selectAllTBL_BOOK();
+                dataFilter = mSqlDAO.selectAllTBL_BOOK();
                 break;
         }
 
@@ -236,12 +224,21 @@ public class BookManagerActivity extends BaseActivity {
     }
 
     @Override
-    protected void initView() {
-        mEtNameEmp = findViewById(R.id.ac_book_manager_name_emp);
-        mEtAndressEmp = findViewById(R.id.ac_book_manager_address_emp);
-        mEtPerior = findViewById(R.id.ac_book_manager_tv_text_perior);
-        mRvBook = findViewById(R.id.ac_book_manager_rv_books);
-        mBottomBar = findViewById(R.id.ac_book_manager_bottom_menu);
+    protected void init() throws Exception{
+        mEtNameEmp = (TextView) findViewById(R.id.ac_book_manager_name_emp);
+        mEtAndressEmp = (TextView) findViewById(R.id.ac_book_manager_address_emp);
+        mEtPerior = (TextView) findViewById(R.id.ac_book_manager_tv_text_perior);
+        mRvBook = (RecyclerView) findViewById(R.id.ac_book_manager_rv_books);
+        mBottomBar = (BottomBar) findViewById(R.id.ac_book_manager_bottom_menu);
+
+        //database
+        mDatabase = SqlConnect.getInstance(this).open();
+        mSqlDAO = new SqlDAO(mDatabase, this);
+        //hiển thị folder trên sdcard
+        if (!isLoadedFolder) {
+            Common.showFolder(this);
+            isLoadedFolder = !isLoadedFolder;
+        }
     }
 
     @Override
@@ -258,11 +255,13 @@ public class BookManagerActivity extends BaseActivity {
                             break;
 
                         case R.id.nav_bot_filter:
-                            if (bookActivitySharePref == null)
-                                bookActivitySharePref = (BookActivitySharePref) SharePrefManager.getInstance().getSharePref(BookManagerActivity.class);
-
-                            boolean isFilteringBottomMenuNow = !bookActivitySharePref.isFilteringBottomMenu;
-                            filterData(TYPE_FILTER.FILTER_BY_BOTTOM_MENU, String.valueOf(isFilteringBottomMenuNow));
+                            if (mPrefManager == null)
+                                mPrefManager = SharePrefManager.getInstance(BookManagerActivity.this);
+                            isFilteringBottomMenu = mPrefManager.getSharePref(Common.PREF_BOOK, MODE_PRIVATE).
+                                    getBoolean(Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, false);
+                            isFilteringBottomMenu = !isFilteringBottomMenu;
+                            mPrefManager.getSharePref(Common.PREF_BOOK, MODE_PRIVATE).edit().putBoolean(Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, isFilteringBottomMenu).commit();
+                            filterData(TYPE_FILTER.FILTER_BY_BOTTOM_MENU, String.valueOf(isFilteringBottomMenu));
                             break;
 
                         case R.id.nav_bot_upload:
@@ -339,11 +338,11 @@ public class BookManagerActivity extends BaseActivity {
         window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
 
-        final TextView tvStatus = dialogConfig.findViewById(R.id.dialog_download_tv_status);
-        final TextView tvCountBook = dialogConfig.findViewById(R.id.dilog_download_tv_count_book);
-        final ProgressBar pbarDownload = dialogConfig.findViewById(R.id.dialog_download_pbar_download);
-        final TextView tvPercent = dialogConfig.findViewById(R.id.dialog_download_tv_percent);
-        final Button btnDownload = dialogConfig.findViewById(R.id.dialog_download_btn_download);
+        final TextView tvStatus = (TextView) dialogConfig.findViewById(R.id.dialog_download_tv_status);
+        final TextView tvCountBook = (TextView) dialogConfig.findViewById(R.id.dilog_download_tv_count_book);
+        final ProgressBar pbarDownload = (ProgressBar) dialogConfig.findViewById(R.id.dialog_download_pbar_download);
+        final TextView tvPercent = (TextView) dialogConfig.findViewById(R.id.dialog_download_tv_percent);
+        final Button btnDownload = (Button) dialogConfig.findViewById(R.id.dialog_download_btn_download);
 
         pbarDownload.setMax(100);
         pbarDownload.setProgress(0);
@@ -382,10 +381,25 @@ public class BookManagerActivity extends BaseActivity {
 
     @Override
     protected void setAction(Bundle savedInstanceState) throws Exception {
+        //init shared preref
+        mPrefManager = SharePrefManager.getInstance(this);
+
+        this.checkSharePreference(mPrefManager);
+
         //load data
         loadDataBook();
         //fill data
         fillDataBook();
+    }
+
+    public static void checkSharePreference(SharePrefManager mPrefManager) {
+        if (!mPrefManager.checkExistSharePref(PREF_BOOK)) {
+            mPrefManager.addSharePref(PREF_BOOK, MODE_PRIVATE);
+            mPrefManager.getSharePref(PREF_BOOK, MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, false)
+                    .commit();
+        }
     }
 
     private void fillDataBook() {
@@ -398,8 +412,8 @@ public class BookManagerActivity extends BaseActivity {
                 try {
                     //update database by ID
                     int ID = booksAdapter.getList().get(pos).getID();
-                    mGCSH20DAO.updateChooseTBL_BOOK(ID, isChecked);
-                    mGCSH20DAO.updateFocusTBL_BOOK(ID, true);
+                    mSqlDAO.updateChooseTBL_BOOK(ID, isChecked);
+                    mSqlDAO.updateFocusTBL_BOOK(ID, true);
 
                     //refresh data
                     refreshData();
@@ -418,7 +432,7 @@ public class BookManagerActivity extends BaseActivity {
                 try {
                     //update database by ID
                     int ID = booksAdapter.getList().get(pos).getID();
-                    mGCSH20DAO.updateFocusTBL_BOOK(ID, true);
+                    mSqlDAO.updateFocusTBL_BOOK(ID, true);
 
                     //refresh data
                     refreshData();
@@ -455,21 +469,21 @@ public class BookManagerActivity extends BaseActivity {
         //dump data
         //check exist data
         int rowDataTBL_BOOK = 0;
-        rowDataTBL_BOOK = mGCSH20DAO.getNumberRowTBL_BOOK();
+        rowDataTBL_BOOK = mSqlDAO.getNumberRowTBL_BOOK();
         if (rowDataTBL_BOOK == 0) {
             dumpData();
         }
-        dataDump = mGCSH20DAO.selectAllTBL_BOOK();
+        dataDump = mSqlDAO.selectAllTBL_BOOK();
     }
 
     private void dumpData() throws Exception {
         //dumpData
-        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 1", BookItem.STATUS_BOOK.NON_WRITING, 0, 43,"2017-11-23T22:18:45", false, false));
-        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 2", BookItem.STATUS_BOOK.NON_WRITING, 0, 12, "2017-11-23T22:18:45", false, false));
-        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 3", BookItem.STATUS_BOOK.NON_WRITING, 0, 54,"2017-11-23T22:18:45",  false, false));
-        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 4", BookItem.STATUS_BOOK.NON_WRITING, 0, 21,"2017-11-23T22:18:45",  false, false));
-        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 5", BookItem.STATUS_BOOK.NON_WRITING, 0, 23, "2017-11-23T22:18:45", false, false));
-        mGCSH20DAO.insertTBL_BOOK(new BookItem("bookName 6", BookItem.STATUS_BOOK.NON_WRITING, 0, 52, "2017-11-23T22:18:45", false, false));
+        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 1", BookItem.STATUS_BOOK.NON_WRITING, 0, 43,"2017-11-23T22:18:45", false, false));
+        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 2", BookItem.STATUS_BOOK.NON_WRITING, 0, 12, "2017-11-23T22:18:45", false, false));
+        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 3", BookItem.STATUS_BOOK.NON_WRITING, 0, 54,"2017-11-23T22:18:45",  false, false));
+        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 4", BookItem.STATUS_BOOK.NON_WRITING, 0, 21,"2017-11-23T22:18:45",  false, false));
+        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 5", BookItem.STATUS_BOOK.NON_WRITING, 0, 23, "2017-11-23T22:18:45", false, false));
+        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 6", BookItem.STATUS_BOOK.NON_WRITING, 0, 52, "2017-11-23T22:18:45", false, false));
 
     }
 }

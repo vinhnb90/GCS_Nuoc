@@ -18,7 +18,7 @@ public class BookItemProxy extends CursorItemProxy {
         if (mBookItem.getID() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String ID = SqlQuery.TBL_BOOK.ID.getNameCollumn();
+            String ID = SqlQuery.TBL_BOOK.ID_TBL_BOOK.getNameCollumn();
             mBookItem.setID(cursor.getInt(cursor.getColumnIndex(ID)));
         }
         return mBookItem.getID();
@@ -35,7 +35,7 @@ public class BookItemProxy extends CursorItemProxy {
     }
 
     public BookItem.STATUS_BOOK getStatusBook() {
-        if (TextUtils.isEmpty(mBookItem.getStatusBook().getStatus())) {
+        if (mBookItem.getStatusBook() == null) {
 
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());

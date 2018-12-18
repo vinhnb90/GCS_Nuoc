@@ -78,8 +78,8 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
                         break;
                 }
 
-                holder.tvIndexOld.setText(DetailProxy.getOLD_INDEXOfTBL_IMAGE());
-                holder.tvIndexNew.setText(DetailProxy.getNEW_INDEXOfTBL_IMAGE());
+                holder.tvIndexOld.setText(DetailProxy.getOLD_INDEXOfTBL_IMAGE()+"");
+                holder.tvIndexNew.setText(DetailProxy.getNEW_INDEXOfTBL_IMAGE()+"");
 
                 holder.itemView.setBackgroundColor(DetailProxy.isFocusOfTBL_CUSTOMER()? ContextCompat.getColor(mContext, R.color.rowBookColor): ContextCompat.getColor(mContext, R.color.colorTransparent));
 
@@ -101,12 +101,12 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
         public CustomerViewHolder(View itemView) {
             super(itemView);
-            tvStatus = itemView.findViewById(R.id.item_rv_customer_adapter_tv_status);
-            tvNameCustomer = itemView.findViewById(R.id.item_rv_customer_adapter_tv_name_customer);
-            tvAddressCustomer = itemView.findViewById(R.id.item_rv_customer_adapter_tv_address_customer);
-            tvIndexOld = itemView.findViewById(R.id.item_rv_customer_adapter_tv_write_ok);
-            tvIndexNew = itemView.findViewById(R.id.item_rv_customer_adapter_tv_not_write);
-            mView = itemView.findViewById(R.id.item_rv_customer_adapter_rl_row);
+            tvStatus = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_status);
+            tvNameCustomer = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_name_customer);
+            tvAddressCustomer = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_address_customer);
+            tvIndexOld = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_write_ok);
+            tvIndexNew = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_not_write);
+            mView = (RelativeLayout) itemView.findViewById(R.id.item_rv_customer_adapter_rl_row);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

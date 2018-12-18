@@ -49,8 +49,8 @@ import freelancer.gcsnuoc.app.GCSApplication;
 import static android.support.v4.app.ActivityCompat.requestPermissions;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
-import static freelancer.gcsnuoc.database.SqlHelperExamp.DB_NAME;
-import static freelancer.gcsnuoc.database.SqlHelperExamp.PATH_FOLDER_DB;
+import static freelancer.gcsnuoc.database.SqlHelper.DB_NAME;
+import static freelancer.gcsnuoc.database.SqlHelper.PATH_FOLDER_DB;
 
 /**
  * Created by VinhNB on 8/9/2017.
@@ -64,6 +64,8 @@ public class Common {
     public static final String PREF_BOOK = "PREF_BOOK";
     public static final String INTENT_KEY_ID_BOOK = "INTENT_KEY_ID_BOOK";
     public static final int INTENT_REQUEST_KEY_CAMERA = 1113;
+    public static final String PREF_CONFIG = "PREF_CONFIG";
+    public static final String KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM = "KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM";
     private static final String PROGRAM_PHOTOS_PATH = "/ES_GCS_H20/";
     private static final float SIZE_HEIGHT_IMAGE = 600;
 

@@ -1,9 +1,9 @@
 package freelancer.gcsnuoc.login;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -12,22 +12,13 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
 import freelancer.gcsnuoc.bookmanager.BookManagerActivity;
-import freelancer.gcsnuoc.database.GCSH20DAO;
-import freelancer.gcsnuoc.database.SqlHelper;
-import freelancer.gcsnuoc.database.config.ES_GCS_H20;
-import freelancer.gcsnuoc.database.config.TBL_BOOK;
-import freelancer.gcsnuoc.database.config.TBL_CUSTOMER;
-import freelancer.gcsnuoc.database.config.TBL_IMAGE;
+import freelancer.gcsnuoc.database.SqlConnect;
+import freelancer.gcsnuoc.database.SqlDAO;
 import freelancer.gcsnuoc.setting.SettingActivity;
 import freelancer.gcsnuoc.sharepref.baseSharedPref.SharePrefManager;
-import freelancer.gcsnuoc.sharepref.entity.BookActivitySharePref;
-import freelancer.gcsnuoc.sharepref.entity.DetailActivitySharePref;
-import freelancer.gcsnuoc.sharepref.entity.LoginActivitySharePref;
 import freelancer.gcsnuoc.utils.Common;
 
 import static freelancer.gcsnuoc.utils.Log.getInstance;
@@ -40,9 +31,9 @@ public class LoginActivity extends BaseActivity {
     private Button mBtnLogin;
     private ProgressBar mPbarLogin;
     private Bundle savedInstanceState;
-    private GCSH20DAO mSqlDAO;
+    private SQLiteDatabase mDatabase;
+    private SqlDAO mSqlDAO;
     private SharePrefManager mPrefManager;
-    private LoginActivitySharePref loginActivitySharePref;
     private Common.TRIGGER_NEED_ALLOW_PERMISSION mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.NONE;
 
     @Override
@@ -91,8 +82,8 @@ public class LoginActivity extends BaseActivity {
     }
 
     public void clickLoginButton(View view) {
-        if (!validateInput())
-            return;
+//        if (!validateInput())
+//            return;
 
         try {
             callLogin();
@@ -103,11 +94,11 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void callLogin() {
-        
+        startActivity(new Intent(LoginActivity.this, BookManagerActivity.class));
     }
 
     @Override
-    protected void initView() {
+    protected void init() {
         mEtUser = (EditText) findViewById(R.id.ac_login_et_username);
         mEtPass = (EditText) findViewById(R.id.ac_login_et_pass);
         mBtnLogin = (Button) findViewById(R.id.ac_login_btn_login);
@@ -123,25 +114,13 @@ public class LoginActivity extends BaseActivity {
     protected void setAction(Bundle savedInstanceState) throws Exception {
         //setup data
         //create database
-        SqlHelper.setupDB(
-                LoginActivity.this,
-                ES_GCS_H20.class,
-                new Class[]{
-                        TBL_BOOK.class,
-                        TBL_CUSTOMER.class,
-                        TBL_IMAGE.class,
-                });
-
+        mDatabase = SqlConnect.getInstance(this).open();
+        mSqlDAO = new SqlDAO(mDatabase, this);
 
         //call Database access object
-        mSqlDAO = new GCSH20DAO(SqlHelper.getIntance().openDB(), this);
 
         //create shared pref
-        ArrayList<Class<?>> setClassSharedPrefConfig = new ArrayList<Class<?>>();
-        setClassSharedPrefConfig.add(LoginActivitySharePref.class);
-        setClassSharedPrefConfig.add(BookActivitySharePref.class);
-        setClassSharedPrefConfig.add(DetailActivitySharePref.class);
-        mPrefManager = SharePrefManager.getInstance(this, setClassSharedPrefConfig);
+        mPrefManager = SharePrefManager.getInstance(this);
     }
 
     @Override
@@ -150,7 +129,7 @@ public class LoginActivity extends BaseActivity {
 
         try {
             //setup file debug
-            initView();
+            init();
             handleListener();
             setAction(savedInstanceState);
         } catch (Exception e) {
@@ -170,8 +149,18 @@ public class LoginActivity extends BaseActivity {
 //            refreshData();
 
             //filter data
-            loginActivitySharePref = (LoginActivitySharePref) SharePrefManager.getInstance().getSharePref(LoginActivitySharePref.class);
-
+//            mPosPrograme = mPrefManager.getSharePref(PREF_CONFIG, MODE_PRIVATE).
+//                    getInt(KEY_PREF_POS_PROGRAME, 0);
+//            mURLServer = mPrefManager.getSharePref(PREF_CONFIG, MODE_PRIVATE).
+//                    getString(KEY_PREF_SERVER_URL, "");
+//            mPosDvi = mPrefManager.getSharePref(PREF_CONFIG, MODE_PRIVATE).
+//                    getInt(KEY_PREF_POS_DVI, 0);
+//            mUser = mPrefManager.getSharePref(PREF_CONFIG, MODE_PRIVATE).
+//                    getString(KEY_PREF_USER, "");
+//            mPass = mPrefManager.getSharePref(PREF_CONFIG, MODE_PRIVATE).
+//                    getString(KEY_PREF_PASS, "");
+//            mIsCbSaveChecked = mPrefManager.getSharePref(PREF_CONFIG, MODE_PRIVATE).
+//                    getBoolean(KEY_PREF_CB_SAVE, false);
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());

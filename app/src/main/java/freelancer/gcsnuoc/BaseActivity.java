@@ -34,7 +34,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     }
 
-    protected abstract void initView();
+    protected abstract void init() throws Exception;
 
     protected abstract void handleListener() throws Exception;
 

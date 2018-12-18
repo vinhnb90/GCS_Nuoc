@@ -39,7 +39,7 @@ public class SettingActivity extends BaseActivity {
 
         try {
             //setup file debug
-            initView();
+            init();
             handleListener();
             setAction(savedInstanceState);
         } catch (Exception e) {
@@ -53,7 +53,7 @@ public class SettingActivity extends BaseActivity {
     }
 
     @Override
-    protected void initView() {
+    protected void init() {
         mEtURL = (EditText) findViewById(R.id.ac_setting_et_url);
         mEtPort = (EditText) findViewById(R.id.ac_setting_et_port);
 
@@ -83,6 +83,16 @@ public class SettingActivity extends BaseActivity {
         loadSettingData();
         //fill data
         fillSettingData();
+    }
+
+    @Override
+    protected void doTaskOnCreate() {
+
+    }
+
+    @Override
+    protected void doTaskOnResume() {
+
     }
 
     private void fillSettingData() {

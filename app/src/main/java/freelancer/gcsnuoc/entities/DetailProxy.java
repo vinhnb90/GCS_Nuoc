@@ -37,7 +37,7 @@ public class DetailProxy extends CursorItemProxy{
         if (mImageItem.getID() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String ID = SqlQuery.TBL_IMAGE.ID.getNameCollumn();
+            String ID = SqlQuery.TBL_IMAGE.ID_TBL_IMAGE.getNameCollumn();
             mImageItem.setID(cursor.getInt(cursor.getColumnIndex(ID)));
         }
         return mImageItem.getID();
@@ -110,7 +110,7 @@ public class DetailProxy extends CursorItemProxy{
         if (mCustomerItem.getID() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String ID = SqlQuery.TBL_CUSTOMER.ID.getNameCollumn();
+            String ID = SqlQuery.TBL_CUSTOMER.ID_TBL_CUSTOMER.getNameCollumn();
             mCustomerItem.setID(cursor.getInt(cursor.getColumnIndex(ID)));
         }
         return mCustomerItem.getID();
@@ -147,7 +147,7 @@ public class DetailProxy extends CursorItemProxy{
     }
 
     public CustomerItem.STATUS_Customer getStatusCustomerOfTBL_CUSTOMER() {
-        if (TextUtils.isEmpty(mCustomerItem.getStatusCustomer().getStatus())) {
+        if (mCustomerItem.getStatusCustomer() == null) {
 
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());

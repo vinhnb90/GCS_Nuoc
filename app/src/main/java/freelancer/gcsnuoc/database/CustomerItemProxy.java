@@ -20,7 +20,7 @@ public class CustomerItemProxy extends CursorItemProxy {
         if (mCustomerItem.getID() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String ID = SqlQuery.TBL_CUSTOMER.ID.getNameCollumn();
+            String ID = SqlQuery.TBL_CUSTOMER.ID_TBL_CUSTOMER.getNameCollumn();
             mCustomerItem.setID(cursor.getInt(cursor.getColumnIndex(ID)));
         }
         return mCustomerItem.getID();
@@ -57,7 +57,7 @@ public class CustomerItemProxy extends CursorItemProxy {
     }
 
     public CustomerItem.STATUS_Customer getStatusCustomer() {
-        if (TextUtils.isEmpty(mCustomerItem.getStatusCustomer().getStatus())) {
+        if (mCustomerItem.getStatusCustomer() == null) {
 
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());

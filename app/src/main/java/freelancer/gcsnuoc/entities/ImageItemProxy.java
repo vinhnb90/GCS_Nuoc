@@ -18,7 +18,7 @@ public class ImageItemProxy extends CursorItemProxy {
         if (mImageItem.getID() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String ID = SqlQuery.TBL_IMAGE.ID.getNameCollumn();
+            String ID = SqlQuery.TBL_IMAGE.ID_TBL_IMAGE.getNameCollumn();
             mImageItem.setID(cursor.getInt(cursor.getColumnIndex(ID)));
         }
         return mImageItem.getID();

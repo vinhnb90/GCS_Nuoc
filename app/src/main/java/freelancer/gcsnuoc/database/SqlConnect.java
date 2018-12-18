@@ -7,17 +7,16 @@ import android.database.sqlite.SQLiteDatabase;
  * Created by VinhNB on 8/8/2017.
  */
 
-@Deprecated
 public class SqlConnect {
 
     private static SqlConnect sInstance;
     private int mOpenCounter;
 
-    private SqlHelperExamp mSqlHelperExamp;
+    private SqlHelper mSqlHelper;
     private SQLiteDatabase mSqLiteDatabase;
 
     private SqlConnect(Context context) {
-        mSqlHelperExamp = new SqlHelperExamp(context);
+        mSqlHelper = new SqlHelper(context);
     }
 
 
@@ -30,7 +29,7 @@ public class SqlConnect {
 
     public synchronized SQLiteDatabase open() {
         if (mOpenCounter == 0) {
-            mSqLiteDatabase = mSqlHelperExamp.getWritableDatabase();
+            mSqLiteDatabase = mSqlHelper.getWritableDatabase();
         }
         mOpenCounter++;
         return mSqLiteDatabase;
