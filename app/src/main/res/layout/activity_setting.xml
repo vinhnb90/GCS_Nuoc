@@ -4,80 +4,206 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
     android:orientation="vertical"
+
     tools:context=".setting.SettingActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="SETTING" />
-
-    <EditText
-        android:id="@+id/ac_setting_et_url"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="url" />
+        android:layout_marginLeft="@dimen/_16sdp"
+        android:layout_marginRight="@dimen/_16sdp"
+        android:background="@color/etColorBackground">
 
-    <EditText
-        android:id="@+id/ac_setting_et_port"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="port" />
+        <LinearLayout
+            android:id="@+id/ac_login_ll3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ac_login_ll2"
+            android:background="@drawable/xml_et_bottom_border"
+            android:orientation="vertical">
 
-    <RadioButton
-        android:id="@+id/ac_setting_radio_percent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="cau hinh san luong theo %" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_8sdp"
+                android:text="Đường dẫn máy chủ"
+                android:textColor="@color/barColorText"
+                android:textSize="@dimen/_8sdp" />
+
+            <EditText
+                android:id="@+id/ac_setting_et_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_8sdp"
+                android:background="@null"
+                android:hint="Nhập đường dẫn máy chủ"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingBottom="@dimen/_8sdp"
+                android:textColorHint="@color/barColorText"
+                android:textSize="@dimen/_10sdp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/_16sdp"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:layout_marginRight="@dimen/_16sdp"
+        android:background="@color/etColorBackground">
 
-        <TextView
-            android:id="@+id/ac_setting_tv_percent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="10%" />
-
-        <SeekBar
-            android:id="@+id/ac_setting_seek_percent"
+        <LinearLayout
+            android:id="@+id/ac_login_ll4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/ac_setting_tv_percent" />
-    </RelativeLayout>
+            android:layout_below="@+id/ac_login_ll2"
+            android:background="@drawable/xml_et_bottom_border"
+            android:orientation="vertical">
 
-    <RadioButton
-        android:id="@+id/ac_setting_radio_detail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="cau hinh san luong theo so m3" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_8sdp"
+                android:text="Cổng"
+                android:textColor="@color/barColorText"
+                android:textSize="@dimen/_8sdp" />
+
+            <EditText
+                android:id="@+id/ac_setting_et_port"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/_8sdp"
+                android:background="@null"
+                android:hint="Nhập cổng"
+                android:paddingTop="@dimen/_8sdp"
+                android:paddingBottom="@dimen/_8sdp"
+                android:textColorHint="@color/barColorText"
+                android:textSize="@dimen/_10sdp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:background="@drawable/xml_corner_top"
+        android:padding="@dimen/_16sdp">
 
-        <TextView
-            android:id="@+id/ac_setting_tv_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:text="m3" />
-
-        <EditText
-            android:hint="Nhập giới hạn"
-            android:id="@+id/ac_setting_et_max"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/ac_setting_tv_number" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_marginBottom="@dimen/_24sdp">
+
+            <Button
+                android:id="@+id/ac_setting_btn_save"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_24sdp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="@dimen/_16sdp"
+                android:background="@drawable/xml_button_corner_left"
+                android:gravity="right|center_vertical"
+                android:onClick="clickButtonSave"
+                android:paddingRight="@dimen/_5sdp"
+                android:text="Lưu cấu hình"
+                android:textColor="@color/barColorText"
+                android:textSize="@dimen/_7sdp" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@id/ac_setting_tv1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cấu hình sản lượng" />
+
+        <View
+            android:id="@+id/ac_setting_v1"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_1sdp"
+            android:layout_below="@+id/ac_setting_tv1"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:background="@color/pbarBorderColor"></View>
+
+        <RadioButton
+            android:id="@+id/ac_setting_radio_percent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ac_setting_v1"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:paddingLeft="@dimen/_8sdp"
+            android:text="Cấu hình cảnh báo sản lượng theo %" />
+
+        <RelativeLayout
+            android:id="@+id/ac_setting_rl1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ac_setting_radio_percent"
+            android:layout_marginLeft="@dimen/_24sdp"
+            android:layout_marginTop="@dimen/_8sdp">
+
+            <TextView
+                android:id="@+id/ac_setting_tv_percent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="10%" />
+
+            <SeekBar
+                android:id="@+id/ac_setting_seek_percent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/ac_setting_tv_percent" />
+        </RelativeLayout>
+
+
+        <RadioButton
+            android:id="@+id/ac_setting_radio_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ac_setting_rl1"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:text="Cấu hình cảnh báo sản lượng theo m3" />
+
+        <RelativeLayout
+            android:id="@+id/ac_setting_rl2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ac_setting_radio_detail"
+            android:layout_marginLeft="@dimen/_24sdp"
+            android:layout_marginTop="@dimen/_8sdp">
+
+            <TextView
+                android:id="@+id/ac_setting_tv_m3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:text="m3" />
+
+            <EditText
+                android:id="@+id/ac_setting_et_max"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_6sdp"
+                android:layout_marginRight="@dimen/_8sdp"
+                android:layout_toLeftOf="@id/ac_setting_tv_m3"
+                android:background="@drawable/xml_border_full_type3"
+                android:hint="Nhập giới hạn cảnh báo"
+                android:padding="@dimen/_8sdp"
+                android:textSize="@dimen/_10sdp" />
+
+        </RelativeLayout>
+
+
     </RelativeLayout>
 
 
-    <Button
-        android:id="@+id/ac_setting_btn_save"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="clickButtonSave"
-        android:text="Click SAVE" />
 </LinearLayout>

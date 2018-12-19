@@ -1,25 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimary">#e21ae5</color>
     <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="colorAccent">@android:color/holo_red_light</color>
     <color name="colorTransparent">@android:color/transparent</color>
 
+    <!--login-->
+
+    <!--setting-->
+    <color name="etColorBackground">#995dff</color>
 
     <!--bottom bar menu-->
     <color name="barColorWhenSelected">@android:color/white</color>
     <color name="barColorBackground">@android:color/white</color>
     <color name="barColorText">@android:color/white</color>
 
+
     <!--row book-->
     <color name="rowBookColor">@android:color/holo_green_light</color>
-
+    <color name="rowBookColorNomarl">#a5f494</color>
     <!--download-->
     <color name="pbarColor">#FF5722</color>
     <color name="pbarBorderColor">#50000000</color>
 
     <!--common-->
     <color name="buttonColor">#FF5722</color>
+    <color name="buttonColor2">#f2b03e</color>
 
 
 

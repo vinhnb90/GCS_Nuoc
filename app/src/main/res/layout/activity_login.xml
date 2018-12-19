@@ -1,45 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:paddingLeft="@dimen/_20sdp"
+    android:paddingRight="@dimen/_20sdp"
     tools:context=".login.LoginActivity">
 
+
     <TextView
-        android:text="LOGIN"
+        android:id="@+id/ac_login_tv_version"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/_20sdp"
+        android:text="Phiên bản 1.0"
+        android:textColor="@color/colorPrimary"
+        android:textSize="@dimen/_8sdp" />
 
-    <Button
-        android:id="@+id/ac_login_btn_setting"
-        android:onClick="clickSettingButton"
-        android:text="Click setting"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        android:layout_above="@+id/ac_login_tv_version">
 
-    <EditText
-        android:id="@+id/ac_login_et_username"
-        android:hint="user name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <EditText
-        android:id="@+id/ac_login_et_pass"
-        android:hint="password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+            <LinearLayout
+                android:id="@+id/ac_login_ll1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_32sdp"
+                android:layout_marginBottom="@dimen/_48sdp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
 
-    <Button
-        android:id="@+id/ac_login_btn_login"
-        android:onClick="clickLoginButton"
-        android:text="Click LOGIN"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+                <ImageButton
+                    android:id="@+id/ac_login_iv1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/xml_button_cricle"
+                    android:clickable="false"
+                    android:elevation="@dimen/_10sdp" />
 
-    <ProgressBar
-        android:id="@+id/ac_login_pbar_loading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/ac_login_iv1"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/_16sdp"
+                    android:text="GHI CHỈ SỐ NƯỚC"
+                    android:textSize="@dimen/_20sdp" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/ac_login_btn_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_24sdp"
+                android:layout_below="@+id/ac_login_ll1"
+                android:background="@drawable/xml_button_corner_right"
+                android:gravity="left|center_vertical"
+                android:onClick="clickSettingButton"
+                android:paddingLeft="@dimen/_5sdp"
+                android:text="Cấu hình"
+                android:textColor="@color/barColorText"
+                android:textSize="@dimen/_7sdp"
+                android:elevation="@dimen/_2sdp"
+                android:translationZ="@dimen/_2sdp" />
+
+
+            <LinearLayout
+                android:id="@+id/ac_login_ll2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ac_login_btn_setting"
+                android:layout_marginTop="@dimen/_16sdp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tài khoản"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/_8sdp" />
+
+                <EditText
+                    android:id="@+id/ac_login_et_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_6sdp"
+                    android:background="@drawable/xml_border_full_type3"
+                    android:hint="Nhập tài khoản"
+                    android:padding="@dimen/_8sdp"
+                    android:textSize="@dimen/_10sdp" />
+
+                <TextView
+                    android:id="@+id/ac_login_tv_error_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:text="Vui lòng kiểm tra lại!"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/_6sdp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ac_login_ll3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ac_login_ll2"
+                android:layout_marginTop="@dimen/_16sdp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mật khẩu"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/_8sdp" />
+
+                <EditText
+                    android:id="@+id/ac_login_et_pass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_6sdp"
+                    android:background="@drawable/xml_border_full_type3"
+                    android:hint="Nhập mật khẩu"
+                    android:padding="@dimen/_8sdp"
+                    android:textSize="@dimen/_10sdp" />
+
+                <TextView
+                    android:id="@+id/ac_login_tv_error_pass"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:text="Vui lòng kiểm tra lại!"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="@dimen/_6sdp" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ac_login_ll3"
+                android:layout_marginTop="@dimen/_16sdp">
+
+                <Button
+                    android:id="@+id/ac_login_btn_login"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_24sdp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="@dimen/_16sdp"
+                    android:background="@drawable/xml_button_corner_left"
+                    android:gravity="right|center_vertical"
+                    android:onClick="clickLoginButton"
+                    android:paddingRight="@dimen/_5sdp"
+                    android:text="ĐĂNG NHẬP"
+                    android:elevation="@dimen/_2sdp"
+                    android:translationZ="@dimen/_2sdp"
+                    android:textColor="@color/barColorText"
+                    android:textSize="@dimen/_7sdp" />
+
+                <ProgressBar
+                    android:id="@+id/ac_login_pbar_loading"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:layout_toLeftOf="@+id/ac_login_btn_login" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+    </ScrollView>
+
+
+</RelativeLayout>

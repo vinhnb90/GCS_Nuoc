@@ -1,6 +1,7 @@
 package freelancer.gcsnuoc.bookmanager;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -8,8 +9,8 @@ import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -29,10 +30,18 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
     private Context mContext;
     private IBookAdapterCallback mIBookAdapterCallback;
     private List<BookItemProxy> mList = new ArrayList<>();
+    private static Drawable sDrawableUnChecked, sDrawableChecked;
 
     public BooksAdapter(Context context, @NonNull IBookAdapterCallback bookAdapterCallback) {
         mContext = context;
         mIBookAdapterCallback = bookAdapterCallback;
+
+        if (sDrawableUnChecked == null) {
+            sDrawableUnChecked = ContextCompat.getDrawable(mContext, R.drawable.xml_button_cricle_checkbox);
+        }
+        if (sDrawableChecked == null) {
+            sDrawableChecked = ContextCompat.getDrawable(mContext, R.drawable.xml_button_cricle_checkbox_2);
+        }
     }
 
     public void setList(List<BookItemProxy> list) {
@@ -65,19 +74,19 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
             @Override
             public void run() {
                 BookItemProxy bookItemProxy = mList.get(position);
-                holder.cbChoose.setVisibility(View.VISIBLE);
-                holder.cbChoose.setChecked(bookItemProxy.isChoose());
+                holder.ibtnChoose.setVisibility(View.VISIBLE);
+                holder.ibtnChoose.setImageResource(bookItemProxy.isChoose()? R.drawable.xml_button_cricle_checkbox: R.drawable.xml_button_cricle_checkbox_2);
                 switch (bookItemProxy.getStatusBook()) {
                     case UPLOADED:
                         holder.tvStatus.setText(UPLOADED.getStatus());
-                        holder.cbChoose.setVisibility(View.INVISIBLE);
+                        holder.ibtnChoose.setVisibility(View.INVISIBLE);
                         break;
                     case WRITED:
                         holder.tvStatus.setText(BookItem.STATUS_BOOK.WRITED.getStatus());
                         break;
                     case NON_WRITING:
                         holder.tvStatus.setText(BookItem.STATUS_BOOK.NON_WRITING.getStatus());
-                        holder.cbChoose.setVisibility(View.INVISIBLE);
+                        holder.ibtnChoose.setVisibility(View.INVISIBLE);
                         break;
                 }
 
@@ -100,13 +109,13 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
 
     public class BookViewHolder extends ViewHolder {
         public TextView tvStatus, tvNameBook, tvWriteOk, tvNotWriteOK;
-        public CheckBox cbChoose;
+        public ImageButton ibtnChoose;
         public RelativeLayout mView;
 
         public BookViewHolder(View itemView) {
             super(itemView);
             tvStatus = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_status);
-            cbChoose = (CheckBox) itemView.findViewById(R.id.item_rv_book_adapter_cb_choose);
+            ibtnChoose = (ImageButton) itemView.findViewById(R.id.item_rv_book_adapter_ibtn_choose);
             tvNameBook = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_name_book);
             tvWriteOk = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_write_ok);
             tvNotWriteOK = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_not_write);
@@ -119,12 +128,10 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
                 }
             });
 
-            cbChoose.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            ibtnChoose.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (buttonView.isPressed()) {
-                        mIBookAdapterCallback.clickCbChoose(getAdapterPosition(), isChecked);
-                    }
+                public void onClick(View v) {
+                    mIBookAdapterCallback.clickCbChoose(getAdapterPosition(), !mList.get(getAdapterPosition()).isChoose());
                 }
             });
         }
