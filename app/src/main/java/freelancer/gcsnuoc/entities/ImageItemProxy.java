@@ -55,26 +55,6 @@ public class ImageItemProxy extends CursorItemProxy {
         return mImageItem.getLOCAL_URI();
     }
 
-    public int getOLD_INDEX() {
-        if (mImageItem.getOLD_INDEX() == 0) {
-            Cursor cursor = getmCursor();
-            cursor.moveToPosition(getmIndex());
-            String OLD_INDEX = SqlQuery.TBL_IMAGE.OLD_INDEX.getNameCollumn();
-            mImageItem.setOLD_INDEX(cursor.getInt(cursor.getColumnIndex(OLD_INDEX)));
-        }
-        return mImageItem.getOLD_INDEX();
-    }
-
-    public int getNEW_INDEX() {
-        if (mImageItem.getNEW_INDEX() == 0) {
-            Cursor cursor = getmCursor();
-            cursor.moveToPosition(getmIndex());
-            String NEW_INDEX = SqlQuery.TBL_IMAGE.NEW_INDEX.getNameCollumn();
-            mImageItem.setNEW_INDEX(cursor.getInt(cursor.getColumnIndex(NEW_INDEX)));
-        }
-        return mImageItem.getNEW_INDEX();
-    }
-
     public String getCREATE_DAY() {
         if (TextUtils.isEmpty(mImageItem.getCREATE_DAY())) {
             Cursor cursor = getmCursor();

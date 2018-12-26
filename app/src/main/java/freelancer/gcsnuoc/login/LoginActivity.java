@@ -198,7 +198,7 @@ public class LoginActivity extends BaseActivity {
                                 session.setID_TABLE_SESSION(mSqlDAO.insertTBL_SESSION(session));
 
                                 Intent inent = new Intent(LoginActivity.this, BookManagerActivity.class);
-                                inent.putExtra(Common.INTENT_KEY_MANHANVIEN, result.getData());
+                                inent.putExtra(Common.INTENT_KEY_MANHANVIEN, String.valueOf(result.getData()));
                                 inent.putExtra(Common.INTENT_KEY_USER, userName);
                                 inent.putExtra(Common.INTENT_KEY_PASS, pass);
                                 startActivity(inent);
@@ -228,7 +228,7 @@ public class LoginActivity extends BaseActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mPbarLogin.setVisibility(isVisible ? View.INVISIBLE : View.INVISIBLE);
+                mPbarLogin.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
             }
         });
     }

@@ -91,6 +91,7 @@
                     android:textSize="@dimen/_8sdp" />
 
                 <EditText
+                    android:text="nv01"
                     android:lines="1"
                     android:maxLines="1"
                     android:scrollHorizontally="true"
@@ -129,6 +130,7 @@
                     android:textSize="@dimen/_8sdp" />
 
                 <EditText
+                    android:text="123456"
                     android:inputType="textPassword"
                     android:lines="1"
                     android:maxLines="1"

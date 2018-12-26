@@ -2,7 +2,12 @@
 <tabs>
     <tab
         barColorWhenSelected="@color/barColorWhenSelected"
-        icon="@drawable/outline_backup_black_18"
+        icon="@drawable/ic_list"
+        id="@+id/nav_bot_list"
+        title="Danh sách sổ" />
+    <tab
+        barColorWhenSelected="@color/barColorWhenSelected"
+        icon="@drawable/ic_download"
         id="@+id/nav_bot_download"
         title="Tải về" />
     <tab
@@ -12,7 +17,7 @@
         title="Lọc khách hàng chưa ghi" />
     <tab
         barColorWhenSelected="@color/barColorWhenSelected"
-        icon="@drawable/outline_backup_black_18"
+        icon="@drawable/ic_upload"
         id="@+id/nav_bot_upload"
         title="Đẩy lên" />
 </tabs>

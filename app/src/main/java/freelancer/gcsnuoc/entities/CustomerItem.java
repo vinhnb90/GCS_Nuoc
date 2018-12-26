@@ -8,12 +8,20 @@ public class CustomerItem implements Cloneable{
     private STATUS_Customer mStatusCustomer;
     private boolean mIsFocus;
 
-    public CustomerItem(int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus) {
+    //other
+    private double mNewIndex;
+    private double mOldIndex;
+    private String MA_NVIEN;
+
+    public CustomerItem(int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, int newIndex, int oldIndex, String MA_NVIEN) {
         this.IDBook = IDBook;
         mCustomerName = customerName;
         mCustomerAddress = customerAddress;
         mStatusCustomer = statusCustomer;
         mIsFocus = isFocus;
+        mNewIndex = newIndex;
+        mOldIndex = oldIndex;
+        this.MA_NVIEN = MA_NVIEN;
     }
 
     public CustomerItem() {
@@ -59,6 +67,14 @@ public class CustomerItem implements Cloneable{
         mIsFocus = focus;
     }
 
+    public String getMA_NVIEN() {
+        return MA_NVIEN;
+    }
+
+    public void setMA_NVIEN(String MA_NVIEN) {
+        this.MA_NVIEN = MA_NVIEN;
+    }
+
     public enum STATUS_Customer {
         UPLOADED("ĐÃ GỬI"),
         WRITED("ĐÃ GHI"),
@@ -90,6 +106,22 @@ public class CustomerItem implements Cloneable{
 
     public void setCustomerAddress(String customerAddress) {
         mCustomerAddress = customerAddress;
+    }
+
+    public double getNewIndex() {
+        return mNewIndex;
+    }
+
+    public void setNewIndex(double newIndex) {
+        mNewIndex = newIndex;
+    }
+
+    public double getOldIndex() {
+        return mOldIndex;
+    }
+
+    public void setOldIndex(double oldIndex) {
+        mOldIndex = oldIndex;
     }
 
     @Override

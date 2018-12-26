@@ -14,6 +14,7 @@ import freelancer.gcsnuoc.entities.BookItemProxy;
 import freelancer.gcsnuoc.entities.CustomerItem;
 import freelancer.gcsnuoc.entities.DetailProxy;
 import freelancer.gcsnuoc.entities.ImageItem;
+import freelancer.gcsnuoc.entities.ImageItemProxy;
 import freelancer.gcsnuoc.entities.SESSION;
 import freelancer.gcsnuoc.utils.Common;
 
@@ -87,11 +88,11 @@ public class SqlDAO {
     //endregion
 
     //region TBL_BOOK
-    public int getNumberRowTBL_BOOK() throws Exception {
+    public int getNumberRowTBL_BOOK(String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
-        String[] args = build();
+        String[] args = build(MA_NVIEN);
 
         Cursor cursor = mSqLiteDatabase.rawQuery(getSelectTBL_BOOK(), args);
         if (cursor != null) {
@@ -111,7 +112,9 @@ public class SqlDAO {
                 bookItem.getCustomerNotWrite(),
                 bookItem.getPeriod(),
                 String.valueOf(bookItem.isFocus()),
-                String.valueOf(bookItem.isChoose())
+                String.valueOf(bookItem.isChoose()),
+                bookItem.getMA_NVIEN(),
+                bookItem.getCODE()
         );
 
         mSqLiteDatabase.execSQL(getInsertTBL_BOOK(), args);
@@ -130,23 +133,23 @@ public class SqlDAO {
         mSqLiteDatabase.execSQL(getUpdateChooseTBL_BOOK(), args);
     }
 
-    public void updateFocusTBL_BOOK(int ID) throws Exception {
+    public void updateFocusTBL_BOOK(int ID, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
-                ID
+                ID,
+                MA_NVIEN
         );
 
         mSqLiteDatabase.execSQL(getUpdateFocusTBL_BOOK(), args);
     }
 
-
-    public List<BookItemProxy> selectAllTBL_BOOK() throws Exception {
+    public List<BookItemProxy> selectAllTBL_BOOK(String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
-        String[] args = SqlDAO.build();
+        String[] args = SqlDAO.build(MA_NVIEN);
         List<BookItemProxy> bookItemProxies = new ArrayList<>();
 
         Cursor cursor = null;
@@ -167,13 +170,49 @@ public class SqlDAO {
             closeCursor(cursor);
         return bookItemProxies;
     }
+
+    public void updateResetFocusTBL_BOOK(String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getUpdateResetFocusTBL_BOOK(), args);
+    }
+
+    public void deleteAllRowTBL_BOOK(String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowTBL_BOOK(), args);
+    }
+
+    public void updateCUS_WRITEDOfTBL_BOOK(int CUS_WRITED, int ID, String MA_NVIEN, boolean isCUS_WRITED) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                ID,
+                CUS_WRITED,
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getUpdateCUS_WRITEDOfTBL_BOOK(isCUS_WRITED), args);
+
+    }
     //endregion
 
     //region TBL_CUSTOMER
-    public int getNumberRowTBL_CUSTOMER(int ID_TBL_BOOK_OF_CUSTOMER) throws Exception {
+    public int getNumberRowTBL_CUSTOMER(int ID_TBL_BOOK_OF_CUSTOMER, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
-        String[] args = SqlDAO.build(ID_TBL_BOOK_OF_CUSTOMER);
+        String[] args = SqlDAO.build(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 
         Cursor cursor = mSqLiteDatabase.rawQuery(getSelectTBL_CUSTOMER(), args);
         if (cursor != null) {
@@ -191,44 +230,50 @@ public class SqlDAO {
                 customerItem.getCustomerName(),
                 customerItem.getCustomerAddress(),
                 customerItem.getStatusCustomer().getStatus(),
-                String.valueOf(customerItem.isFocus())
+                String.valueOf(customerItem.isFocus()),
+                customerItem.getOldIndex(),
+                customerItem.getNewIndex(),
+                customerItem.getMA_NVIEN()
         );
         mSqLiteDatabase.execSQL(getInsertTBL_CUSTOMER(), args);
         return this.getIDLastRow(TBL_CUSTOMER.getName(), TBL_CUSTOMER.ID_TBL_CUSTOMER.name());
     }
 
 
-    public void updateFocusTBL_CUSTOMER(int ID_TBL_CUSTOMER, boolean isFocus) throws Exception {
+    public void updateFocusTBL_CUSTOMER(int ID_TBL_CUSTOMER, boolean isFocus, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
                 isFocus,
-                ID_TBL_CUSTOMER
+                ID_TBL_CUSTOMER,
+                MA_NVIEN
         );
 
         mSqLiteDatabase.execSQL(getUpdateFocusTBL_CUSTOMER(), args);
     }
 
-    public void updateStatusTBL_CUSTOMER(int ID_TBL_CUSTOMER, CustomerItem.STATUS_Customer statusCustomer) throws Exception {
+    public void updateStatusTBL_CUSTOMER(int ID_TBL_CUSTOMER, CustomerItem.STATUS_Customer statusCustomer, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
                 statusCustomer.getStatus(),
-                ID_TBL_CUSTOMER
+                ID_TBL_CUSTOMER,
+                MA_NVIEN
         );
 
         mSqLiteDatabase.execSQL(getUpdateStatusTBL_CUSTOMER(), args);
     }
 
-    public void updateNEW_INDEXOfTBL_CUSTOMER(int ID_TBL_CUSTOMER, int NEW_INDEX) throws FileNotFoundException {
+    public void updateNEW_INDEXOfTBL_CUSTOMER(int ID_TBL_CUSTOMER, int NEW_INDEX, String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
                 NEW_INDEX,
-                ID_TBL_CUSTOMER
+                ID_TBL_CUSTOMER,
+                MA_NVIEN
         );
 
         mSqLiteDatabase.execSQL(SqlQuery.getUpdateNEW_INDEXOfTBL_CUSTOMER(), args);
@@ -261,81 +306,29 @@ public class SqlDAO {
             closeCursor(cursor);
         return CustomerItemProxies;
     }
-    //endregion
 
-    //region IMAGE
-    public void deleteIMAGE(int ID_TBL_IMAGE) throws FileNotFoundException {
+    public int getNumberRowWritedTBL_CUSTOMER(String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
-                ID_TBL_IMAGE
-        );
+                MA_NVIEN,
+                CustomerItem.STATUS_Customer.WRITED.getStatus());
 
-        mSqLiteDatabase.execSQL(SqlQuery.getDeleteIMAGE(), args);
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectNotUploadTBL_CUSTOMER(), args);
+        if (cursor != null) {
+            return cursor.getCount();
+        }
+        return 0;
     }
 
-    public int insertTBL_IMAGE(ImageItem imageItem) throws Exception {
+    public void updateResetFocusTBL_CUSTOMER(String MA_NVIEN, int ID_TBL_BOOK_OF_CUSTOMER) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
-                imageItem.getID_TBL_CUSTOMER(),
-                imageItem.getNAME(),
-                imageItem.getLOCAL_URI(),
-                String.valueOf(imageItem.getOLD_INDEX()),
-                String.valueOf(imageItem.getNEW_INDEX()),
-                imageItem.getCREATE_DAY()
-        );
-
-        mSqLiteDatabase.execSQL(getInsertTBL_IMAGE(), args);
-        return this.getIDLastRow(TBL_IMAGE.getName(), TBL_IMAGE.ID_TBL_IMAGE.name());
-    }
-    //endregion
-
-    //region DetailProxy
-    public List<DetailProxy> getSelectAllDetailProxy(int ID_TBL_BOOK_OF_CUSTOMER) throws Exception {
-        if (!Common.isExistDB())
-            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
-        String[] args = SqlDAO.build(
+                MA_NVIEN,
                 ID_TBL_BOOK_OF_CUSTOMER
-        );
-
-        List<DetailProxy> CustomerItemProxies = new ArrayList<>(ID_TBL_BOOK_OF_CUSTOMER);
-
-        Cursor cursor = null;
-        cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectAllDetailProxy(), args);
-        if (cursor == null) {
-            Log.d(TAG, "getAllCongTo: null cursor");
-            return CustomerItemProxies;
-        }
-
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            CustomerItemProxies.add(new DetailProxy(cursor, cursor.getPosition()));
-            cursor.moveToNext();
-        }
-
-        if (CustomerItemProxies.isEmpty())
-            closeCursor(cursor);
-        return CustomerItemProxies;
-    }
-
-    public void updateResetFocusTBL_BOOK() throws FileNotFoundException {
-        if (!Common.isExistDB())
-            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
-
-        String[] args = SqlDAO.build(
-        );
-
-        mSqLiteDatabase.execSQL(SqlQuery.getUpdateResetFocusTBL_BOOK(), args);
-    }
-
-    public void updateResetFocusTBL_CUSTOMER() throws FileNotFoundException {
-        if (!Common.isExistDB())
-            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
-
-        String[] args = SqlDAO.build(
         );
 
         mSqLiteDatabase.execSQL(SqlQuery.getUpdateResetFocusTBL_CUSTOMER(), args);
@@ -366,6 +359,135 @@ public class SqlDAO {
         return ID_TBL_CUSTOMER;
     }
 
+    public void deleteAllRowTBL_CUSTOMER(String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowTBL_CUSTOMER(), args);
+    }
+
+
+    public int countAllByStatusTBL_CUSTOMER(int ID_TBL_BOOK_OF_CUSTOMER, String MA_NVIEN, CustomerItem.STATUS_Customer statusCustomer) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = build(MA_NVIEN, statusCustomer.getStatus(), ID_TBL_BOOK_OF_CUSTOMER);
+
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectTBL_CUSTOMERbyStatus(), args);
+        if (cursor != null) {
+            return cursor.getCount();
+        }
+        return 0;
+    }
+
+    //endregion
+
+    //region IMAGE
+    public void deleteIMAGE(int ID_TBL_IMAGE) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                ID_TBL_IMAGE
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getDeleteIMAGE(), args);
+    }
+
+    public int insertTBL_IMAGE(ImageItem imageItem, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                imageItem.getID_TBL_CUSTOMER(),
+                imageItem.getNAME(),
+                imageItem.getLOCAL_URI(),
+                imageItem.getCREATE_DAY()
+        );
+
+        mSqLiteDatabase.execSQL(getInsertTBL_IMAGE(), args);
+        return this.getIDLastRow(TBL_IMAGE.getName(), TBL_IMAGE.ID_TBL_IMAGE.name());
+    }
+
+    public List<ImageItemProxy> selectAllTBL_IMAGE(String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(MA_NVIEN);
+        List<ImageItemProxy> imageItemProxies = new ArrayList<>();
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(getSelectAllTBL_IMAGE(), args);
+
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return imageItemProxies;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            imageItemProxies.add(new ImageItemProxy(cursor, cursor.getPosition()));
+            cursor.moveToNext();
+        }
+
+        if (imageItemProxies.isEmpty())
+            closeCursor(cursor);
+        return imageItemProxies;
+    }
+
+    public static String getSelectAllTBL_IMAGE() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_IMAGE.getName() +
+                " WHERE " +
+                TBL_IMAGE.MA_NVIEN +
+                " = ?";
+    }
+
+    public void deleteAllRowTBL_IMAGE(String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowTBL_IMAGE(), args);
+    }
+    //endregion
+
+    //region DetailProxy
+    public List<DetailProxy> getSelectAllDetailProxy(int ID_TBL_BOOK_OF_CUSTOMER, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                ID_TBL_BOOK_OF_CUSTOMER
+        );
+
+        List<DetailProxy> CustomerItemProxies = new ArrayList<>(ID_TBL_BOOK_OF_CUSTOMER);
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectAllDetailProxy(), args);
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return CustomerItemProxies;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            CustomerItemProxies.add(new DetailProxy(cursor, cursor.getPosition()));
+            cursor.moveToNext();
+        }
+
+        if (CustomerItemProxies.isEmpty())
+            closeCursor(cursor);
+        return CustomerItemProxies;
+    }
 
     //endregion
 }

@@ -5,16 +5,12 @@ public class ImageItem implements Cloneable{
     private int ID_TBL_CUSTOMER;
     private String NAME;
     private String mLOCAL_URI;
-    private int OLD_INDEX;
-    private int NEW_INDEX;
     private String CREATE_DAY;
 
-    public ImageItem(int ID_TBL_CUSTOMER, String NAME, String LOCAL_URI, int OLD_INDEX, int NEW_INDEX, String CREATE_DAY) {
+    public ImageItem(int ID_TBL_CUSTOMER, String NAME, String LOCAL_URI, String CREATE_DAY) {
         this.ID_TBL_CUSTOMER = ID_TBL_CUSTOMER;
         this.NAME = NAME;
         mLOCAL_URI = LOCAL_URI;
-        this.OLD_INDEX = OLD_INDEX;
-        this.NEW_INDEX = NEW_INDEX;
         this.CREATE_DAY = CREATE_DAY;
     }
 
@@ -51,22 +47,6 @@ public class ImageItem implements Cloneable{
 
     public void setLOCAL_URI(String LOCAL_URI) {
         mLOCAL_URI = LOCAL_URI;
-    }
-
-    public int getOLD_INDEX() {
-        return OLD_INDEX;
-    }
-
-    public void setOLD_INDEX(int OLD_INDEX) {
-        this.OLD_INDEX = OLD_INDEX;
-    }
-
-    public int getNEW_INDEX() {
-        return NEW_INDEX;
-    }
-
-    public void setNEW_INDEX(int NEW_INDEX) {
-        this.NEW_INDEX = NEW_INDEX;
     }
 
     public String getCREATE_DAY() {

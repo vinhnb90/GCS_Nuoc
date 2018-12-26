@@ -1,16 +1,10 @@
 package freelancer.gcsnuoc.entities;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
-
-import java.io.IOException;
 
 import freelancer.gcsnuoc.database.SqlQuery;
 
@@ -96,24 +90,24 @@ public class DetailProxy extends CursorItemProxy {
         return mBitmap;
     }
 
-    public int getOLD_INDEXOfTBL_IMAGE() {
-        if (mImageItem.getOLD_INDEX() == 0) {
+    public double getOLD_INDEXOfTBL_CUSTOMER() {
+        if (mCustomerItem.getOldIndex() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String OLD_INDEX = SqlQuery.TBL_IMAGE.OLD_INDEX.getNameCollumn();
-            mImageItem.setOLD_INDEX(cursor.getInt(cursor.getColumnIndex(OLD_INDEX)));
+            String OLD_INDEX = SqlQuery.TBL_CUSTOMER.OLD_INDEX.getNameCollumn();
+            mCustomerItem.setOldIndex(cursor.getInt(cursor.getColumnIndex(OLD_INDEX)));
         }
-        return mImageItem.getOLD_INDEX();
+        return mCustomerItem.getOldIndex();
     }
 
-    public int getNEW_INDEXOfTBL_IMAGE() {
-        if (mImageItem.getNEW_INDEX() == 0) {
+    public double getNEW_INDEXOfTBL_CUSTOMER() {
+        if (mCustomerItem.getNewIndex() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String NEW_INDEX = SqlQuery.TBL_IMAGE.NEW_INDEX.getNameCollumn();
-            mImageItem.setNEW_INDEX(cursor.getInt(cursor.getColumnIndex(NEW_INDEX)));
+            String NEW_INDEX = SqlQuery.TBL_CUSTOMER.NEW_INDEX.getNameCollumn();
+            mCustomerItem.setNewIndex(cursor.getInt(cursor.getColumnIndex(NEW_INDEX)));
         }
-        return mImageItem.getNEW_INDEX();
+        return mCustomerItem.getNewIndex();
     }
 
     public String getCREATE_DAYOfTBL_IMAGE() {
@@ -207,8 +201,6 @@ public class DetailProxy extends CursorItemProxy {
         customerItem.setID(this.getIDOfTBL_IMAGE());
         customerItem.setID_TBL_CUSTOMER(getIDOfTBL_CUSTOMER());
         customerItem.setLOCAL_URI(getLOCAL_URIOfTBL_IMAGE());
-        customerItem.setOLD_INDEX(getOLD_INDEXOfTBL_IMAGE());
-        customerItem.setNEW_INDEX(getNEW_INDEXOfTBL_IMAGE());
         customerItem.setCREATE_DAY(getCREATE_DAYOfTBL_IMAGE());
         return mImageItem;
     }

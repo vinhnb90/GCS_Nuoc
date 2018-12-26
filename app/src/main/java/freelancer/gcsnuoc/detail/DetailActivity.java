@@ -111,6 +111,7 @@ public class DetailActivity extends BaseActivity {
     private static Bitmap icon;
     private SearchView searchView;
     private SettingObject settingObject;
+    private String MA_NVIEN;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,6 +163,14 @@ public class DetailActivity extends BaseActivity {
         TextView textView = (TextView) searchView.findViewById(id);
         textView.setTextColor(ContextCompat.getColor(this, R.color.rowBookColorNomarl));
         trimChildMargins(searchView);
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mBottomBar.setDefaultTabPosition(2);
+                mBottomBar.postInvalidate();
+            }
+        });
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -196,7 +205,7 @@ public class DetailActivity extends BaseActivity {
                         }
                     }
                 } else {
-                    dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+                    dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
                 }
                 break;
 
@@ -210,7 +219,7 @@ public class DetailActivity extends BaseActivity {
                 break;
 
             case NONE_FILTER:
-                dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+                dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
                 break;
         }
 
@@ -277,14 +286,14 @@ public class DetailActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
             Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
-            Toast.makeText(this, "Gặp vấn đề khi chọn sổ!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Gặp vấn đề khi chọn sổ!\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void refreshData(int ID_TBL_CUSTOMER_Focus) throws Exception {
         //fill mData
         mData.clear();
-        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
         if (mData.size() == 0)
             return;
 
@@ -304,6 +313,7 @@ public class DetailActivity extends BaseActivity {
         try {
             //get mData intent
             ID_TBL_BOOK_OF_CUSTOMER = getIntent().getExtras().getInt(INTENT_KEY_ID_BOOK);
+            MA_NVIEN = getIntent().getExtras().getString(INTENT_KEY_MANHANVIEN, "");
 
             //setup file debug
             init();
@@ -398,12 +408,10 @@ public class DetailActivity extends BaseActivity {
 
                     ImageItem imageItem = new ImageItem();
                     imageItem.setCREATE_DAY(Common.convertDateToDate(timeFileCaptureImage, type12, sqlite2));
-                    imageItem.setNEW_INDEX(Integer.parseInt(mEtNewIndex.getText().toString()));
-                    imageItem.setOLD_INDEX(0);
                     imageItem.setID_TBL_CUSTOMER(ID_TBL_CUSTOMER_Focus);
                     imageItem.setNAME(TEN_ANH);
                     imageItem.setLOCAL_URI(pathURICapturedAnh);
-                    mSqlDAO.insertTBL_IMAGE(imageItem);
+                    mSqlDAO.insertTBL_IMAGE(imageItem, MA_NVIEN);
 
                     //refreshUI
                     loadDataDetail();
@@ -419,6 +427,13 @@ public class DetailActivity extends BaseActivity {
 
     @Override
     protected void handleListener() throws Exception {
+        mEtNewIndex.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEtNewIndex.setHint(mEtNewIndex.getText().toString());
+            }
+        });
+
         //set menu bottom
         mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -656,22 +671,22 @@ public class DetailActivity extends BaseActivity {
                 final int lastItem = layoutManager.getItemCount() - 1;
                 targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
                 final int finalTargetPosition = targetPosition;
-                mRvCus.postDelayed(new Runnable() {
+                DetailActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
                             ID_TBL_CUSTOMER_Focus = mData.get(finalTargetPosition).getIDOfTBL_CUSTOMER();
                             clickItemOutSide(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
                             int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
-//                            mRvCus.scrollToPosition(posNow);
-//                            mRvCus2.scrollToPosition(posNow);
+                            mRvCus.scrollToPosition(posNow);
+                            mRvCus2.scrollToPosition(posNow);
                             mRvCus.postInvalidate();
                             mRvCus2.postInvalidate();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-                }, 1);
+                });
 
                 return finalTargetPosition;
             }
@@ -726,8 +741,8 @@ public class DetailActivity extends BaseActivity {
         if (pos >= mRvCus.getAdapter().getItemCount())
             return;
         //update database by ID
-        mSqlDAO.updateResetFocusTBL_CUSTOMER();
-        mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER, true);
+        mSqlDAO.updateResetFocusTBL_CUSTOMER(MA_NVIEN, ID_TBL_BOOK_OF_CUSTOMER);
+        mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER, true, MA_NVIEN);
         //reset
         refreshData(ID_TBL_CUSTOMER);
     }
@@ -744,8 +759,8 @@ public class DetailActivity extends BaseActivity {
         mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
 
         mTvInfoBill.setText("Sinh hoat");
-        mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_IMAGE() + "");
-        mEtNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_IMAGE() + "");
+        mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_CUSTOMER() + "");
+        mEtNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_CUSTOMER() + "");
     }
 
     private int findPosFocusNow(int ID_TBL_CUSTOMER_Focus) {
@@ -763,22 +778,22 @@ public class DetailActivity extends BaseActivity {
         //dump mData
         //check exist mData
         int rowDataTBL_CUSTOMER = 0;
-        rowDataTBL_CUSTOMER = mSqlDAO.getNumberRowTBL_CUSTOMER(ID_TBL_BOOK_OF_CUSTOMER);
+        rowDataTBL_CUSTOMER = mSqlDAO.getNumberRowTBL_CUSTOMER(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
         if (rowDataTBL_CUSTOMER == 0) {
-            if (ID_TBL_BOOK_OF_CUSTOMER != 3)
-                dumpData();
+//            if (ID_TBL_BOOK_OF_CUSTOMER != 3)
+//                dumpData();
             return;
         }
         //get Focus
         //load first
-        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 
         ID_TBL_CUSTOMER_Focus = findFocus();
-        if (ID_TBL_CUSTOMER_Focus == 0) {
-            //first focus
-            ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
-            mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, true);
-        }
+//        if (ID_TBL_CUSTOMER_Focus == 0) {
+//            //first focus
+//            ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
+//            mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, true);
+//        }
     }
 
     private int findFocus() {
@@ -791,16 +806,16 @@ public class DetailActivity extends BaseActivity {
         return 0;
     }
 
-    private void dumpData() throws Exception {
-        //dumpData
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 1", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 2", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 3", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 4", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 5", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 6", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 7", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-    }
+//    private void dumpData() throws Exception {
+//        //dumpData
+//        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 1", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+//        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 2", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+//        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 3", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+//        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 4", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+//        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 5", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+//        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 6", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+//        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 7", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+//    }
 
     public void clickButtonSave(View view) {
         DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
@@ -821,7 +836,7 @@ public class DetailActivity extends BaseActivity {
             return;
         }
 
-        int result = Integer.parseInt(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_IMAGE();
+        double result = Double.parseDouble(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
         if (result <= 0) {
             Toast.makeText(this, "Giá trị chỉ số hiện tại nhỏ nhỏ hơn giá trị cũ!", Toast.LENGTH_SHORT).show();
             return;
@@ -837,14 +852,14 @@ public class DetailActivity extends BaseActivity {
 
             saveData();
         } else {
-            int oldRanger = (detailProxy.getOLD_INDEXOfTBL_IMAGE() - 0);
-            int newRanger = Integer.parseInt(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_IMAGE();
+            double oldRanger = (detailProxy.getOLD_INDEXOfTBL_CUSTOMER() - 0);
+            double newRanger = Integer.parseInt(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
             //oldRanger = 100 % --> new Ranger = ? %
             oldRanger = (oldRanger == 0 ? 1 : oldRanger);
             result = (newRanger / oldRanger) * 100;
             int cal = (settingObject.getPercent());
             if (result > cal) {
-                showDialogWarningPercent(result, cal);
+                showDialogWarningPercent((int) result, cal);
                 return;
             }
 
@@ -886,17 +901,19 @@ public class DetailActivity extends BaseActivity {
 
     private void saveData() {
         try {
-            mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, CustomerItem.STATUS_Customer.WRITED);
-            mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Integer.parseInt(mEtNewIndex.getText().toString()));
+            mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, CustomerItem.STATUS_Customer.WRITED, MA_NVIEN);
+            mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Integer.parseInt(mEtNewIndex.getText().toString()), MA_NVIEN);
             mData.clear();
-            mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+            mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
             DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
             String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
             String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
             String MA_DDO = "PD011120";
             String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite1, type7);
-            int OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_IMAGE();
-            int NEW_INDEX = detailProxy.getNEW_INDEXOfTBL_IMAGE();
+            double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
+            double NEW_INDEX = detailProxy.getNEW_INDEXOfTBL_CUSTOMER();
+
+
             Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "", "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
 
             File file = new File(LOCAL_URI);
@@ -916,12 +933,12 @@ public class DetailActivity extends BaseActivity {
     }
 
 
-    private void showDialogWarningMaximum(int objectMax, int result) {
+    private void showDialogWarningMaximum(int objectMax, double result) {
         IDialog iDialog = new IDialog() {
             @Override
             protected void clickOK() {
                 //save
-
+                saveData();
             }
 
             @Override

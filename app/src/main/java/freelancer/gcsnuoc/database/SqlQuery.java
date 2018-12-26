@@ -43,10 +43,13 @@ public class SqlQuery {
         return "DROP TABLE IF EXISTS " + TBL_SESSION.getName() + " ;";
     }
 
-    public static String getSelectTBL_SESSION() {
+    public static String getSelectTBL_SESSION(String MA_NVIEN) {
         return "SELECT * " +
                 " FROM " +
-                TBL_SESSION.getName();
+                TBL_SESSION.getName() +
+                " WHERE " +
+                TBL_SESSION.MA_NVIEN +
+                "= ?";
     }
 
     public static String getInsertTBL_SESSION() {
@@ -75,21 +78,21 @@ public class SqlQuery {
 
                 TBL_SESSION.DATE_LOGIN.name() +
                 " = ? " +
-                ", " +
-
-                TBL_SESSION.MA_NVIEN.name() +
-                " = ? " +
 
                 " WHERE " +
                 TBL_SESSION.ID_TABLE_SESSION.name() +
-                " = ? "
-                ;
+                " = ? " +
+
+                " AND " +
+
+                TBL_SESSION.MA_NVIEN +
+                "= ? ";
     }
 
     public static String getDeleteAllTBL_SESSION() {
-        return "DELETE FROM " + TBL_SESSION.getName() + " WHERE " + TBL_SESSION.MA_NVIEN +" = ?";
+        return "DELETE FROM " + TBL_SESSION.getName() + " WHERE " + TBL_SESSION.MA_NVIEN + " = ?";
     }
-     //endregion
+    //endregion
 
     //region TBL_BOOK
     public enum TBL_BOOK {
@@ -100,7 +103,9 @@ public class SqlQuery {
         CUS_NOT_WRITED("CUS_NOT_WRITED"),
         PERIOD("PERIOD"),
         FOCUS("FOCUS"),
-        CHOOSE("CHOOSE");
+        CHOOSE("CHOOSE"),
+        MA_NVIEN("MA_NVIEN"),
+        CODE("CODE");
 
         private String mNameCollumn;
 
@@ -125,6 +130,8 @@ public class SqlQuery {
                 TBL_BOOK.CUS_WRITED.name() + " INTEGER, " +
                 TBL_BOOK.CUS_NOT_WRITED.name() + " INTEGER, " +
                 TBL_BOOK.PERIOD.name() + " TEXT, " +
+                TBL_BOOK.MA_NVIEN.name() + " TEXT, " +
+                TBL_BOOK.CODE.name() + " TEXT, " +
                 TBL_BOOK.FOCUS.name() + " TEXT DEFAULT \"FALSE\", " +
                 TBL_BOOK.CHOOSE.name() + " TEXT DEFAULT \"FALSE\"" +
                 ");";
@@ -137,7 +144,10 @@ public class SqlQuery {
     public static String getSelectTBL_BOOK() {
         return "SELECT * " +
                 " FROM " +
-                TBL_BOOK.getName();
+                TBL_BOOK.getName() +
+                " WHERE " +
+                TBL_BOOK.MA_NVIEN +
+                " = ?";
     }
 
     public static String getInsertTBL_BOOK() {
@@ -148,8 +158,10 @@ public class SqlQuery {
                 TBL_BOOK.CUS_NOT_WRITED.name() + ", " +
                 TBL_BOOK.PERIOD.name() + ", " +
                 TBL_BOOK.FOCUS.name() + ", " +
-                TBL_BOOK.CHOOSE.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?" +
+                TBL_BOOK.CHOOSE.name() + ", " +
+                TBL_BOOK.MA_NVIEN.name() + ", " +
+                TBL_BOOK.CODE.name() +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -184,8 +196,10 @@ public class SqlQuery {
 
                 " WHERE " +
                 TBL_BOOK.ID_TBL_BOOK.name() +
+                " = ? " +
+                " AND " +
+                TBL_BOOK.MA_NVIEN.name() +
                 " = ? "
-
                 ;
     }
 
@@ -197,6 +211,9 @@ public class SqlQuery {
                 " = ? " +
                 " WHERE " +
                 TBL_BOOK.ID_TBL_BOOK.name() +
+                " = ? " +
+                " AND " +
+                TBL_BOOK.MA_NVIEN.name() +
                 " = ? "
                 ;
     }
@@ -209,6 +226,9 @@ public class SqlQuery {
                 " = 'TRUE' " +
                 " WHERE " +
                 TBL_BOOK.ID_TBL_BOOK.name() +
+                " = ? " +
+                " AND " +
+                TBL_BOOK.MA_NVIEN.name() +
                 " = ? "
                 ;
     }
@@ -218,10 +238,20 @@ public class SqlQuery {
                 TBL_BOOK.getName() +
                 " SET " +
                 TBL_BOOK.FOCUS.name() +
-                " = 'FALSE' "
+                " = 'FALSE' " +
+                " AND " +
+                TBL_BOOK.MA_NVIEN.name() +
+                " = ? "
                 ;
     }
 
+    public static String getDeleteAllRowTBL_BOOK() {
+        return "DELETE FROM TBL_BOOK WHERE " +
+                TBL_BOOK.MA_NVIEN +
+                " = ?"
+                ;
+
+    }
     //endregion
 
     //region TBL_CUSTOMER
@@ -231,7 +261,27 @@ public class SqlQuery {
         NAME_CUSTOMER("NAME_CUSTOMER"),
         ADDRESS_CUSTOMER("ADDRESS_CUSTOMER"),
         STATUS_CUSTOMER("STATUS_CUSTOMER"),
-        FOCUS_CUSTOMER("FOCUS_CUSTOMER");
+        FOCUS_CUSTOMER("FOCUS_CUSTOMER"),
+        OLD_INDEX("OLD_INDEX"),
+        NEW_INDEX("NEW_INDEX"),
+        MA_NVIEN("MA_NVIEN"),
+
+        //other post
+        IndexId("IndexId"),
+        departmentId("departmentId"),
+        pointId("pointId"),
+        timeOfUse("timeOfUse"),
+        coefficient("coefficient"),
+        electricityMeterId("electricityMeterId"),
+        term("term"),
+        month("month"),
+        year("year"),
+        indexType("indexType"),
+        startDate("startDate"),
+        endDate("endDate"),
+        customerId("customerId"),
+        customerCode("customerCode"),
+        img("img");
 
         private String mNameCollumn;
 
@@ -255,6 +305,9 @@ public class SqlQuery {
                 TBL_CUSTOMER.NAME_CUSTOMER.name() + " TEXT, " +
                 TBL_CUSTOMER.ADDRESS_CUSTOMER.name() + " TEXT, " +
                 TBL_CUSTOMER.STATUS_CUSTOMER.name() + " TEXT, " +
+                TBL_CUSTOMER.OLD_INDEX.name() + " REAL, " +
+                TBL_CUSTOMER.NEW_INDEX.name() + " REAL, " +
+                TBL_CUSTOMER.MA_NVIEN.name() + " TEXT, " +
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() + " TEXT DEFAULT \"FALSE\"" +
                 ");";
     }
@@ -266,10 +319,26 @@ public class SqlQuery {
     public static String getSelectTBL_CUSTOMER() {
         return "SELECT * " +
                 " FROM " +
-                TBL_CUSTOMER.getName() +"" +
+                TBL_CUSTOMER.getName() + "" +
                 " WHERE " +
                 TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER +
-                " = ?";
+                " = ?" +
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? ";
+    }
+
+    public static String getSelectNotUploadTBL_CUSTOMER() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_CUSTOMER.getName() + "" +
+                " WHERE " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? " +
+                "AND " +
+                TBL_CUSTOMER.STATUS_CUSTOMER +
+                "= ?" +
+                "";
     }
 
     public static String getInsertTBL_CUSTOMER() {
@@ -278,8 +347,11 @@ public class SqlQuery {
                 TBL_CUSTOMER.NAME_CUSTOMER.name() + ", " +
                 TBL_CUSTOMER.ADDRESS_CUSTOMER.name() + ", " +
                 TBL_CUSTOMER.STATUS_CUSTOMER.name() + ", " +
-                TBL_CUSTOMER.FOCUS_CUSTOMER.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?" +
+                TBL_CUSTOMER.FOCUS_CUSTOMER.name() + ", " +
+                TBL_CUSTOMER.OLD_INDEX.name() + ", " +
+                TBL_CUSTOMER.NEW_INDEX.name() + ", " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -299,12 +371,22 @@ public class SqlQuery {
 
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() +
                 " = ? " +
+                ", " +
+
+                TBL_CUSTOMER.OLD_INDEX.name() +
+                " = ? " +
+                ", " +
+
+                TBL_CUSTOMER.NEW_INDEX.name() +
+                " = ? " +
 
                 " WHERE " +
                 TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER.name() +
                 " = ? "
-
-                ;
+                +
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? ";
     }
 
     public static String getUpdateFocusTBL_CUSTOMER() {
@@ -316,7 +398,10 @@ public class SqlQuery {
                 " WHERE " +
                 TBL_CUSTOMER.ID_TBL_CUSTOMER.name() +
                 " = ? "
-                ;
+                +
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? ";
     }
 
 
@@ -328,20 +413,10 @@ public class SqlQuery {
                 " = ? " +
                 " WHERE " +
                 TBL_CUSTOMER.ID_TBL_CUSTOMER.name() +
-                " = ? "
-                ;
-    }
-
-    public static String getUpdateNEW_INDEXOfTBL_CUSTOMER() {
-        return "UPDATE " +
-                TBL_IMAGE.getName() +
-                " SET " +
-                TBL_IMAGE.NEW_INDEX.name() +
                 " = ? " +
-                " WHERE " +
-                TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE.name() +
-                " = ? "
-                ;
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? ";
     }
 
 
@@ -350,8 +425,13 @@ public class SqlQuery {
                 TBL_CUSTOMER.getName() +
                 " SET " +
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() +
-                " = 'FALSE' "
-                ;
+                " = 'FALSE' " +
+                " WHERE " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? " +
+                " AND " +
+                TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER.name() +
+                " = ?";
     }
 
     public static String getIDByFocusTBL_CUSTOMER() {
@@ -362,8 +442,65 @@ public class SqlQuery {
                 TBL_CUSTOMER.getName() +
                 " WHERE " +
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() +
-                " = 'TRUE' "
+                " = 'TRUE' " +
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? ";
+    }
+
+    public static String getUpdateNEW_INDEXOfTBL_CUSTOMER() {
+        return "UPDATE " +
+                TBL_CUSTOMER.getName() +
+                " SET " +
+                TBL_CUSTOMER.NEW_INDEX.name() +
+                " = ? " +
+                " WHERE " +
+                TBL_CUSTOMER.ID_TBL_CUSTOMER.name() +
+                " = ? " +
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ?"
                 ;
+    }
+
+    public static String getUpdateCUS_WRITEDOfTBL_BOOK(boolean isCUS_WRITED) {
+        String collumn = isCUS_WRITED ? TBL_BOOK.CUS_WRITED.name() : TBL_BOOK.CUS_NOT_WRITED.name();
+
+        return "UPDATE " +
+                TBL_BOOK.getName() +
+                " SET " +
+                collumn +
+                " = ? " +
+                " WHERE " +
+                TBL_BOOK.ID_TBL_BOOK.name() +
+                " = ? " +
+                " AND " +
+                TBL_BOOK.MA_NVIEN.name() +
+                " = ?"
+                ;
+    }
+
+    public static String getDeleteAllRowTBL_CUSTOMER() {
+        return "DELETE FROM TBL_CUSTOMER WHERE " +
+                TBL_CUSTOMER.MA_NVIEN +
+                " = ?"
+                ;
+    }
+
+    public static String getSelectTBL_CUSTOMERbyStatus() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_CUSTOMER.getName() + "" +
+                " WHERE " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? " +
+                "AND " +
+                TBL_CUSTOMER.STATUS_CUSTOMER +
+                "= ?" +
+                "AND " +
+                TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER +
+                "= ?" +
+                "";
     }
     //endregion
 
@@ -373,9 +510,10 @@ public class SqlQuery {
         ID_TBL_CUSTOMER_OF_IMAGE("ID_TBL_CUSTOMER_OF_IMAGE"),
         NAME_IMAGE("NAME_IMAGE"),
         LOCAL_URI("LOCAL_URI"),
-        OLD_INDEX("OLD_INDEX"),
-        NEW_INDEX("NEW_INDEX"),
-        CREATE_DAY("FOCUS_CUSTOMER");
+        CREATE_DAY("FOCUS_CUSTOMER"),
+
+        //other
+        MA_NVIEN("MA_NVIEN");
 
 
         private String mNameCollumn;
@@ -399,8 +537,7 @@ public class SqlQuery {
                 TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE.name() + " INTEGER, " +
                 TBL_IMAGE.NAME_IMAGE.name() + " TEXT, " +
                 TBL_IMAGE.LOCAL_URI.name() + " TEXT, " +
-                TBL_IMAGE.OLD_INDEX.name() + " INTEGER, " +
-                TBL_IMAGE.NEW_INDEX.name() + " INTEGER, " +
+                TBL_IMAGE.MA_NVIEN.name() + " TEXT, " +
                 TBL_IMAGE.CREATE_DAY.name() + " TEXT DEFAULT \"FALSE\"" +
                 ");";
     }
@@ -412,7 +549,11 @@ public class SqlQuery {
     public static String getSelectTBL_IMAGE() {
         return "SELECT * " +
                 " FROM " +
-                TBL_IMAGE.getName();
+                TBL_IMAGE.getName() +
+                " WHERE " +
+                TBL_IMAGE.MA_NVIEN.name() +
+                " = ?"
+                ;
     }
 
     public static String getInsertTBL_IMAGE() {
@@ -420,10 +561,9 @@ public class SqlQuery {
                 TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE.name() + ", " +
                 TBL_IMAGE.NAME_IMAGE.name() + ", " +
                 TBL_IMAGE.LOCAL_URI.name() + ", " +
-                TBL_IMAGE.OLD_INDEX.name() + ", " +
-                TBL_IMAGE.NEW_INDEX.name() + ", " +
+                TBL_IMAGE.MA_NVIEN.name() + ", " +
                 TBL_IMAGE.CREATE_DAY.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -441,28 +581,27 @@ public class SqlQuery {
                 " = ? " +
                 ", " +
 
-                TBL_IMAGE.OLD_INDEX.name() +
-                " = ? " +
-                ", " +
-
-                TBL_IMAGE.NEW_INDEX.name() +
-                " = ? " +
-                ", " +
-
                 TBL_IMAGE.CREATE_DAY.name() +
                 " = ? " +
 
                 " WHERE " +
                 TBL_IMAGE.ID_TBL_IMAGE.name() +
-                " = ? "
-
+                " = ? " +
+                " AND " +
+                TBL_IMAGE.MA_NVIEN.name() +
+                " = ?"
                 ;
     }
 
     public static String getDeleteIMAGE() {
         return "DELETE FROM TBL_IMAGE WHERE " +
                 TBL_IMAGE.ID_TBL_IMAGE +
-                " = ?";
+                " = ?" +
+                " AND " +
+                TBL_IMAGE.MA_NVIEN.name() +
+                " = ?"
+                ;
+
     }
 //
 //    public static String getUpdateCREATE_DAYofTBL_IMAGE() {
@@ -476,13 +615,21 @@ public class SqlQuery {
 //                " = ? "
 //                ;
 //    }
+
+    public static String getDeleteAllRowTBL_IMAGE() {
+        return "DELETE FROM TBL_IMAGE WHERE " +
+                TBL_IMAGE.MA_NVIEN +
+                " = ?"
+                ;
+    }
     //endregion
 
     //region DetailProxy
     public static String getSelectAllDetailProxy() {
         return "select * from\n" +
                 "(\n" +
-                "select * FROM TBL_CUSTOMER LEFT join TBL_BOOK on TBL_BOOK.ID_TBL_BOOK = TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER\n" +
+                "select * FROM TBL_CUSTOMER LEFT join TBL_BOOK on TBL_BOOK.ID_TBL_BOOK = TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER" +
+                " where TBL_CUSTOMER.MA_NVIEN = ? \n" +
                 ") as e\n" +
                 "LEFT join TBL_IMAGE\n" +
                 "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +

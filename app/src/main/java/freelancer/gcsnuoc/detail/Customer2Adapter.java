@@ -79,8 +79,8 @@ public class Customer2Adapter extends RecyclerView.Adapter<Customer2Adapter.Cust
                 break;
         }
 
-        holder.tvIndexOld.setText(detailProxy.getOLD_INDEXOfTBL_IMAGE() + "");
-        holder.tvIndexNew.setText(detailProxy.getNEW_INDEXOfTBL_IMAGE() + "");
+        holder.tvIndexOld.setText(detailProxy.getOLD_INDEXOfTBL_CUSTOMER() + "");
+        holder.tvIndexNew.setText(detailProxy.getNEW_INDEXOfTBL_CUSTOMER() + "");
         holder.itemView.setBackgroundColor(detailProxy.isFocusOfTBL_CUSTOMER() ? ContextCompat.getColor(mContext, R.color.photoBackgroundColor) : ContextCompat.getColor(mContext, R.color.colorTransparentBg));
         Bitmap bitmap = detailProxy.getBitmap();
         Drawable bitmapDrawable = new BitmapDrawable(mContext.getResources(), bitmap);
