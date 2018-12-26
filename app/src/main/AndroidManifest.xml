@@ -16,19 +16,42 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-        </activity>
-        <activity android:name=".login.LoginActivity">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+        <activity android:name=".MainActivity"
+            android:windowSoftInputMode="adjustPan" ></activity>
+        <activity android:name=".login.LoginActivity"
+            android:windowSoftInputMode="adjustPan" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
-        <activity android:name=".setting.SettingActivity" />
-        <activity android:name=".bookmanager.BookManagerActivity" />
-        <activity android:name=".detail.DetailActivity"></activity>
+        <activity
+            android:windowSoftInputMode="adjustPan"
+            android:name=".setting.SettingActivity"
+            android:parentActivityName=".login.LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".login.LoginActivity" />
+        </activity>
+        <activity
+            android:windowSoftInputMode="adjustPan"
+            android:name=".bookmanager.BookManagerActivity"
+            android:parentActivityName=".login.LoginActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".login.LoginActivity" />
+        </activity>
+
+        <activity
+            android:windowSoftInputMode="adjustPan"
+            android:name=".detail.DetailActivity"
+            android:parentActivityName=".bookmanager.BookManagerActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".login.BookManagerActivity" />
+        </activity>
     </application>
 
 </manifest>

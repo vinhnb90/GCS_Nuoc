@@ -2,16 +2,32 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ac_book_manager_toolbar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:theme="@style/Base.ThemeOverlay.AppCompat.ActionBar"
     tools:context=".bookmanager.BookManagerActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/ac_book_manager_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_2sdp"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:contentInsetEnd="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetStart="0dp"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ToolbarColoredBackArrow"
+        app:titleTextColor="@color/barColorWhenSelected" />
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ac_book_manager_toolbar">
 
         <com.roughike.bottombar.BottomBar
             android:id="@+id/ac_book_manager_bottom_menu"
@@ -19,15 +35,15 @@
             android:layout_height="@dimen/_40sdp"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
-            android:background="@color/colorPrimary"
-            android:backgroundTint="@color/colorPrimary"
-            app:bb_activeTabColor="@color/colorPrimary"
-            app:bb_badgeBackgroundColor="@color/colorPrimary"
+            android:background="@color/buttonColor"
+            android:backgroundTint="@null"
+            app:bb_activeTabColor="@color/barColorText"
+            app:bb_badgeBackgroundColor="@color/barColorText"
             app:bb_behavior="shifting"
             app:bb_inActiveTabAlpha="0.8"
-            app:bb_inActiveTabColor="@color/colorPrimary"
+            app:bb_inActiveTabColor="@color/barColorText"
             app:bb_showShadow="true"
-            app:bb_tabXmlResource="@xml/bottom_menu"
+            app:bb_tabXmlResource="@xml/ac_book_manager_menu_bottom"
             app:bb_titleTextAppearance="@style/CustomTitleTextAppearance" />
 
         <LinearLayout
@@ -91,15 +107,13 @@
             android:layout_height="match_parent"
             android:layout_above="@+id/ac_book_manager_bottom_menu"
             android:layout_below="@+id/ac_book_manager_ll_top"
-            android:background="@drawable/xml_corner_top"
-            android:paddingLeft="@dimen/_16sdp"
-            android:paddingRight="@dimen/_16sdp">
+            android:background="@drawable/xml_corner_top_type4"
+            android:padding="@dimen/_8sdp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/ac_book_manager_rv_books"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="@dimen/_8sdp">
+                android:layout_height="match_parent">
 
             </android.support.v7.widget.RecyclerView>
         </RelativeLayout>

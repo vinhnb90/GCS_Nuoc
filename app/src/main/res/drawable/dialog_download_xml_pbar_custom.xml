@@ -3,7 +3,7 @@
     <item android:id="@android:id/background">
         <shape>
             <stroke android:color="@color/pbarBorderColor" android:width="@dimen/_1sdp"/>
-            <solid android:color="@android:color/white" />
+            <solid android:color="@color/barColorText" />
             <corners android:radius="@dimen/_5sdp" />
         </shape>
     </item>
@@ -19,11 +19,12 @@
                     android:right="@dimen/_3sdp"
                     android:bottom="@dimen/_3sdp">
                     <shape>
-                        <solid android:color="@color/pbarColor" />
+                        <solid android:color="@color/buttonColor" />
                         <corners android:radius="@dimen/_5sdp" />
                     </shape>
                 </item>
             </layer-list>
         </clip>
     </item>
+
 </layer-list>

@@ -80,7 +80,7 @@ public class CustomerItem implements Cloneable{
                     return v;
                 }
             }
-            return null;
+            return STATUS_Customer.NON_WRITING;
         }
     }
 

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:padding="@dimen/_20sdp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:background="@drawable/xml_border_full_type8">
+
+        <RelativeLayout
+            android:id="@+id/rl_11"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_5sdp">
+
+            <TextView
+                android:id="@+id/tv_title_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nội dung"
+                android:textSize="@dimen/_12sdp"
+                android:textStyle="bold" />
+
+            <View
+                android:id="@+id/v_l_2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/tv_title_dialog"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:layout_marginBottom="@dimen/_5sdp"
+                android:background="@color/pbarBorderColor"
+                />
+
+            <TextView
+                android:id="@+id/tv_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/v_l_2"
+                android:layout_margin="@dimen/_5sdp"
+                android:maxLines="10"
+                android:scrollbars="vertical"
+                android:scrollHorizontally="false"
+                android:text="......."
+                android:textStyle="normal"
+                tools:text="đâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđđâsdsdsdasdasdasdádđ" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rl_11">
+
+            <View
+                android:id="@+id/v_l_1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:background="@color/pbarBorderColor" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_24sdp"
+                android:layout_below="@+id/v_l_1"
+                android:gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <View
+                    android:id="@+id/v_mid_dialog"
+                    android:layout_width="@dimen/_1sdp"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:background="@color/pbarBorderColor"
+                    android:visibility="visible" />
+
+
+                <Button
+                    android:id="@+id/btn_huy"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toLeftOf="@+id/v_mid_dialog"
+                    android:layout_weight="1"
+                    android:background="@color/rvBookColor"
+                    android:text="HỦY THAO TÁC"
+                    android:textColor="@color/buttonColor"
+                    android:visibility="visible" />
+
+
+                <Button
+                    android:id="@+id/btn_tieptuc"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_toRightOf="@+id/v_mid_dialog"
+                    android:layout_weight="1"
+                    android:background="@color/buttonColor"
+                    android:text="TIẾP TỤC"
+                    android:textColor="@color/barColorText" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+</RelativeLayout>

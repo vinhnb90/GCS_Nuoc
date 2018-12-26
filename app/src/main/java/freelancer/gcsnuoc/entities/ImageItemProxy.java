@@ -29,7 +29,7 @@ public class ImageItemProxy extends CursorItemProxy {
         if (mImageItem.getID_TBL_CUSTOMER() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String ID_TBL_CUSTOMER = SqlQuery.TBL_IMAGE.ID_TBL_CUSTOMER.getNameCollumn();
+            String ID_TBL_CUSTOMER = SqlQuery.TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE.getNameCollumn();
             mImageItem.setID_TBL_CUSTOMER(cursor.getInt(cursor.getColumnIndex(ID_TBL_CUSTOMER)));
         }
         return mImageItem.getID_TBL_CUSTOMER();
@@ -39,7 +39,7 @@ public class ImageItemProxy extends CursorItemProxy {
         if (TextUtils.isEmpty(mImageItem.getNAME())) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String NAME = SqlQuery.TBL_IMAGE.NAME.getNameCollumn();
+            String NAME = SqlQuery.TBL_IMAGE.NAME_IMAGE.getNameCollumn();
             mImageItem.setNAME(cursor.getString(cursor.getColumnIndex(NAME)));
         }
         return mImageItem.getNAME();

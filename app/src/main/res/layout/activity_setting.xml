@@ -6,8 +6,25 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
     android:orientation="vertical"
-
     tools:context=".setting.SettingActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_2sdp"
+        android:id="@+id/ac_setting_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:contentInsetEnd="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetStart="0dp"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ToolbarColoredBackArrow"
+        app:titleTextColor="@color/barColorWhenSelected">
+
+    </android.support.v7.widget.Toolbar>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -33,14 +50,19 @@
                 android:textSize="@dimen/_8sdp" />
 
             <EditText
+                android:lines="1"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
                 android:id="@+id/ac_setting_et_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_8sdp"
                 android:background="@null"
+                android:textStyle="italic"
                 android:hint="Nhập đường dẫn máy chủ"
                 android:paddingTop="@dimen/_8sdp"
                 android:paddingBottom="@dimen/_8sdp"
+                android:textColor="@color/etColor"
                 android:textColorHint="@color/barColorText"
                 android:textSize="@dimen/_10sdp" />
 
@@ -73,15 +95,21 @@
                 android:textSize="@dimen/_8sdp" />
 
             <EditText
+                android:lines="1"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:textStyle="italic"
+                android:textColor="@color/etColor"
+                android:textColorHint="@color/barColorText"
                 android:id="@+id/ac_setting_et_port"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/_8sdp"
                 android:background="@null"
                 android:hint="Nhập cổng"
+                android:inputType="number"
                 android:paddingTop="@dimen/_8sdp"
                 android:paddingBottom="@dimen/_8sdp"
-                android:textColorHint="@color/barColorText"
                 android:textSize="@dimen/_10sdp" />
 
         </LinearLayout>
@@ -89,10 +117,11 @@
     </RelativeLayout>
 
     <RelativeLayout
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/_8sdp"
-        android:background="@drawable/xml_corner_top"
+        android:background="@drawable/xml_corner_top_type4"
         android:padding="@dimen/_16sdp">
 
         <RelativeLayout
@@ -189,6 +218,9 @@
                 android:text="m3" />
 
             <EditText
+                android:lines="1"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
                 android:id="@+id/ac_setting_et_max"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -197,6 +229,7 @@
                 android:layout_toLeftOf="@id/ac_setting_tv_m3"
                 android:background="@drawable/xml_border_full_type3"
                 android:hint="Nhập giới hạn cảnh báo"
+                android:inputType="number"
                 android:padding="@dimen/_8sdp"
                 android:textSize="@dimen/_10sdp" />
 

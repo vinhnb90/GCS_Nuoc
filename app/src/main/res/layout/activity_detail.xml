@@ -2,16 +2,30 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/ac_detail_toolbar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:theme="@style/Base.ThemeOverlay.AppCompat.ActionBar"
     tools:context=".detail.DetailActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/ac_detail_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:contentInsetEnd="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetStart="0dp"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:theme="@style/ToolbarColoredBackArrow"
+        app:titleTextColor="@color/barColorWhenSelected" />
+
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ac_detail_toolbar">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -24,15 +38,15 @@
                 android:layout_height="@dimen/_40sdp"
                 android:layout_alignParentBottom="true"
                 android:layout_gravity="bottom"
-                android:background="@color/colorPrimary"
-                android:backgroundTint="@color/colorPrimary"
-                app:bb_activeTabColor="@color/colorPrimary"
-                app:bb_badgeBackgroundColor="@color/colorPrimary"
+                android:background="@color/buttonColor"
+                android:backgroundTint="@null"
+                app:bb_activeTabColor="@color/barColorText"
+                app:bb_badgeBackgroundColor="@color/barColorText"
                 app:bb_behavior="shifting"
                 app:bb_inActiveTabAlpha="0.8"
-                app:bb_inActiveTabColor="@color/colorPrimary"
+                app:bb_inActiveTabColor="@color/barColorText"
                 app:bb_showShadow="true"
-                app:bb_tabXmlResource="@xml/bottom_menu"
+                app:bb_tabXmlResource="@xml/ac_detail_menu_bottom"
                 app:bb_titleTextAppearance="@style/CustomTitleTextAppearance" />
 
             <LinearLayout
@@ -92,133 +106,184 @@
 
             </LinearLayout>
 
-            <ScrollView
+            <!--  <ScrollView
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_above="@+id/ac_detail_bottom_menu"
+                  android:layout_below="@+id/ac_detail_ll_top"
+                  android:background="@drawable/xml_corner_top"
+                  android:scrollbars="none">
+  -->
+            <RelativeLayout
+                android:id="@+id/ac_detail_rl5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_above="@+id/ac_detail_bottom_menu"
                 android:layout_below="@+id/ac_detail_ll_top"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-                <RelativeLayout
+                android:background="@drawable/xml_corner_top">
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/ac_detail_rv_customer"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/xml_corner_top">
+                    android:layout_height="@dimen/_100sdp"
+                    android:layout_alignParentBottom="true"
+                    android:padding="@dimen/_4sdp"></android.support.v7.widget.RecyclerView>
+
+                <RelativeLayout
+                    android:id="@+id/ac_detail_rl4"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_above="@+id/ac_detail_rv_customer"
+                    android:layout_alignParentTop="true"
+                    android:visibility="visible">
 
                     <ImageView
-                        android:layout_margin="@dimen/_8sdp"
-                        android:layout_marginTop="@dimen/_9sdp"
-                        android:src="@color/buttonColor2"
                         android:id="@+id/ac_detail_iv_image"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_150sdp"
-                        android:background="@drawable/xml_corner_top">
+                        android:layout_margin="@dimen/_8sdp"
+                        android:layout_marginTop="@dimen/_9sdp"
+                        android:background="@color/photoBackgroundColor"
+                        android:src="@drawable/ic_photo_default">
 
                     </ImageView>
 
                     <RelativeLayout
-                        android:layout_margin="@dimen/_8sdp"
                         android:id="@+id/ac_detail_rl1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/ac_detail_iv_image">
+                        android:layout_below="@+id/ac_detail_iv_image"
+                        android:layout_margin="@dimen/_8sdp">
 
                         <TextView
-                            android:textStyle="bold"
                             android:id="@+id/ac_detail_tv1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Mục đích sử dụng: " />
+                            android:text="Mục đích sử dụng: "
+                            android:textStyle="bold" />
 
                         <TextView
-                            android:textStyle="bold"
                             android:id="@+id/ac_detail_tv_info_bill"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/ac_detail_tv1"
-                            android:text="Sinh hoạt" />
+                            android:text="Sinh hoạt"
+                            android:textStyle="bold" />
 
                     </RelativeLayout>
 
                     <RelativeLayout
-                        android:layout_marginLeft="@dimen/_8sdp"
-                        android:layout_marginRight="@dimen/_8sdp"
                         android:id="@+id/ac_detail_rl2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/ac_detail_rl1">
+                        android:layout_below="@+id/ac_detail_rl1"
+                        android:layout_marginLeft="@dimen/_8sdp"
+                        android:layout_marginRight="@dimen/_8sdp">
 
                         <TextView
-                            android:textStyle="bold"
                             android:id="@+id/ac_detail_tv2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Chỉ số cũ (m3):" />
+                            android:text="Chỉ số cũ (m3):"
+                            android:textStyle="bold" />
 
                         <TextView
-                            android:textStyle="bold"
-                            android:layout_marginLeft="@dimen/_8sdp"
                             android:id="@+id/ac_detail_tv_old_index"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/_8sdp"
                             android:layout_toRightOf="@+id/ac_detail_tv2"
-                            android:text="78" />
+                            android:text="78"
+                            android:textStyle="bold" />
 
                     </RelativeLayout>
 
                     <RelativeLayout
-                        android:layout_marginLeft="@dimen/_8sdp"
-                        android:layout_marginRight="@dimen/_8sdp"
                         android:id="@+id/ac_detail_rl3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/ac_detail_rl2">
+                        android:layout_below="@+id/ac_detail_rl2"
+                        android:layout_marginLeft="@dimen/_8sdp"
+                        android:layout_marginRight="@dimen/_8sdp">
 
                         <TextView
-                            android:textStyle="bold"
                             android:id="@+id/ac_detail_tv3"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
-                            android:text="Chỉ số mới(m3):" />
+                            android:text="Chỉ số mới(m3):"
+                            android:textStyle="bold" />
 
                         <Button
-                            android:drawableRight="@mipmap/ic_download_2"
                             android:id="@+id/ac_detail_btn_save_new_index"
                             android:layout_width="wrap_content"
                             android:layout_height="@dimen/_24sdp"
-                            android:background="@drawable/xml_button_corner_right"
-                            android:gravity="left|center_vertical"
-                            android:paddingLeft="@dimen/_5sdp"
                             android:layout_alignParentRight="true"
                             android:layout_centerVertical="true"
+                            android:background="@drawable/xml_button_corner_right"
+                            android:drawableRight="@mipmap/ic_download_2"
+                            android:gravity="left|center_vertical"
+                            android:paddingLeft="@dimen/_5sdp"
                             android:text="Ghi chỉ số"
+                            android:onClick="clickButtonSave"
                             android:textColor="@color/barColorText"
                             android:textSize="@dimen/_7sdp"
                             android:translationZ="@dimen/_5sdp" />
 
 
                         <EditText
-                            android:layout_marginLeft="@dimen/_8sdp"
-                            android:layout_marginRight="@dimen/_8sdp"
+                            android:inputType="numberDecimal"
                             android:id="@+id/ac_detail_et_new_index"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_6sdp"
-                            android:background="@drawable/xml_border_full_type3"
-                            android:hint="Nhập chỉ số mới"
-                            android:padding="@dimen/_8sdp"
                             android:layout_centerVertical="true"
+                            android:layout_marginLeft="@dimen/_8sdp"
+                            android:layout_marginTop="@dimen/_6sdp"
+                            android:layout_marginRight="@dimen/_8sdp"
                             android:layout_toLeftOf="@+id/ac_detail_btn_save_new_index"
                             android:layout_toRightOf="@+id/ac_detail_tv3"
+                            android:background="@drawable/xml_border_full_type3"
+                            android:hint="Nhập chỉ số mới"
+                            android:lines="1"
+                            android:maxLines="1"
+                            android:padding="@dimen/_8sdp"
+                            android:scrollHorizontally="true"
                             android:textSize="@dimen/_10sdp" />
                     </RelativeLayout>
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/ac_detail_rv_customer"
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/ac_detail_include_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_above="@id/ac_detail_rv_customer"
+                    android:background="@drawable/xml_corner_top_type1"
+                    android:padding="@dimen/_4sdp"
+                    android:visibility="gone">
+
+                    <include
+                        layout="@layout/dialog_detail_list_customer"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_below="@+id/ac_detail_rl3"></android.support.v7.widget.RecyclerView>
+                        android:layout_alignParentTop="true"
+                        android:padding="@dimen/_4sdp" />
                 </RelativeLayout>
-            </ScrollView>
+            </RelativeLayout>
 
+            <TextView
+                android:id="@+id/ac_detail_tv_warning"
+                android:gravity="center"
+                android:textStyle="bold|italic"
+                android:text="KHÔNG CÓ DỮ LIỆU !"
+                android:visibility="gone"
+                android:textSize="@dimen/_16sdp"
+                android:background="@color/barColorText"
+                android:layout_above="@+id/ac_detail_bottom_menu"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!--  </ScrollView>-->
 
 
         </RelativeLayout>
@@ -227,10 +292,10 @@
             android:id="@+id/ac_detail_fab_capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/_16sdp"
             android:src="@drawable/ic_capture"
             app:backgroundTint="@color/buttonColor"
             app:fabSize="mini"
-            android:layout_marginRight="@dimen/_16sdp"
             app:layout_anchor="@id/ac_detail_iv_image"
             app:layout_anchorGravity="bottom|right|end" />
     </android.support.design.widget.CoordinatorLayout>

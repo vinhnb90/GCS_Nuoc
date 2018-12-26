@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -7,28 +8,40 @@
         android:id="@+id/item_rv_book_adapter_rl_row"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:layout_marginBottom="@dimen/_10sdp"
-        android:background="@null"
-        android:elevation="@dimen/_2sdp"
-        android:translationZ="@dimen/_2sdp">
+        android:layout_marginTop="@dimen/_5sdp"
+        android:layout_marginBottom="@dimen/_5sdp"
+        android:background="@null">
         <!--android:background="@drawable/xml_border_full_type4"-->
         <View
-            android:id="@+id/v1"
-            android:layout_width="@dimen/_15sdp"
+            android:id="@+id/item_rv_book_adapter_v_1"
+            android:layout_width="@dimen/_10sdp"
             android:layout_height="@dimen/_15sdp"
-            android:background="@android:color/transparent" />
+            android:layout_alignParentLeft="true"
+            android:background="@android:color/transparent"
+            android:visibility="visible" />
+
+        <View
+            android:id="@+id/item_rv_book_adapter_v_2"
+            android:layout_width="@dimen/_10sdp"
+            android:layout_height="@dimen/_15sdp"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:visibility="visible" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_4sdp"
             android:layout_marginTop="@dimen/_1sdp"
             android:layout_marginRight="@dimen/_1sdp"
             android:layout_marginBottom="@dimen/_1sdp"
-            android:layout_toRightOf="@+id/v1"
-            android:background="@drawable/xml_border_full_type5"
+            android:layout_toLeftOf="@id/item_rv_book_adapter_v_2"
+            android:layout_toRightOf="@+id/item_rv_book_adapter_v_1"
+            android:background="@drawable/xml_border_full_type8"
+            android:elevation="@dimen/_4sdp"
             android:orientation="vertical"
-            android:padding="@dimen/_6sdp">
+            android:padding="@dimen/_6sdp"
+            >
             <!--android:background="@color/rowBookColor"-->
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -57,24 +70,23 @@
                         android:visibility="gone" />
 
                     <ImageButton
-                        android:background="@color/colorTransparent"
-                        android:src="@drawable/xml_button_cricle_checkbox_2"
                         android:id="@+id/item_rv_book_adapter_ibtn_choose"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:visibility="visible" />
+                        android:background="@color/colorTransparentBg"
+                        android:src="@drawable/xml_button_cricle_checkbox_2"
+                        android:visibility="invisible" />
                 </LinearLayout>
             </RelativeLayout>
 
             <TextView
-                android:layout_marginTop="@dimen/_4sdp"
                 android:id="@+id/item_rv_book_adapter_tv_name_book"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Quyển thạch thất"
+                android:layout_marginTop="@dimen/_4sdp"
                 android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/_14sdp" />
-
+                android:textSize="@dimen/_14sdp"
+                tools:text="Quyển thạch thất" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -96,8 +108,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="@dimen/_8sdp"
-                    android:text="75"
-                    android:textColor="@color/barColorText" />
+                    android:textColor="@color/barColorText"
+                    tools:text="75" />
             </RelativeLayout>
 
             <RelativeLayout
@@ -111,7 +123,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="@dimen/_8sdp"
-                    android:text="Khách hàng đã ghi"
+                    android:text="Khách hàng chưa ghi"
                     android:textColor="@color/barColorText" />
 
                 <TextView
@@ -120,8 +132,8 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_marginRight="@dimen/_8sdp"
-                    android:text="75"
-                    android:textColor="@color/barColorText" />
+                    android:textColor="@color/barColorText"
+                    tools:text="75" />
             </RelativeLayout>
 
         </LinearLayout>

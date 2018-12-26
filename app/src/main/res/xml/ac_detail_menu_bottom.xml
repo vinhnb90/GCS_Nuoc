@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tabs>
+    <tab
+        barColorWhenSelected="@color/barColorWhenSelected"
+        icon="@drawable/ic_list"
+        id="@+id/ac_detail_nav_bot_detail"
+        title="Chi tiết KH" />
+
+    <tab
+        barColorWhenSelected="@color/barColorWhenSelected"
+        icon="@drawable/ic_filter"
+        id="@+id/ac_detail_nav_bot_filter"
+        title="Lọc KH chưa ghi" />
+    <tab
+        barColorWhenSelected="@color/barColorWhenSelected"
+        icon="@drawable/ic_list"
+        id="@+id/ac_detail_nav_bot_list"
+        title="Danh sách KH" />
+</tabs>

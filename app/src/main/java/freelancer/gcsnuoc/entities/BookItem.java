@@ -108,7 +108,7 @@ public class BookItem implements Cloneable{
                     return v;
                 }
             }
-            return null;
+            return STATUS_BOOK.NON_WRITING;
         }
     }
 

@@ -47,7 +47,7 @@ public class BookItemProxy extends CursorItemProxy {
     }
 
     public int getCustomerWrited() {
-        if (mBookItem.getCustomerWrited() == -1) {
+        if (mBookItem.getCustomerWrited() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
             String getCustomerWrited = SqlQuery.TBL_BOOK.CUS_WRITED.getNameCollumn();
@@ -58,11 +58,11 @@ public class BookItemProxy extends CursorItemProxy {
 
 
     public int getCustomerNotWrite() {
-        if (mBookItem.getCustomerNotWrite() == -1) {
+        if (mBookItem.getCustomerNotWrite() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
             String getCustomerNotWrite = SqlQuery.TBL_BOOK.CUS_NOT_WRITED.getNameCollumn();
-            mBookItem.setCustomerWrited(cursor.getInt(cursor.getColumnIndex(getCustomerNotWrite)));
+            mBookItem.setCustomerNotWrite(cursor.getInt(cursor.getColumnIndex(getCustomerNotWrite)));
         }
         return mBookItem.getCustomerNotWrite();
     }

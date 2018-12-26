@@ -4,7 +4,6 @@ import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
-import freelancer.gcsnuoc.database.SqlQuery;
 import freelancer.gcsnuoc.entities.CursorItemProxy;
 import freelancer.gcsnuoc.entities.CustomerItem;
 
@@ -30,7 +29,7 @@ public class CustomerItemProxy extends CursorItemProxy {
         if (mCustomerItem.getID() == 0) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String ID_TBL_BOOK = SqlQuery.TBL_CUSTOMER.ID_TBL_BOOK.getNameCollumn();
+            String ID_TBL_BOOK = SqlQuery.TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER.getNameCollumn();
             mCustomerItem.setIDBook(cursor.getInt(cursor.getColumnIndex(ID_TBL_BOOK)));
         }
         return mCustomerItem.getID();
@@ -40,7 +39,7 @@ public class CustomerItemProxy extends CursorItemProxy {
         if (TextUtils.isEmpty(mCustomerItem.getCustomerName())) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String NAME = SqlQuery.TBL_CUSTOMER.NAME.getNameCollumn();
+            String NAME = SqlQuery.TBL_CUSTOMER.NAME_CUSTOMER.getNameCollumn();
             mCustomerItem.setCustomerName(cursor.getString(cursor.getColumnIndex(NAME)));
         }
         return mCustomerItem.getCustomerName();
@@ -50,7 +49,7 @@ public class CustomerItemProxy extends CursorItemProxy {
         if (TextUtils.isEmpty(mCustomerItem.getCustomerAddress())) {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String CustomerAddress = SqlQuery.TBL_CUSTOMER.CUSTOMER_ADDRESS.getNameCollumn();
+            String CustomerAddress = SqlQuery.TBL_CUSTOMER.ADDRESS_CUSTOMER.getNameCollumn();
             mCustomerItem.setCustomerAddress(cursor.getString(cursor.getColumnIndex(CustomerAddress)));
         }
         return mCustomerItem.getCustomerAddress();
@@ -61,7 +60,7 @@ public class CustomerItemProxy extends CursorItemProxy {
 
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
-            String STATUS = SqlQuery.TBL_CUSTOMER.STATUS.getNameCollumn();
+            String STATUS = SqlQuery.TBL_CUSTOMER.STATUS_CUSTOMER.getNameCollumn();
             String data = cursor.getString(cursor.getColumnIndex(STATUS));
             mCustomerItem.setStatusCustomer(CustomerItem.STATUS_Customer.findNameBy(data));
         }
@@ -71,7 +70,7 @@ public class CustomerItemProxy extends CursorItemProxy {
     public boolean isFocus() {
         Cursor cursor = getmCursor();
         cursor.moveToPosition(getmIndex());
-        String isFocus = SqlQuery.TBL_CUSTOMER.FOCUS.getNameCollumn();
+        String isFocus = SqlQuery.TBL_CUSTOMER.FOCUS_CUSTOMER.getNameCollumn();
         boolean data = Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(isFocus)));
         mCustomerItem.setFocus(data);
         return data;

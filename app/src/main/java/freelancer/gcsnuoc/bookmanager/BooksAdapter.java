@@ -69,37 +69,35 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
 
     @Override
     public void onBindViewHolder(final BookViewHolder holder, final int position) {
-        Common.runAnimationClickView(holder.mView, R.anim.twinking_view, TIME_DELAY_ANIM);
-        holder.mView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                BookItemProxy bookItemProxy = mList.get(position);
-                holder.ibtnChoose.setVisibility(View.VISIBLE);
-                holder.ibtnChoose.setImageResource(bookItemProxy.isChoose()? R.drawable.xml_button_cricle_checkbox: R.drawable.xml_button_cricle_checkbox_2);
-                switch (bookItemProxy.getStatusBook()) {
-                    case UPLOADED:
-                        holder.tvStatus.setText(UPLOADED.getStatus());
-                        holder.ibtnChoose.setVisibility(View.INVISIBLE);
-                        break;
-                    case WRITED:
-                        holder.tvStatus.setText(BookItem.STATUS_BOOK.WRITED.getStatus());
-                        break;
-                    case NON_WRITING:
-                        holder.tvStatus.setText(BookItem.STATUS_BOOK.NON_WRITING.getStatus());
-                        holder.ibtnChoose.setVisibility(View.INVISIBLE);
-                        break;
-                }
+        BookItemProxy bookItemProxy = mList.get(position);
+        holder.tvNameBook.setText(bookItemProxy.getBookName());
+        holder.ibtnChoose.setVisibility(View.VISIBLE);
+        holder.ibtnChoose.setImageResource(bookItemProxy.isChoose() ? R.drawable.xml_button_cricle_checkbox : R.drawable.xml_button_cricle_checkbox_2);
+        switch (bookItemProxy.getStatusBook()) {
+            case UPLOADED:
+                holder.tvStatus.setText(UPLOADED.getStatus());
+                holder.ibtnChoose.setVisibility(View.INVISIBLE);
+                break;
+            case WRITED:
+                holder.tvStatus.setText(BookItem.STATUS_BOOK.WRITED.getStatus());
+                break;
+            case NON_WRITING:
+                holder.tvStatus.setText(BookItem.STATUS_BOOK.NON_WRITING.getStatus());
+                holder.ibtnChoose.setVisibility(View.INVISIBLE);
+                break;
+        }
 
-                holder.tvWriteOk.setText(bookItemProxy.getCustomerWrited()+"");
-                holder.tvWriteOk.setText(bookItemProxy.getCustomerNotWrite()+"");
+        holder.mView1.setVisibility(bookItemProxy.isFocus() ? View.GONE : View.VISIBLE);
+        holder.mView2.setVisibility(bookItemProxy.isFocus() ? View.GONE : View.VISIBLE);
 
-                holder.itemView.setBackgroundColor(bookItemProxy.isFocus()? ContextCompat.getColor(mContext, R.color.rowBookColor): ContextCompat.getColor(mContext, R.color.colorTransparent));
+        holder.tvWriteOk.setText(bookItemProxy.getCustomerWrited() + "");
+        holder.tvNotWriteOK.setText(bookItemProxy.getCustomerNotWrite() + "");
 
-                //trigger pos to scroll
-                if(bookItemProxy.isFocus())
-                    mIBookAdapterCallback.scrollToPosition(position);
-            }
-        }, TIME_DELAY_ANIM);
+//        holder.itemView.setBackgroundColor(bookItemProxy.isFocus() ? ContextCompat.getColor(mContext, R.color.rowBookColor) : ContextCompat.getColor(mContext, R.color.colorTransparent));
+
+        //trigger pos to scroll
+        if (bookItemProxy.isFocus())
+            mIBookAdapterCallback.scrollToPosition(position);
     }
 
     @Override
@@ -111,6 +109,9 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
         public TextView tvStatus, tvNameBook, tvWriteOk, tvNotWriteOK;
         public ImageButton ibtnChoose;
         public RelativeLayout mView;
+        public View mView1;
+        public View mView2;
+
 
         public BookViewHolder(View itemView) {
             super(itemView);
@@ -120,18 +121,22 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
             tvWriteOk = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_write_ok);
             tvNotWriteOK = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_not_write);
             mView = (RelativeLayout) itemView.findViewById(R.id.item_rv_book_adapter_rl_row);
+            mView1 = (View) itemView.findViewById(R.id.item_rv_book_adapter_v_1);
+            mView2 = (View) itemView.findViewById(R.id.item_rv_book_adapter_v_2);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mIBookAdapterCallback.clickItem(getAdapterPosition());
+                    Common.runAnimationClickView(mView, R.anim.twinking_view, TIME_DELAY_ANIM);
                 }
             });
 
             ibtnChoose.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    mIBookAdapterCallback.clickCbChoose(getAdapterPosition(), !mList.get(getAdapterPosition()).isChoose());
+                    if (ibtnChoose.getVisibility() == View.VISIBLE)
+                        mIBookAdapterCallback.clickCbChoose(getAdapterPosition(), !mList.get(getAdapterPosition()).isChoose());
                 }
             });
         }

@@ -3,46 +3,72 @@ package freelancer.gcsnuoc.detail;
 import android.app.ActionBar;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.roughike.bottombar.BottomBar;
+import com.roughike.bottombar.OnTabSelectListener;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
+import freelancer.gcsnuoc.app.GCSApplication;
+import freelancer.gcsnuoc.bookmanager.BookManagerActivity;
 import freelancer.gcsnuoc.database.SqlConnect;
 import freelancer.gcsnuoc.database.SqlDAO;
 import freelancer.gcsnuoc.entities.CustomerItem;
 import freelancer.gcsnuoc.entities.DetailProxy;
 import freelancer.gcsnuoc.entities.ImageItem;
+import freelancer.gcsnuoc.entities.SettingObject;
+import freelancer.gcsnuoc.sharepref.baseSharedPref.SharePrefManager;
 import freelancer.gcsnuoc.utils.Common;
 import freelancer.gcsnuoc.utils.zoomiamgeview.ImageViewTouch;
 
+import static freelancer.gcsnuoc.bookmanager.BookManagerActivity.TYPE_FILTER.FILTER_BY_SEARCH;
+import static freelancer.gcsnuoc.bookmanager.BookManagerActivity.trimChildMargins;
+import static freelancer.gcsnuoc.utils.Common.*;
+import static freelancer.gcsnuoc.utils.Common.DATE_TIME_TYPE.*;
+import static freelancer.gcsnuoc.utils.Common.KEY_PREF_DETAIL_IS_FILTER_BOTTOM;
+import static freelancer.gcsnuoc.utils.Common.PREF_DETAIL;
+import static freelancer.gcsnuoc.utils.Common.REQUEST_CODE_PERMISSION;
 import static freelancer.gcsnuoc.utils.Log.getInstance;
 
 public class DetailActivity extends BaseActivity {
@@ -52,7 +78,7 @@ public class DetailActivity extends BaseActivity {
     private SQLiteDatabase mDatabase;
     private SqlDAO mSqlDAO;
     private static boolean isLoadedFolder = false;
-    private Common.TRIGGER_NEED_ALLOW_PERMISSION mTrigger;
+    private TRIGGER_NEED_ALLOW_PERMISSION mTrigger;
     private Bundle savedInstanceState;
     private TextView mTvNameEmp;
     private TextView mTvAndressEmp;
@@ -62,40 +88,146 @@ public class DetailActivity extends BaseActivity {
     private FloatingActionButton mFabCapture;
     private TextView mTvInfoBill;
     private TextView mTvOldIndex;
-    private TextView mTvNewIndex;
+    private EditText mEtNewIndex;
     private RecyclerView mRvCus;
+    private RecyclerView mRvCus2;
+    private RelativeLayout mRlDetail;
+    private View mVListCustomer;
+    private TextView mTvWarning;
+    private Button mBtnSave;
+
     /*ID_BOOK*/
-    private int ID_BOOK;
+    private int ID_TBL_BOOK_OF_CUSTOMER;
     private List<DetailProxy> mData = new ArrayList<>();
     private CustomerAdapter customerAdapter;
-    private int mPosFocus;
+    private Customer2Adapter customerAdapter2;
+    private int ID_TBL_CUSTOMER_Focus;
     private String timeFileCaptureImage;
     private Bitmap bitmapImageTemp;
     private boolean flagChangeData;
+    private SharePrefManager mPrefManager;
+    private boolean isFilteringBottomMenu;
+    private boolean mIsShowInCludeList;
+    private static Bitmap icon;
+    private SearchView searchView;
+    private SettingObject settingObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         super.hideBar();
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.ac_detail_toolbar);
+        myToolbar.setTitle("Ghi chỉ số");
+        setSupportActionBar(myToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         this.savedInstanceState = savedInstanceState;
 
-        if (Common.isNeedPermission(this)) {
-            mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.ON_CREATE;
-            return;
+        if (icon == null)
+            icon = BitmapFactory.decodeResource(getResources(),
+                    R.drawable.ic_photo_default);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] permissionsNeedGrant = needPermission(this);
+            if (permissionsNeedGrant.length != 0) {
+                mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.ON_CREATE;
+                requestPermissions(permissionsNeedGrant, REQUEST_CODE_PERMISSION);
+                return;
+            }
         }
 
         doTaskOnCreate();
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.ac_book_manager_actionbar_menu, menu);
+
+        MenuItem menuItem = menu.findItem(R.id.ac_book_manager_menu_search);
+        searchView = (SearchView) menuItem.getActionView();
+        int id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
+        TextView textView = (TextView) searchView.findViewById(id);
+        textView.setTextColor(ContextCompat.getColor(this, R.color.rowBookColorNomarl));
+        trimChildMargins(searchView);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                try {
+                    loadDataDetail();
+                    fillDataDetail();
+                    filterData(FILTER_BY_SEARCH, newText);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(DetailActivity.this, "Gặp vấn đề. Vui lòng thử tìm kiếm lại!", Toast.LENGTH_SHORT).show();
+                }
+                return false;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void filterData(BookManagerActivity.TYPE_FILTER typeFilter, String dataFiltering) throws Exception {
+        List<DetailProxy> dataFilter = new ArrayList<>();
+        switch (typeFilter) {
+            case FILTER_BY_BOTTOM_MENU:
+                boolean isFilter = Boolean.parseBoolean(dataFiltering);
+                if (isFilter) {
+                    for (DetailProxy detailProxy : customerAdapter.getList()) {
+                        if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() != CustomerItem.STATUS_Customer.UPLOADED) {
+                            dataFilter.add(detailProxy);
+                        }
+                    }
+                } else {
+                    dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+                }
+                break;
+
+            case FILTER_BY_SEARCH:
+                for (DetailProxy detailProxy : customerAdapter.getList()) {
+
+                    //search by name book
+                    if (removeAccent(detailProxy.getCustomerNameOfTBL_CUSTOMER().toLowerCase()).contains(dataFiltering))
+                        dataFilter.add(detailProxy);
+                }
+                break;
+
+            case NONE_FILTER:
+                dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+                break;
+        }
+
+        customerAdapter.updateList(dataFilter);
+        mRvCus.invalidate();
+        customerAdapter2.updateList(dataFilter);
+        mRvCus2.invalidate();
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
 
         //check permission
-        if (Common.isNeedPermission(this)) {
-            mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.ON_RESUME;
+        String[] permissionsNeedGrant = needPermission(this);
+        if (permissionsNeedGrant.length == 0 && mTrigger == TRIGGER_NEED_ALLOW_PERMISSION.NONE) {
+            mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.ON_RESUME;
             return;
         }
 
@@ -105,31 +237,38 @@ public class DetailActivity extends BaseActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case Common.REQUEST_CODE_PERMISSION:
-                //check permission again
-                if (Common.isNeedPermission(this))
-                    return;
+        String[] permissionsNeedGrant = needPermission(this);
+        if (permissionsNeedGrant.length != 0) {
+            Toast.makeText(this, "Ứng dụng cần cấp quyền đầy đủ!", Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(permissionsNeedGrant, REQUEST_CODE_PERMISSION);
+            }
+            return;
+        }
 
+        switch (requestCode) {
+            case REQUEST_CODE_PERMISSION:
                 switch (mTrigger) {
                     case NONE:
                         break;
                     case ON_CREATE:
                         doTaskOnCreate();
+                        doTaskOnResume();
                         break;
                     case ON_RESUME:
                         doTaskOnResume();
                         break;
                 }
 
-                mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.NONE;
+                mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.NONE;
         }
     }
 
     @Override
     public void doTaskOnResume() {
         try {
-            refreshData();
+            ID_TBL_CUSTOMER_Focus = findFocus();
+            refreshData(ID_TBL_CUSTOMER_Focus);
 
             //filter mData
 //            mDetailActivitySharePref = (DetailActivitySharePref) SharePrefManager.getInstance().getSharePref(DetailActivitySharePref.class);
@@ -142,10 +281,20 @@ public class DetailActivity extends BaseActivity {
         }
     }
 
-    private void refreshData() {
+    private void refreshData(int ID_TBL_CUSTOMER_Focus) throws Exception {
         //fill mData
+        mData.clear();
+        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+        if (mData.size() == 0)
+            return;
+
         customerAdapter.updateList(mData);
         mRvCus.postInvalidate();
+
+        customerAdapter2.updateList(mData);
+        mRvCus2.postInvalidate();
+
+        updateUI(ID_TBL_CUSTOMER_Focus);
     }
 
     @Override
@@ -154,7 +303,7 @@ public class DetailActivity extends BaseActivity {
 
         try {
             //get mData intent
-            ID_BOOK = getIntent().getExtras().getInt(Common.INTENT_KEY_ID_BOOK);
+            ID_TBL_BOOK_OF_CUSTOMER = getIntent().getExtras().getInt(INTENT_KEY_ID_BOOK);
 
             //setup file debug
             init();
@@ -181,14 +330,20 @@ public class DetailActivity extends BaseActivity {
 
         mTvInfoBill = (TextView) findViewById(R.id.ac_detail_tv_info_bill);
         mTvOldIndex = (TextView) findViewById(R.id.ac_detail_tv_old_index);
-        mTvNewIndex = (TextView) findViewById(R.id.ac_detail_et_new_index);
+        mEtNewIndex = (EditText) findViewById(R.id.ac_detail_et_new_index);
         mRvCus = (RecyclerView) findViewById(R.id.ac_detail_rv_customer);
+        mRvCus2 = (RecyclerView) findViewById(R.id.dialog_detail_list_customer_rv_cus);
+        mRlDetail = (RelativeLayout) findViewById(R.id.ac_detail_rl4);
+        mVListCustomer = (View) findViewById(R.id.ac_detail_include_detail);
+        mTvWarning = (TextView) findViewById(R.id.ac_detail_tv_warning);
+        mBtnSave = (Button) findViewById(R.id.ac_detail_btn_save_new_index);
 
+        showIncludeListCusView(mIsShowInCludeList);
         mDatabase = SqlConnect.getInstance(this).open();
         mSqlDAO = new SqlDAO(mDatabase, this);
         //hiển thị folder trên sdcard
         if (!isLoadedFolder) {
-            Common.showFolder(this);
+            showFolder(this);
             isLoadedFolder = !isLoadedFolder;
         }
 
@@ -204,20 +359,22 @@ public class DetailActivity extends BaseActivity {
         {
             super.onActivityResult(requestCode, resultCode, data);
             try {
-                if (requestCode == Common.INTENT_REQUEST_KEY_CAMERA && resultCode == RESULT_OK) {
+                if (requestCode == INTENT_REQUEST_KEY_CAMERA && resultCode == RESULT_OK) {
                     //getData
-                    DetailProxy detailProxy = this.mData.get(mPosFocus);
+                    int focusNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
+                    DetailProxy detailProxy = this.mData.get(focusNow);
                     int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
                     int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
                     String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
-                    String TEN_ANH = Common.getImageName(PERIOD, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
-                    String pathURICapturedAnh = Common.getRecordDirectoryFolder("PHOTOS");
+                    String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
+                    String TEN_ANH = getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
+                    String pathURICapturedAnh = getRecordDirectoryFolder("") + "/" + TEN_ANH;
 
                     //scale image
                     if (TextUtils.isEmpty(pathURICapturedAnh))
                         return;
 
-                    Common.scaleImage(pathURICapturedAnh + "/" + TEN_ANH, this);
+                    scaleImage(pathURICapturedAnh, this);
 
                     //get bitmap tu URI
                     BitmapFactory.Options options = new BitmapFactory.Options();
@@ -228,120 +385,94 @@ public class DetailActivity extends BaseActivity {
                     flagChangeData = true;
 
 
-                    //holder a instance temp of detailProxy
-                    CustomerItem customerItemOld = detailProxy.getCustomerItemClone();
-                    ImageItem imageItemOld = detailProxy.getImageItemClone();
+                    //delete old image and insert
+                    String LOCAL_URIOfTBL_IMAGE = detailProxy.getLOCAL_URIOfTBL_IMAGE();
+                    if (!TextUtils.isEmpty(LOCAL_URIOfTBL_IMAGE)) {
+                        File fileImage = new File(LOCAL_URIOfTBL_IMAGE);
+                        if (fileImage.isFile())
+                            fileImage.delete();
+                    }
 
-//                CustomerItem customerItemNew = (CustomerItem) customerItemOld.clone();
-//                ImageItem imageItemNew = (ImageItem) imageItemOld.clone();
+                    int ID_TBL_IMAGE = detailProxy.getIDOfTBL_IMAGE();
+                    mSqlDAO.deleteIMAGE(ID_TBL_IMAGE);
 
-                    //update Data
-//                private int ID;
-//                private int ID_TBL_CUSTOMER;
-//                private String NAME;
-//                private String mLOCAL_URI;
-//                private int OLD_INDEX;
-//                private int NEW_INDEX;
-//                private String CREATE_DAY;
+                    ImageItem imageItem = new ImageItem();
+                    imageItem.setCREATE_DAY(Common.convertDateToDate(timeFileCaptureImage, type12, sqlite2));
+                    imageItem.setNEW_INDEX(Integer.parseInt(mEtNewIndex.getText().toString()));
+                    imageItem.setOLD_INDEX(0);
+                    imageItem.setID_TBL_CUSTOMER(ID_TBL_CUSTOMER_Focus);
+                    imageItem.setNAME(TEN_ANH);
+                    imageItem.setLOCAL_URI(pathURICapturedAnh);
+                    mSqlDAO.insertTBL_IMAGE(imageItem);
 
-
-//                imageItemNew.setNAME(TEN_ANH);
-//                imageItemNew.setLOCAL_URI(pathURICapturedAnh);
-//                imageItemNew.setNEW_INDEX(0);
-//                imageItemNew.setCREATE_DAY(timeFileCaptureImage);
-//                imageItemNew.setID((int) mSqlDAO.updateORInsertRows(TABLE_ANH_HIENTRUONG.class, TABLE_ANH_HIENTRUONGOld, tutiListViewB.get(indexTuTi).anhTuTi));
-
-//                case IMAGE_MACH_NHI_THU_TUTI:
-//                    if (maBdongTuTi == MA_BDONG.B) {
-//                        tutiListViewB.get(indexTuTi).setBitmap(typeImage, bitmap);
-//                        tutiListViewB.get(indexTuTi).refreshView(tutiListViewB.get(indexTuTi).ivAnhNhiThu);
-//                        tutiListViewB.get(indexTuTi).flagChangeData = true;
-//
-//                        if (tutiListViewB.get(indexTuTi).anhNhiThu != null)
-//                            TABLE_ANH_HIENTRUONGOld = (TABLE_ANH_HIENTRUONG) tutiListViewB.get(indexTuTi).anhNhiThu.clone();
-//                        else
-//                            tutiListViewB.get(indexTuTi).anhNhiThu = new TABLE_ANH_HIENTRUONG();
-//
-//
-//                        tutiListViewB.get(indexTuTi).anhNhiThu.setID_CHITIET_CTO(tableChitietCtoB.getID_CHITIET_CTO());
-//                        tutiListViewB.get(indexTuTi).anhNhiThu.setCREATE_DAY(timeFileCaptureAnhNhiThuTuTi);
-//                        tutiListViewB.get(indexTuTi).anhNhiThu.setMA_NVIEN(onIDataCommom.getMaNVien());
-//                        tutiListViewB.get(indexTuTi).anhNhiThu.setTYPE(IMAGE_MACH_NHI_THU_TUTI.code);
-//                        tutiListViewB.get(indexTuTi).anhNhiThu.setTEN_ANH(TEN_ANH);
-//                        tutiListViewB.get(indexTuTi).anhNhiThu.setID_TABLE_ANH_HIENTRUONG((int) mSqlDAO.updateORInsertRows(TABLE_ANH_HIENTRUONG.class, TABLE_ANH_HIENTRUONGOld, tutiListViewB.get(indexTuTi).anhNhiThu));
-////
-//                    } else {
-//                        tutiListViewE.get(indexTuTi).setBitmap(typeImage, bitmap);
-//                        tutiListViewE.get(indexTuTi).refreshView(tutiListViewE.get(indexTuTi).ivAnhNhiThu);
-//                        tutiListViewE.get(indexTuTi).flagChangeData = true;
-//
-//                        if (tutiListViewE.get(indexTuTi).anhNhiThu != null)
-//                            TABLE_ANH_HIENTRUONGOld = (TABLE_ANH_HIENTRUONG) tutiListViewE.get(indexTuTi).anhNhiThu.clone();
-//                        else
-//                            tutiListViewE.get(indexTuTi).anhNhiThu = new TABLE_ANH_HIENTRUONG();
-//
-//                        tutiListViewE.get(indexTuTi).anhNhiThu.setID_CHITIET_CTO(tableChitietCtoE.getID_CHITIET_CTO());
-//                        tutiListViewE.get(indexTuTi).anhNhiThu.setCREATE_DAY(timeFileCaptureAnhNhiThuTuTi);
-//                        tutiListViewE.get(indexTuTi).anhNhiThu.setMA_NVIEN(onIDataCommom.getMaNVien());
-//                        tutiListViewE.get(indexTuTi).anhNhiThu.setTYPE(IMAGE_MACH_NHI_THU_TUTI.code);
-//                        tutiListViewE.get(indexTuTi).anhNhiThu.setTEN_ANH(TEN_ANH);
-//                        tutiListViewE.get(indexTuTi).anhNhiThu.setID_TABLE_ANH_HIENTRUONG((int) mSqlDAO.updateORInsertRows(TABLE_ANH_HIENTRUONG.class, TABLE_ANH_HIENTRUONGOld, tutiListViewE.get(indexTuTi).anhNhiThu));
-//
-//                    }
-//                    break;
-//                case IMAGE_NIEM_PHONG_TUTI:
-//                    if (maBdongTuTi == MA_BDONG.B) {
-//                        tutiListViewB.get(indexTuTi).setBitmap(typeImage, bitmap);
-//                        tutiListViewB.get(indexTuTi).refreshView(tutiListViewB.get(indexTuTi).ivAnhNiemPhong);
-//                        tutiListViewB.get(indexTuTi).flagChangeData = true;
-//
-//                        if (tutiListViewB.get(indexTuTi).anhNiemPhong != null)
-//                            TABLE_ANH_HIENTRUONGOld = (TABLE_ANH_HIENTRUONG) tutiListViewB.get(indexTuTi).anhNiemPhong.clone();
-//                        else
-//                            tutiListViewB.get(indexTuTi).anhNiemPhong = new TABLE_ANH_HIENTRUONG();
-//
-//                        tutiListViewB.get(indexTuTi).anhNiemPhong.setID_CHITIET_CTO(tableChitietCtoB.getID_CHITIET_CTO());
-//                        tutiListViewB.get(indexTuTi).anhNiemPhong.setCREATE_DAY(timeFileCaptureAnhNiemPhongTuTi);
-//                        tutiListViewB.get(indexTuTi).anhNiemPhong.setMA_NVIEN(onIDataCommom.getMaNVien());
-//                        tutiListViewB.get(indexTuTi).anhNiemPhong.setTYPE(IMAGE_NIEM_PHONG_TUTI.code);
-//                        tutiListViewB.get(indexTuTi).anhNiemPhong.setTEN_ANH(TEN_ANH);
-//                        tutiListViewB.get(indexTuTi).anhNiemPhong.setID_TABLE_ANH_HIENTRUONG((int) mSqlDAO.updateORInsertRows(TABLE_ANH_HIENTRUONG.class, TABLE_ANH_HIENTRUONGOld, tutiListViewB.get(indexTuTi).anhNiemPhong));
-////
-//                    } else {
-//                        tutiListViewE.get(indexTuTi).setBitmap(typeImage, bitmap);
-//                        tutiListViewE.get(indexTuTi).refreshView(tutiListViewE.get(indexTuTi).ivAnhNiemPhong);
-//                        tutiListViewE.get(indexTuTi).flagChangeData = true;
-//
-//                        if (tutiListViewE.get(indexTuTi).anhNiemPhong != null)
-//                            TABLE_ANH_HIENTRUONGOld = (TABLE_ANH_HIENTRUONG) tutiListViewE.get(indexTuTi).anhNiemPhong.clone();
-//                        else
-//                            tutiListViewE.get(indexTuTi).anhNiemPhong = new TABLE_ANH_HIENTRUONG();
-//
-//                        tutiListViewE.get(indexTuTi).anhNiemPhong.setID_CHITIET_CTO(tableChitietCtoE.getID_CHITIET_CTO());
-//                        tutiListViewE.get(indexTuTi).anhNiemPhong.setCREATE_DAY(timeFileCaptureAnhNiemPhongTuTi);
-//                        tutiListViewE.get(indexTuTi).anhNiemPhong.setMA_NVIEN(onIDataCommom.getMaNVien());
-//                        tutiListViewE.get(indexTuTi).anhNiemPhong.setTYPE(IMAGE_NIEM_PHONG_TUTI.code);
-//                        tutiListViewE.get(indexTuTi).anhNiemPhong.setTEN_ANH(TEN_ANH);
-//                        tutiListViewE.get(indexTuTi).anhNiemPhong.setID_TABLE_ANH_HIENTRUONG((int) mSqlDAO.updateORInsertRows(TABLE_ANH_HIENTRUONG.class, TABLE_ANH_HIENTRUONGOld, tutiListViewE.get(indexTuTi).anhNiemPhong));
-//
-//                    }
-//                    break;
+                    //refreshUI
+                    loadDataDetail();
+                    refreshData(ID_TBL_CUSTOMER_Focus);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                Toast.makeText(this, "Gặp vấn đề khi chụp ảnh! " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "onActivityResult: " + e.getMessage());
             }
         }
     }
 
     @Override
     protected void handleListener() throws Exception {
+        //set menu bottom
+        mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
+            @Override
+            public void onTabSelected(@IdRes int tabId) {
+                try {
+                    if (customerAdapter == null)
+                        return;
+
+                    switch (tabId) {
+                        case R.id.ac_detail_nav_bot_detail:
+                            showIncludeListCusView(false);
+                            break;
+                        case R.id.ac_detail_nav_bot_filter:
+                            if (mPrefManager == null)
+                                mPrefManager = SharePrefManager.getInstance(DetailActivity.this);
+                            isFilteringBottomMenu = mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).
+                                    getBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, false);
+                            isFilteringBottomMenu = !isFilteringBottomMenu;
+                            mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).edit().putBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, isFilteringBottomMenu).commit();
+                            filterData(BookManagerActivity.TYPE_FILTER.FILTER_BY_BOTTOM_MENU, String.valueOf(isFilteringBottomMenu));
+                            break;
+
+                        case R.id.ac_detail_nav_bot_list:
+                            //show include
+                            showIncludeListCusView(true);
+                            break;
+                    }
+
+                } catch (Exception e) {
+                    Toast.makeText(DetailActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
+            }
+        });
+
         mImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    zoomImage(getImage());
+                    DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+                    String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
+                    if (TextUtils.isEmpty(LOCAL_URI))
+                        return;
+                    //get bitmap tu URI
+                    BitmapFactory.Options options = new BitmapFactory.Options();
+                    options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                    Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
+                    if (bitmap == null)
+                        return;
+
+                    zoomImage(bitmap);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    Log.e(TAG, "onClick: zoomImage" + e.getMessage());
                 }
             }
         });
@@ -353,45 +484,62 @@ public class DetailActivity extends BaseActivity {
                     captureImage();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi chụp ảnh!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 
+    private void showIncludeListCusView(boolean isShow) {
+        mIsShowInCludeList = isShow;
+        mVListCustomer.setVisibility(isShow ? View.VISIBLE : View.GONE);
+        mRlDetail.setVisibility(isShow ? View.GONE : View.VISIBLE);
+        mFabCapture.setVisibility(isShow ? View.GONE : View.VISIBLE);
+    }
+
+//    private void showDialogListCustomer() {
+//        final Dialog dialogCusList = new Dialog(this);
+//        dialogCusList.requestWindowFeature(Window.FEATURE_NO_TITLE);
+//        dialogCusList.setContentView(R.layout.dialog_detail_list_customer);
+//        dialogCusList.setCanceledOnTouchOutside(true);
+//        dialogCusList.getWindow().setLayout(android.support.v7.app.ActionBar.LayoutParams.MATCH_PARENT, android.support.v7.app.ActionBar.LayoutParams.MATCH_PARENT);
+//        dialogCusList.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+//        dialogCusList.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+//        Window window = dialogCusList.getWindow();
+//        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+//
+////        final RecyclerView recyclerView = (RecyclerView) dialogCusList.findViewById(R.id.rv_history_detail);
+////        final TextView tvCountThietBi = (TextView) dialogCusList.findViewById(R.id.tv_count_thietbi);
+//
+//        dialogCusList.show();
+//    }
+
     private void captureImage() throws IOException {
-        DetailProxy detailProxy = mData.get(mPosFocus);
-        timeFileCaptureImage = Common.getDateTimeNow(Common.DATE_TIME_TYPE.type12);
+        DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+        timeFileCaptureImage = getDateTimeNow(type12);
         int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
         int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
         String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
+        String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
         String TEN_ANH = detailProxy.getNAMEOfTBL_IMAGE();
 
-        String fileName = Common.getRecordDirectoryFolder("PHOTOS")
+        String fileName = getRecordDirectoryFolder("")
                 + "/"
-                + Common.getImageName(PERIOD, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
+                + getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
+
         File file = new File(fileName);
         if (file.exists()) {
             file.delete();
         }
         file.createNewFile();
 
+        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+        StrictMode.setVmPolicy(builder.build());
 
         Intent cameraIntent = new Intent("android.media.action.IMAGE_CAPTURE");
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-        startActivityForResult(cameraIntent, Common.INTENT_REQUEST_KEY_CAMERA);
-    }
-
-    private Bitmap getImage() {
-        DetailProxy detailProxy = mData.get(mPosFocus);
-        if (TextUtils.isEmpty(detailProxy.getLOCAL_URIOfTBL_IMAGE()))
-            return null;
-
-        String pathURICapturedAnh = Common.getRecordDirectoryFolder("PHOTOS");
-        //get bitmap tu URI
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(pathURICapturedAnh, options);
-        return bitmap;
+        startActivityForResult(cameraIntent, INTENT_REQUEST_KEY_CAMERA);
     }
 
     private void zoomImage(Bitmap bmImage) throws Exception {
@@ -411,74 +559,203 @@ public class DetailActivity extends BaseActivity {
 
     @Override
     protected void setAction(Bundle savedInstanceState) throws Exception {
+        //init shared preref
+        mPrefManager = SharePrefManager.getInstance(this);
+
+        this.checkSharePreference(mPrefManager);
+
         //load mData
         loadDataDetail();
         //fill mData
         fillDataDetail();
     }
 
-    private void fillDataDetail() {
+    private void checkSharePreference(SharePrefManager prefManager) {
+        if (!mPrefManager.checkExistSharePref(PREF_DETAIL)) {
+            mPrefManager.addSharePref(PREF_DETAIL, MODE_PRIVATE);
+            mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, false)
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!searchView.isIconified()) {
+            searchView.setIconified(true);
+            searchView.onActionViewCollapsed();
+        } else
+            super.onBackPressed();
+    }
+
+    private void closeSearchView() {
+        if (!searchView.isIconified()) {
+            searchView.setIconified(true);
+            searchView.onActionViewCollapsed();
+        }
+    }
+
+    private void fillDataDetail() throws Exception {
+        mTvWarning.setVisibility(mData.size() == 0 ? View.VISIBLE : View.GONE);
+        mFabCapture.setVisibility(mData.size() == 0 ? View.GONE : View.VISIBLE);
+        if (mData.size() == 0)
+            return;
+
         //setting recycler view
         customerAdapter = new CustomerAdapter(this, new CustomerAdapter.ICustomerAdapterCallback() {
             @Override
-            public void clickItem(int pos) {
-                if (pos >= mRvCus.getAdapter().getItemCount())
-                    return;
-
+            public void clickItem(final int pos, int ID_TBL_CUSTOMER) {
                 try {
-                    //update database by ID
-                    int ID = customerAdapter.getList().get(pos).getIDOfTBL_CUSTOMER();
-                    mSqlDAO.updateFocusTBL_CUSTOMER(ID, true);
-
-                    //refresh mData
-                    mPosFocus = pos;
-                    updateUI();
-
+                    clickItemOutSide(pos, ID_TBL_CUSTOMER);
+                    int posNow = findPosFocusNow(ID_TBL_CUSTOMER);
+//                    mRvCus.scrollToPosition(posNow);
+//                    mRvCus2.scrollToPosition(posNow);
+                    mRvCus.postInvalidate();
+                    mRvCus2.postInvalidate();
+                    closeSearchView();
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
                     Toast.makeText(DetailActivity.this, "Gặp vấn đề khi chọn sổ!", Toast.LENGTH_SHORT).show();
                 }
             }
-
-            @Override
-            public void scrollToPosition(int pos) {
-                mRvCus.scrollToPosition(pos);
-                mRvCus.postInvalidate();
-            }
         });
+        LinearLayoutManager layoutManager1 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
 
-        mRvCus.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        final GestureDetector detector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-
-            @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-                // return true if you want to stop the fling
-                // return false if you want to allow the fling
-                return true;
-            }
-        });
-        mRvCus.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                detector.onTouchEvent(event);
-                return false;
-            }
-        });
+        mRvCus.setLayoutManager(layoutManager1);
         customerAdapter.setList(mData);
         mRvCus.setHasFixedSize(true);
         mRvCus.setAdapter(customerAdapter);
+        final LinearSnapHelper snapHelper = new LinearSnapHelper() {
+            @Override
+            public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
+                View centerView = findSnapView(layoutManager);
+                if (centerView == null)
+                    return RecyclerView.NO_POSITION;
+
+                int position = layoutManager.getPosition(centerView);
+                int targetPosition = -1;
+                if (layoutManager.canScrollHorizontally()) {
+                    if (velocityX < 0) {
+                        targetPosition = position - 1;
+                    } else {
+                        targetPosition = position + 1;
+                    }
+                }
+
+                if (layoutManager.canScrollVertically()) {
+                    if (velocityY < 0) {
+                        targetPosition = position - 1;
+                    } else {
+                        targetPosition = position + 1;
+                    }
+                }
+
+                final int firstItem = 0;
+                final int lastItem = layoutManager.getItemCount() - 1;
+                targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
+                final int finalTargetPosition = targetPosition;
+                mRvCus.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            ID_TBL_CUSTOMER_Focus = mData.get(finalTargetPosition).getIDOfTBL_CUSTOMER();
+                            clickItemOutSide(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
+                            int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
+//                            mRvCus.scrollToPosition(posNow);
+//                            mRvCus2.scrollToPosition(posNow);
+                            mRvCus.postInvalidate();
+                            mRvCus2.postInvalidate();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, 1);
+
+                return finalTargetPosition;
+            }
+        };
+
+        try {
+            snapHelper.attachToRecyclerView(mRvCus);
+        } catch (IllegalStateException isex) {
+            Log.i(TAG, "fillDataDetail: there is already a {@link RecyclerView.OnFlingListener}\n" +
+                    "     * attached to the provided {@link RecyclerView}");
+        }
+
+        //setting recycler view 2
+        customerAdapter2 = new Customer2Adapter(this, new Customer2Adapter.ICustomerAdapterCallback2() {
+            @Override
+            public void clickItem(int pos, int ID_TBL_CUSTOMER) {
+                if (pos >= mRvCus2.getAdapter().getItemCount())
+                    return;
+
+                try {
+                    //update rv 1, rv2
+                    clickItemOutSide(pos, ID_TBL_CUSTOMER);
+                    int posNow = findPosFocusNow(ID_TBL_CUSTOMER);
+                    mRvCus.scrollToPosition(posNow);
+                    mRvCus2.scrollToPosition(posNow);
+                    mRvCus.postInvalidate();
+                    mRvCus2.postInvalidate();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
+                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi chọn sổ!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        mRvCus2.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        customerAdapter2.setList(mData);
+        mRvCus2.setHasFixedSize(true);
+        mRvCus2.setAdapter(customerAdapter2);
+
+        int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
+        clickItemOutSide(posNow, mData.get(posNow).getIDOfTBL_CUSTOMER());
+
+        mRvCus.scrollToPosition(posNow);
+        mRvCus2.scrollToPosition(posNow);
+
+        mRvCus.postInvalidate();
+        mRvCus2.postInvalidate();
     }
 
-    private void updateUI() {
-        DetailProxy detailProxy = mData.get(mPosFocus);
+    private void clickItemOutSide(int pos, int ID_TBL_CUSTOMER) throws Exception {
+        if (pos >= mRvCus.getAdapter().getItemCount())
+            return;
+        //update database by ID
+        mSqlDAO.updateResetFocusTBL_CUSTOMER();
+        mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER, true);
+        //reset
+        refreshData(ID_TBL_CUSTOMER);
+    }
+
+    private void updateUI(int ID_TBL_CUSTOMER_Focus) throws Exception {
+        int mPos = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
+        DetailProxy detailProxy = mData.get(mPos);
         mTvNameEmp.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
         mTvAndressEmp.setText(detailProxy.getCustomerAddressOfTBL_CUSTOMER());
-        mTvPerior.setText(detailProxy.getPeriodOfTBL_BOOK());
-        mImageView.setImageBitmap(getImage());
+        String perior_convert = Common.convertDateSQLToDateUI(detailProxy.getPeriodOfTBL_BOOK());
+        mTvPerior.setText(perior_convert);
+
+        Bitmap bitmap = detailProxy.getBitmap();
+        mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
+
         mTvInfoBill.setText("Sinh hoat");
         mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_IMAGE() + "");
-        mTvNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_IMAGE() + "");
+        mEtNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_IMAGE() + "");
+    }
+
+    private int findPosFocusNow(int ID_TBL_CUSTOMER_Focus) {
+        for (int i = 0; i < mData.size(); i++) {
+            if (mData.get(i).getIDOfTBL_CUSTOMER() == ID_TBL_CUSTOMER_Focus) {
+                return i;
+            }
+        }
+
+        return 0;
     }
 
 
@@ -486,22 +763,176 @@ public class DetailActivity extends BaseActivity {
         //dump mData
         //check exist mData
         int rowDataTBL_CUSTOMER = 0;
-        rowDataTBL_CUSTOMER = mSqlDAO.getNumberRowTBL_CUSTOMER();
+        rowDataTBL_CUSTOMER = mSqlDAO.getNumberRowTBL_CUSTOMER(ID_TBL_BOOK_OF_CUSTOMER);
         if (rowDataTBL_CUSTOMER == 0) {
-            dumpData();
+            if (ID_TBL_BOOK_OF_CUSTOMER != 3)
+                dumpData();
+            return;
+        }
+        //get Focus
+        //load first
+        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+
+        ID_TBL_CUSTOMER_Focus = findFocus();
+        if (ID_TBL_CUSTOMER_Focus == 0) {
+            //first focus
+            ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
+            mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, true);
+        }
+    }
+
+    private int findFocus() {
+        for (int i = 0; i < mData.size(); i++) {
+            if (mData.get(i).isFocusOfTBL_CUSTOMER()) {
+                return mData.get(i).getIDOfTBL_CUSTOMER();
+            }
         }
 
-        mData = mSqlDAO.getSelectAllDetailProxy();
+        return 0;
     }
 
     private void dumpData() throws Exception {
         //dumpData
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_BOOK, "CustomerName 1", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_BOOK, "CustomerName 2", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_BOOK, "CustomerName 3", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_BOOK, "CustomerName 4", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_BOOK, "CustomerName 5", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_BOOK, "CustomerName 6", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
-        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_BOOK, "CustomerName 7", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 1", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 2", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 3", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 4", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 5", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 6", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+        mSqlDAO.insertTBL_CUSTOMER(new CustomerItem(ID_TBL_BOOK_OF_CUSTOMER, "CustomerName 7", "Ha dong 1", CustomerItem.STATUS_Customer.NON_WRITING, false));
+    }
+
+    public void clickButtonSave(View view) {
+        DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+        String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
+        if (TextUtils.isEmpty(LOCAL_URI))
+            return;
+        //get bitmap tu URI
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
+        if (bitmap == null) {
+            Toast.makeText(this, "Cần phải chụp ảnh trước khi lưu thông tin!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (bitmap == null) {
+            Toast.makeText(this, "Cần nhập giá trị chỉ số!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int result = Integer.parseInt(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_IMAGE();
+        if (result <= 0) {
+            Toast.makeText(this, "Giá trị chỉ số hiện tại nhỏ nhỏ hơn giá trị cũ!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        //warning
+        loadSettingData();
+        if (settingObject.isMaxNotPercent()) {
+            if (result > settingObject.getMax()) {
+                showDialogWarningMaximum(settingObject.getMax(), result);
+                return;
+            }
+
+            saveData();
+        } else {
+            int oldRanger = (detailProxy.getOLD_INDEXOfTBL_IMAGE() - 0);
+            int newRanger = Integer.parseInt(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_IMAGE();
+            //oldRanger = 100 % --> new Ranger = ? %
+            oldRanger = (oldRanger == 0 ? 1 : oldRanger);
+            result = (newRanger / oldRanger) * 100;
+            int cal = (settingObject.getPercent());
+            if (result > cal) {
+                showDialogWarningPercent(result, cal);
+                return;
+            }
+
+        }
+
+
+    }
+
+    private void loadSettingData() {
+        //dump
+        settingObject = new SettingObject();
+        SharedPreferences sharedPreferences = mPrefManager.getSharePref(PREF_SETTING, MODE_PRIVATE);
+        settingObject.setURL(sharedPreferences.getString(KEY_PREF_URL, ""));
+        settingObject.setPort(sharedPreferences.getInt(KEY_PREF_PORT, 0));
+        settingObject.setMaxNotPercent(sharedPreferences.getBoolean(KEY_PREF_IS_MAX_NOT_PERCENT, false));
+        settingObject.setMax(sharedPreferences.getInt(KEY_PREF_MAX, 0));
+        settingObject.setPercent(sharedPreferences.getInt(KEY_PREF_PERCENT, 0));
+    }
+
+    private void showDialogWarningPercent(int result, int cal) {
+        IDialog iDialog = new IDialog() {
+            @Override
+            protected void clickOK() {
+                //save
+                saveData();
+            }
+
+            @Override
+            protected void clickCancel() {
+
+            }
+        }.setTextBtnOK("Tiếp tục ghi").setTextBtnCancel("Hủy thao tác");
+        DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+        super.showDialog(this, "Sản lượng hiện tăng hơn " +
+                (result - cal) +
+                " % " +
+                "so với kỳ trước và đang vượt quá giới hạn cảnh báo " + settingObject.getPercent() + " %.", iDialog);
+    }
+
+    private void saveData() {
+        try {
+            mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, CustomerItem.STATUS_Customer.WRITED);
+            mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Integer.parseInt(mEtNewIndex.getText().toString()));
+            mData.clear();
+            mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER);
+            DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+            String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
+            String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
+            String MA_DDO = "PD011120";
+            String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite1, type7);
+            int OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_IMAGE();
+            int NEW_INDEX = detailProxy.getNEW_INDEXOfTBL_IMAGE();
+            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "", "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
+
+            File file = new File(LOCAL_URI);
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                // PNG is a lossless format, the compression factor (100) is ignored
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw e;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "saveData: " + e.getMessage());
+            Toast.makeText(this, "Gặp vấn đề khi lưu dữ liệu " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void showDialogWarningMaximum(int objectMax, int result) {
+        IDialog iDialog = new IDialog() {
+            @Override
+            protected void clickOK() {
+                //save
+
+            }
+
+            @Override
+            protected void clickCancel() {
+
+            }
+        }.setTextBtnOK("Tiếp tục ghi").setTextBtnCancel("Hủy thao tác");
+        DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+        super.showDialog(this, "Sản lượng hiện là " +
+                result +
+                " m3 " +
+                " đang vượt quá giới hạn cảnh báo " + GCSApplication.getSettingObject().getMax() + " m3.", iDialog);
     }
 }

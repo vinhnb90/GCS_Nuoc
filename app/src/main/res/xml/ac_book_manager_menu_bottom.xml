@@ -7,7 +7,7 @@
         title="Tải về" />
     <tab
         barColorWhenSelected="@color/barColorWhenSelected"
-        icon="@drawable/outline_backup_black_18"
+        icon="@drawable/ic_filter"
         id="@+id/nav_bot_filter"
         title="Lọc khách hàng chưa ghi" />
     <tab
