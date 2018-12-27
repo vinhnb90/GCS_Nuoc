@@ -9,6 +9,8 @@ import freelancer.gcsnuoc.server.model.GetData.DataGetModelServer;
 import freelancer.gcsnuoc.server.model.GetToken.TokenModelServer;
 import freelancer.gcsnuoc.server.model.LoginServer.LoginGet;
 import freelancer.gcsnuoc.server.model.LoginServer.LoginPost;
+import freelancer.gcsnuoc.server.model.PostData.DataBookPost;
+import freelancer.gcsnuoc.server.model.PostData.DataBookPostReceived;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -28,6 +30,11 @@ public interface GCSAPIInterface {
     @Streaming
     @POST("EmpGetBookInfo")
     Call<DataGetModelServer> EmpGetBookInfo(@Body BookInfoPost bookInfoPost);
+
+    @Streaming
+    @POST("SaveIndexValue")
+    Call<DataBookPostReceived> SaveIndexValue(@Body DataBookPost dataBookPost);
+
 
 
 //

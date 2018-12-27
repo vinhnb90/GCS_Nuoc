@@ -308,6 +308,22 @@ public class SqlQuery {
                 TBL_CUSTOMER.OLD_INDEX.name() + " REAL, " +
                 TBL_CUSTOMER.NEW_INDEX.name() + " REAL, " +
                 TBL_CUSTOMER.MA_NVIEN.name() + " TEXT, " +
+
+                TBL_CUSTOMER.IndexId.name() + " INTEGER, " +
+                TBL_CUSTOMER.departmentId.name() + " TEXT, " +
+                TBL_CUSTOMER.pointId.name() + " TEXT, " +
+                TBL_CUSTOMER.timeOfUse.name() + " TEXT, " +
+                TBL_CUSTOMER.coefficient.name() + " REAL, " +
+                TBL_CUSTOMER.electricityMeterId.name() + " TEXT, " +
+                TBL_CUSTOMER.term.name() + " INTEGER, " +
+                TBL_CUSTOMER.month.name() + " INTEGER, " +
+                TBL_CUSTOMER.year.name() + " INTEGER, " +
+                TBL_CUSTOMER.indexType.name() + " TEXT, " +
+                TBL_CUSTOMER.startDate.name() + " TEXT, " +
+                TBL_CUSTOMER.endDate.name() + " TEXT, " +
+                TBL_CUSTOMER.customerId.name() + " TEXT, " +
+                TBL_CUSTOMER.customerCode.name() + " TEXT, " +
+
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() + " TEXT DEFAULT \"FALSE\"" +
                 ");";
     }
@@ -340,6 +356,24 @@ public class SqlQuery {
                 "= ?" +
                 "";
     }
+
+
+    public static String getNumberRowStatusTBL_CUSTOMERByBook() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_CUSTOMER.getName() + "" +
+                " WHERE " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? " +
+                "AND " +
+                TBL_CUSTOMER.STATUS_CUSTOMER +
+                "= ?" +
+                "AND " +
+                TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER +
+                "= ?" +
+                "";
+    }
+
 
     public static String getInsertTBL_CUSTOMER() {
         return "INSERT INTO " + TBL_CUSTOMER.getName() + " (" +

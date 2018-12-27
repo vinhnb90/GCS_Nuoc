@@ -29,6 +29,8 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
@@ -36,7 +38,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
@@ -57,6 +62,7 @@ import freelancer.gcsnuoc.server.model.GetData.DeliveryBook;
 import freelancer.gcsnuoc.server.model.GetData.IndexValue;
 import freelancer.gcsnuoc.server.model.GetToken.TokenModelServer;
 import freelancer.gcsnuoc.server.model.LoginServer.LoginPost;
+import freelancer.gcsnuoc.server.model.PostData.DataBookPost;
 import freelancer.gcsnuoc.sharepref.baseSharedPref.SharePrefManager;
 import freelancer.gcsnuoc.utils.Common;
 import retrofit2.Call;
@@ -82,6 +88,7 @@ public class BookManagerActivity extends BaseActivity {
     private BottomBar mBottomBar;
     private BooksAdapter booksAdapter;
     private List<BookItemProxy> dataDump = new ArrayList<>();
+    private List<BookItemProxy> dataChooseUpload = new ArrayList<>();
     private SqlDAO mSqlDAO;
     private SQLiteDatabase mDatabase;
 
@@ -105,8 +112,16 @@ public class BookManagerActivity extends BaseActivity {
     private TextView tvPercent;
     private Button btnDownload;
     private Dialog dialogDownload;
+
+    private TextView tvStatusUpload;
+    private ProgressBar pbarUpload;
+    private TextView tvPercentUpload;
+    private Button btnUpload;
+    private Dialog dialogUpload;
+
     private Thread threadDownload;
     private boolean threadDownloadIsRunning;
+    private boolean threadUploadIsRunning;
 
     public enum TYPE_FILTER {
         FILTER_BY_BOTTOM_MENU,
@@ -381,6 +396,9 @@ public class BookManagerActivity extends BaseActivity {
                         case R.id.nav_bot_list:
                             if (dialogDownload != null && dialogDownload.isShowing())
                                 dialogDownload.dismiss();
+
+                            if (dialogDownload != null && dialogDownload.isShowing())
+                                dialogDownload.dismiss();
                             break;
                         case R.id.nav_bot_download:
                             showDialogDownload();
@@ -411,51 +429,416 @@ public class BookManagerActivity extends BaseActivity {
     }
 
     private void showDialogUpload() {
-//        final Dialog dialogConfig = new Dialog(this);
-//        dialogConfig.requestWindowFeature(Window.FEATURE_NO_TITLE);
-//        dialogConfig.setContentView(R.layout.dialog_download);
-//        dialogConfig.setCanceledOnTouchOutside(true);
-//        dialogConfig.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
-//        dialogConfig.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-//        dialogConfig.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-//        final Window window = dialogConfig.getWindow();
-//        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
-//
-//        final TextView tvStatus = dialogConfig.findViewById(R.id.dialog_download_tv_status);
-//        final TextView tvCountBook = dialogConfig.findViewById(R.id.dilog_download_tv_count_book);
-//        final ProgressBar pbarDownload = dialogConfig.findViewById(R.id.dialog_download_pbar_download);
-//        final TextView tvPercent = dialogConfig.findViewById(R.id.dialog_download_tv_percent);
-//        final Button btnDownload = dialogConfig.findViewById(R.id.dialog_download_btn_download);
-//
-//        pbarDownload.setMax(100);
-//        pbarDownload.setProgress(0);
-//
-//        btnDownload.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
+        dialogUpload = new Dialog(this);
+        dialogUpload.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialogUpload.setContentView(R.layout.dialog_upload);
+        dialogUpload.setCanceledOnTouchOutside(true);
+        dialogUpload.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
+        dialogUpload.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        dialogUpload.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        final Window window = dialogUpload.getWindow();
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
+        tvStatusUpload = (TextView) dialogUpload.findViewById(R.id.dialog_upload_tv_status);
+//        tvCountBook = (TextView) dialogUpload.findViewById(R.id.dilog_download_tv_count_book);
+        pbarUpload = (ProgressBar) dialogUpload.findViewById(R.id.dialog_upload_pbar_upload);
+        tvPercentUpload = (TextView) dialogUpload.findViewById(R.id.dialog_upload_tv_percent);
+        btnUpload = (Button) dialogUpload.findViewById(R.id.dialog_upload_btn_download);
+
+        pbarDownload.setMax(100);
+        pbarDownload.setProgress(0);
+
+        btnUpload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    btnUpload.setClickable(false);
+                    //check all data not write yet and notify
+                    dataChooseUpload = new ArrayList<>();
+                    dataChooseUpload = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
+                    if (dataChooseUpload.size() == 0) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(BookManagerActivity.this, "Không có dữ liệu nào được chọn để đẩy lên!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        return;
+                    }
+
+                    Map<Integer, Integer> map = new HashMap<>();
+                    for (int i = 0; i < dataChooseUpload.size(); i++) {
+                        int ID_TBL_BOOK_OF_CUSTOMER = dataChooseUpload.get(i).getID();
+                        int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED, ID_TBL_BOOK_OF_CUSTOMER);
+                        int customerItemsNotWrite = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING, ID_TBL_BOOK_OF_CUSTOMER);
+                        int customerItemsUploaded = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED, ID_TBL_BOOK_OF_CUSTOMER);
+                        if (customerItemsNotWrite != 0) {
+                            map.put(i, customerItemsNotWrite);
+                        }
+                    }
+
+//                    if (customerItemsWrited == 0 && customerItemsNotWrite == 0 && customerItemsNotWrite == 0) {
+//                        runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                Toast.makeText(BookManagerActivity.this, "Không có dữ liệu để đẩy lên!", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
+//                        return;
+//                    }
+
+                    if (!map.isEmpty()) {
+                        StringBuilder warningMessage = new StringBuilder("Số khách hàng chưa ghi của các sổ chuẩn bị tải lên:");
+                        Set<Integer> set = map.keySet();
+                        for (Integer index :
+                                set) {
+                            warningMessage.append("\nSổ " + dataChooseUpload.get(index).getBookName() + ": " + map.get(index).intValue());
+                        }
+                        showDialogWarningUpload(warningMessage);
+                        return;
+                    }
+
+                    startUpload();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi truy xuất dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi truy xuất dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
 //                try {
-//                    int i = 0;
-//                    tvCountBook.setText("6");
-//                    do {
-//                        pbarDownload.setProgress(i);
-//                        tvPercent.setText(i);
-//                        tvStatus.setText(i + "%");
-//                        Thread.sleep(Common.TIME_DELAY_ANIM);
-//                    } while (i < 100);
-//                } catch (InterruptedException e) {
+//                    btnUpload.setClickable(false);
+//                    //check all data not write yet and notify
+//                    int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
+//                    if (customerItemsWrited != 0) {
+//                        showDialogWarningUpload();
+//                        return;
+//                    }
+//                    startUpload();
+//                } catch (FileNotFoundException e) {
 //                    e.printStackTrace();
+//                    Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi truy xuất dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
 //                }
-//            }
-//        });
+            }
+        });
+
+        dialogUpload.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                onResume();
+                dialogUpload.dismiss();
+                onBackPressed();
+            }
+        });
+
+        dialogUpload.show();
+    }
+
+    private void startUpload() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                threadUploadIsRunning = true;
+                if (apiInterface == null)
+                    apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
+
+//                try {
+//                    startDeleteAllOldData();
+//                } catch (final Exception e) {
+//                    e.printStackTrace();
 //
-//        dialogConfig.setOnDismissListener(new DialogInterface.OnDismissListener() {
-//            @Override
-//            public void onDismiss(DialogInterface dialogInterface) {
-//                onResume();
-//                dialogConfig.dismiss();
-//            }
-//        });
+//                    BookManagerActivity.this.runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(BookManagerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                            btnDownload.setClickable(true);
+//                        }
+//                    });
+//                    return;
+//                }
+
+                startGetTokenAndUploadDataBook();
+
+                BookManagerActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnDownload.setClickable(true);
+                    }
+                });
+                threadUploadIsRunning = false;
+            }
+        });
+    }
+
+    private void startGetTokenAndUploadDataBook() {
+        try {
+            if (!Common.isNetworkConnected(BookManagerActivity.this)) {
+                setUIUpload("Không có kết nối internet!", 0);
+                return;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            setUIUpload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+        }
+        setUIUpload("Đang cập nhật token từ máy chủ...", 10);
+        try {
+            Thread.sleep(150);
+            Call<TokenModelServer> tokenModelServerCall = apiInterface.GetToken(new LoginPost(USER_NAME, PASS));
+            Response<TokenModelServer> modelServerResponse = null;
+
+            modelServerResponse = tokenModelServerCall.execute();
+            TokenModelServer result = new TokenModelServer();
+            int statusCode = modelServerResponse.code();
+
+            if (modelServerResponse.isSuccessful()) {
+                if (statusCode == 200) {
+                    result = modelServerResponse.body();
+                    if (result.getResult() == true) {
+                        //convert list data server to data mtb
+                        //expiryDate=2018-12-26T21:11:23.8328657+07:00
+                        String getExpiryDate = result.getData().getExpiryDate();
+//                        String getExpiryDate_Convert = getExpiryDate.substring(0, 17);
+                        String token = result.getData().getToken();
+                        setUIUpload("Cập nhật token từ máy chủ thành công...", 100);
+                        Thread.sleep(150);
+                        setUIUpload("Đang chuẩn bị dữ liệu sổ để đẩy lên máy chủ...", 0);
+                        Thread.sleep(150);
+                        startPrepareDataAndUploadBook(token);
+
+                        return;
+                    } else {
+                        setUIUpload("Tải token thất bại!\nNội dung: " + result.getMessage(), 0);
+                        return;
+                    }
+                } else {
+                    setUIUpload("Không nhận được phản hồi từ máy chủ! \nCode: " + statusCode, 0);
+                }
+            } else {
+                setUIUpload("Không kết nối được máy chủ!", 0);
+            }
+        } catch (final IOException e) {
+            e.printStackTrace();
+            setUIUpload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            setUIUpload("Có vấn đề về ghi dữ liệu!\n" + e.getMessage(), 0);
+        }
+    }
+
+    private void startPrepareDataAndUploadBook(String token) {
+        try {
+            if (!Common.isNetworkConnected(BookManagerActivity.this)) {
+                setUIUpload("Không có kết nối internet!", 0);
+                return;
+            }
+
+            setUIUpload("Đang chuẩn bị dữ liệu sổ để đẩy lên máy chủ...", 1);
+            Thread.sleep(150);
+            List<DataBookPost> listBookPreparedPost = new ArrayList<>();
+            for (int k = 0; k < dataChooseUpload.size(); k++) {
+                DataBookPost item = new DataBookPost();
+                BookItemProxy bookItemProxy = dataChooseUpload.get(k);
+                List<DataBookPost> listCustomer = new ArrayList<>();
+                listCustomer = mSqlDAO.getSelectAllDetailProxy()
+                item.setIndexId();
+                item.setToken();
+                item.setDepartmentId();
+                item.setPointId();
+                item.setTimeOfUse();
+                item.setCoefficient();
+                item.setElectricityMeterId();
+                item.setTerm();
+                item.setMonth();
+                item.setYear();
+
+                item.setYear();
+                item.setIndexType();
+                item.setOldValue();
+                item.setNewValue();
+                item.setStartDate();
+                item.setEndDate();
+
+                item.setCustomerId();
+                item.setCustomerCode();
+                item.setImg();
+
+            }
+
+
+
+            Call<DataGetModelServer> tokenModelServerCall = apiInterface.EmpGetBookInfo(new BookInfoPost(MA_NVIEN, token));
+            Response<DataGetModelServer> modelServerResponse = null;
+            try {
+                modelServerResponse = tokenModelServerCall.execute();
+                DataGetModelServer result = new DataGetModelServer();
+                int statusCode = modelServerResponse.code();
+
+                if (modelServerResponse.isSuccessful()) {
+                    if (statusCode == 200) {
+                        result = modelServerResponse.body();
+                        if (result.getResult() == true) {
+                            //convert list data server to data mtb
+
+                            //get all data book delivery
+                            List<DeliveryBook> deliveryBooks = result.getData().getDeliveryBook();
+                            bookItemList = new ArrayList<>();
+                            deliveryBookSize = deliveryBooks.size(); // == 100 %
+
+                            List<IndexValue> indexValues = result.getData().getIndexValue();
+                            customnerItemList = new ArrayList<>();
+                            indexCustomerSize = indexValues.size();
+
+                            List<BookAvailable> bookAvailables = result.getData().getBookAvailable();
+
+                            boolean flag = false;
+
+                            for (int i = 0; i < deliveryBookSize; i++) {
+                                DeliveryBook deliveryBook = deliveryBooks.get(i);
+                                BookItem bookItem = null;
+                                //get data book item
+
+                                //search all availble book
+                                for (BookAvailable bookAvailable : bookAvailables) {
+                                    //1 book
+                                    if (bookAvailable.getFigureBookId().intValue() == deliveryBook.getId().intValue()) {
+                                        bookItem = new BookItem();
+                                        bookItem.setBookName(deliveryBook.getName());
+                                        bookItem.setStatusBook(BookItem.STATUS_BOOK.NON_WRITING);
+                                        bookItem.setCustomerWrited(0);
+                                        bookItem.setCustomerNotWrite(0);
+                                        bookItem.setPeriod("");
+                                        bookItem.setFocus(i == 0 ? true : false);
+                                        bookItem.setChoose(false);
+                                        bookItem.setCODE(deliveryBook.getId().intValue());
+                                        bookItem.setMA_NVIEN(MA_NVIEN);
+                                    }
+                                }
+
+                                //seatch all index
+                                for (int j = 0; j < indexCustomerSize; j++) {
+                                    IndexValue indexValue = indexValues.get(j);
+                                    CustomerItem customerItem = null;
+                                    if (indexValue.getFigureBookId().intValue() == deliveryBook.getId().intValue()) {
+                                        customerItem = new CustomerItem();
+                                        customerItem.setIDBook(bookItem.getCODE());
+                                        customerItem.setCustomerName(indexValue.getName());
+                                        customerItem.setCustomerAddress(indexValue.getAddress());
+                                        customerItem.setStatusCustomer(CustomerItem.STATUS_Customer.NON_WRITING);
+                                        customerItem.setFocus(j == 0 ? true : false);
+                                        customerItem.setOldIndex(indexValue.getOldValue());
+                                        customerItem.setNewIndex(0);
+                                        customerItem.setMA_NVIEN(MA_NVIEN);
+
+                                        customerItem.setIndexId(indexValue.getIndexId().intValue());
+                                        customerItem.setDepartmentId(String.valueOf(indexValue.getDepartmentId()));
+                                        customerItem.setPointId(String.valueOf(indexValue.getPointId()));
+                                        customerItem.setTimeOfUse(String.valueOf(indexValue.getTimeOfUse()));
+                                        customerItem.setCoefficient(indexValue.getCoefficient());
+                                        customerItem.setElectricityMeterId(String.valueOf(indexValue.getElectricityMeterId()));
+                                        customerItem.setTerm(indexValue.getTerm());
+                                        customerItem.setMonth(indexValue.getMonth());
+                                        customerItem.setYear(indexValue.getYear());
+                                        customerItem.setIndexType(indexValue.getIndexType());
+                                        customerItem.setStartDate(indexValue.getStartDate());
+                                        customerItem.setEndDate(indexValue.getEndDate());
+                                        customerItem.setCustomerId(String.valueOf(indexValue.getCustomerId()));
+                                        customerItem.setCustomerCode(String.valueOf(indexValue.getPointId()));
+                                        flag = true;
+                                    } else {
+                                        if (i == bookItemList.size() - 1) {
+                                            if (!flag)
+                                                Log.d(TAG, "startDownloadBook: indexValues.getCustomerCode = " + indexValues.get(j).getCustomerCode());
+                                            else
+                                                flag = false;
+                                        }
+                                    }
+                                    if (customerItem != null) {
+                                        customnerItemList.add(customerItem);
+                                    }
+                                }
+
+                                if (bookItem != null) {
+                                    bookItem.setCustomerNotWrite(customnerItemList.size());
+                                    bookItem.setCustomerNotWrite(0);
+                                    bookItemList.add(bookItem);
+                                }
+
+                                setUIUpload("Đã cập nhật ...", (i + 1) / deliveryBookSize);
+                                Thread.sleep(50);
+                            }
+                            setUIUpload("Tải về dữ liệu thành công!", 100);
+                            Thread.sleep(150);
+
+                            setUIUpload("Đang xử lý lưu dữ liệu!", 0);
+                            //save data
+
+                            for (int i = 0; i < bookItemList.size(); i++) {
+                                int id = mSqlDAO.insertTBL_BOOK(bookItemList.get(i));
+                                bookItemList.get(i).setID(id);
+                            }
+                            //save data
+                            setUIUpload("Đang xử lý lưu dữ liệu!", 50);
+                            try {
+                                for (int i = 0; i < customnerItemList.size(); i++) {
+                                    for (int j = 0; j < bookItemList.size(); j++) {
+                                        if (customnerItemList.get(i).getIDBook() == bookItemList.get(j).getCODE()) {
+                                            customnerItemList.get(i).setIDBook(bookItemList.get(j).getID());
+                                            mSqlDAO.insertTBL_CUSTOMER(customnerItemList.get(i));
+                                        }
+                                    }
+                                }
+
+                                for (int j = 0; j < bookItemList.size(); j++) {
+                                    int count = mSqlDAO.countAllByStatusTBL_CUSTOMER(bookItemList.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
+                                    mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(bookItemList.get(j).getID(), count, MA_NVIEN, false);
+                                }
+
+                            } catch (Exception e) {
+                                mSqlDAO.deleteAllRowTBL_BOOK(MA_NVIEN);
+                                throw e;
+                            }
+                            setUIUpload("Hoàn thành quá trình tải sổ!", 100);
+
+                            return;
+                        } else {
+                            setUIUpload("Tải token thất bại!\nNội dung: " + result.getMessage(), 0);
+                            return;
+                        }
+                    } else {
+                        setUIUpload("Không nhận được phản hồi từ máy chủ! \nCode: " + statusCode, 0);
+                    }
+                } else {
+                    setUIUpload("Không kết nối được máy chủ!", 0);
+                }
+            } catch (final IOException e) {
+                e.printStackTrace();
+                setUIUpload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                setUIUpload("Có vấn đề về ghi dữ liệu!\n" + e.getMessage(), 0);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            setUIUpload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+        }
+    }
+
+    private void showDialogWarningUpload(StringBuilder warningMessage) {
+        IDialog iDialog = new IDialog() {
+            @Override
+            protected void clickOK() {
+                //save
+                startUpload();
+            }
+
+            @Override
+            protected void clickCancel() {
+            }
+        }.setTextBtnOK("Tiếp tục đẩy lên").setTextBtnCancel("Hủy thao tác");
+        super.showDialog(this, "Có một số Sổ chưa ghi chỉ số đầy đủ!\n " +
+                warningMessage +
+                "Nếu chọn tiếp tục đẩy dữ liệu sổ lên,\n chương trình sẽ chỉ đẩy dữ liệu những khách hàng đó và trạng thái sổ chưa chuyển sang ĐÃ GỬI\n", iDialog);
     }
 
     private void showDialogDownload() throws Exception {
@@ -485,7 +868,7 @@ public class BookManagerActivity extends BaseActivity {
                 try {
                     btnDownload.setClickable(false);
                     //check all data not write yet and notify
-                    int customerItemsWrited = mSqlDAO.getNumberRowWritedTBL_CUSTOMER(MA_NVIEN);
+                    int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
                     if (customerItemsWrited != 0) {
                         showDialogWarningDownload();
                         return;
@@ -516,7 +899,6 @@ public class BookManagerActivity extends BaseActivity {
             protected void clickOK() {
                 //save
                 startDownload();
-
             }
 
             @Override
@@ -728,6 +1110,21 @@ public class BookManagerActivity extends BaseActivity {
                                         customerItem.setOldIndex(indexValue.getOldValue());
                                         customerItem.setNewIndex(0);
                                         customerItem.setMA_NVIEN(MA_NVIEN);
+
+                                        customerItem.setIndexId(indexValue.getIndexId().intValue());
+                                        customerItem.setDepartmentId(String.valueOf(indexValue.getDepartmentId()));
+                                        customerItem.setPointId(String.valueOf(indexValue.getPointId()));
+                                        customerItem.setTimeOfUse(String.valueOf(indexValue.getTimeOfUse()));
+                                        customerItem.setCoefficient(indexValue.getCoefficient());
+                                        customerItem.setElectricityMeterId(String.valueOf(indexValue.getElectricityMeterId()));
+                                        customerItem.setTerm(indexValue.getTerm());
+                                        customerItem.setMonth(indexValue.getMonth());
+                                        customerItem.setYear(indexValue.getYear());
+                                        customerItem.setIndexType(indexValue.getIndexType());
+                                        customerItem.setStartDate(indexValue.getStartDate());
+                                        customerItem.setEndDate(indexValue.getEndDate());
+                                        customerItem.setCustomerId(String.valueOf(indexValue.getCustomerId()));
+                                        customerItem.setCustomerCode(String.valueOf(indexValue.getPointId()));
                                         flag = true;
                                     } else {
                                         if (i == bookItemList.size() - 1) {
@@ -774,7 +1171,7 @@ public class BookManagerActivity extends BaseActivity {
                                 }
 
                                 for (int j = 0; j < bookItemList.size(); j++) {
-                                    int count = mSqlDAO.countAllByStatusTBL_CUSTOMER(bookItemList.get(j).getID(),MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
+                                    int count = mSqlDAO.countAllByStatusTBL_CUSTOMER(bookItemList.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
                                     mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(bookItemList.get(j).getID(), count, MA_NVIEN, false);
                                 }
 
@@ -807,7 +1204,6 @@ public class BookManagerActivity extends BaseActivity {
             e.printStackTrace();
             setUIDownload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
         }
-
     }
 
     private void setUIDownload(final String textStatus, final int progress) {
@@ -818,6 +1214,18 @@ public class BookManagerActivity extends BaseActivity {
                 pbarDownload.setProgress(progress);
 //                tvCountBook.setText(deliveryBookSize);
                 tvPercent.setText(progress + "%");
+            }
+        });
+    }
+
+    private void setUIUpload(final String textStatus, final int progress) {
+        BookManagerActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvStatusUpload.setText(textStatus);
+                pbarUpload.setProgress(progress);
+//                tvCountBook.setText(deliveryBookSize);
+                tvPercentUpload.setText(progress + "%");
             }
         });
     }
@@ -864,8 +1272,6 @@ public class BookManagerActivity extends BaseActivity {
                     mSqlDAO.updateResetFocusTBL_BOOK(MA_NVIEN);
                     mSqlDAO.updateFocusTBL_BOOK(ID, MA_NVIEN);
 
-                    //refresh data
-                    refreshData();
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
@@ -928,6 +1334,14 @@ public class BookManagerActivity extends BaseActivity {
             return;
         }
         dataDump = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
+
+        for (int j = 0; j < dataDump.size(); j++) {
+            int count = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
+            mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), count, MA_NVIEN, false);
+
+            count = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
+            mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), count, MA_NVIEN, true);
+        }
     }
 
 //    private void dumpData() throws Exception {

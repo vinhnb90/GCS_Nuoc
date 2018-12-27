@@ -307,13 +307,31 @@ public class SqlDAO {
         return CustomerItemProxies;
     }
 
-    public int getNumberRowWritedTBL_CUSTOMER(String MA_NVIEN) throws FileNotFoundException {
+    public int getNumberRowStatusTBL_CUSTOMERByBook(String MA_NVIEN, CustomerItem.STATUS_Customer statusCustomer, int ID_TBL_BOOK_OF_CUSTOMER) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
                 MA_NVIEN,
-                CustomerItem.STATUS_Customer.WRITED.getStatus());
+                statusCustomer.getStatus(),
+                ID_TBL_BOOK_OF_CUSTOMER
+        );
+
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectNotUploadTBL_CUSTOMER(), args);
+        if (cursor != null) {
+            return cursor.getCount();
+        }
+        return 0;
+    }
+
+    public int getNumberRowStatusTBL_CUSTOMER(String MA_NVIEN, CustomerItem.STATUS_Customer statusCustomer) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                statusCustomer.getStatus()
+                );
 
         Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectNotUploadTBL_CUSTOMER(), args);
         if (cursor != null) {

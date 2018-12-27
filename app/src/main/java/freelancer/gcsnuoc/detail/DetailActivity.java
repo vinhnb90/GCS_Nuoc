@@ -885,6 +885,15 @@ public class DetailActivity extends BaseActivity {
             protected void clickOK() {
                 //save
                 saveData();
+                //reload
+                try {
+                    loadDataDetail();
+
+                    fillDataDetail();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi load lại dữ liệu! \n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override

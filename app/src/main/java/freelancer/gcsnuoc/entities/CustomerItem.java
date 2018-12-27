@@ -13,16 +13,24 @@ public class CustomerItem implements Cloneable{
     private double mOldIndex;
     private String MA_NVIEN;
 
-    public CustomerItem(int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, int newIndex, int oldIndex, String MA_NVIEN) {
-        this.IDBook = IDBook;
-        mCustomerName = customerName;
-        mCustomerAddress = customerAddress;
-        mStatusCustomer = statusCustomer;
-        mIsFocus = isFocus;
-        mNewIndex = newIndex;
-        mOldIndex = oldIndex;
-        this.MA_NVIEN = MA_NVIEN;
-    }
+    //post
+    //other post
+    private int IndexId;
+    private String departmentId;
+    private String pointId;
+    private String timeOfUse;
+    private double coefficient;
+    private String electricityMeterId;
+    private int term;
+    private int month;
+    private int year;
+    private String indexType;
+    private String startDate;
+    private String endDate;
+    private String customerId;
+    private String customerCode;
+    private String img;
+
 
     public CustomerItem() {
     }
@@ -73,6 +81,126 @@ public class CustomerItem implements Cloneable{
 
     public void setMA_NVIEN(String MA_NVIEN) {
         this.MA_NVIEN = MA_NVIEN;
+    }
+
+    public int getIndexId() {
+        return IndexId;
+    }
+
+    public void setIndexId(int indexId) {
+        IndexId = indexId;
+    }
+
+    public String getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(String departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    public String getPointId() {
+        return pointId;
+    }
+
+    public void setPointId(String pointId) {
+        this.pointId = pointId;
+    }
+
+    public String getTimeOfUse() {
+        return timeOfUse;
+    }
+
+    public void setTimeOfUse(String timeOfUse) {
+        this.timeOfUse = timeOfUse;
+    }
+
+    public double getCoefficient() {
+        return coefficient;
+    }
+
+    public void setCoefficient(double coefficient) {
+        this.coefficient = coefficient;
+    }
+
+    public String getElectricityMeterId() {
+        return electricityMeterId;
+    }
+
+    public void setElectricityMeterId(String electricityMeterId) {
+        this.electricityMeterId = electricityMeterId;
+    }
+
+    public int getTerm() {
+        return term;
+    }
+
+    public void setTerm(int term) {
+        this.term = term;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public String getIndexType() {
+        return indexType;
+    }
+
+    public void setIndexType(String indexType) {
+        this.indexType = indexType;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(String customerId) {
+        this.customerId = customerId;
+    }
+
+    public String getCustomerCode() {
+        return customerCode;
+    }
+
+    public void setCustomerCode(String customerCode) {
+        this.customerCode = customerCode;
+    }
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
     }
 
     public enum STATUS_Customer {
