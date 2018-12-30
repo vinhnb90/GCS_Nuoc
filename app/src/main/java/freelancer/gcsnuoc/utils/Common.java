@@ -24,6 +24,7 @@ import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -1222,4 +1223,14 @@ public class Common {
         return false;
     }
 
+    public static String convertBitmapToByte64(String pathImage) {
+        Bitmap imageBitmap = BitmapFactory.decodeFile(pathImage);
+
+        Bitmap immagex = imageBitmap;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        immagex.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] imageByte = baos.toByteArray();
+        String byteBimap = Base64.encodeToString(imageByte, Base64.NO_WRAP);
+        return byteBimap;
+    }
 }

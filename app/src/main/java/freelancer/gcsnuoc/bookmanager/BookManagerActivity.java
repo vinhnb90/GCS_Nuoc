@@ -29,8 +29,6 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.roughike.bottombar.BottomBar;
 import com.roughike.bottombar.OnTabSelectListener;
 
@@ -39,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +50,7 @@ import freelancer.gcsnuoc.detail.DetailActivity;
 import freelancer.gcsnuoc.entities.BookItem;
 import freelancer.gcsnuoc.entities.BookItemProxy;
 import freelancer.gcsnuoc.entities.CustomerItem;
+import freelancer.gcsnuoc.entities.DetailProxy;
 import freelancer.gcsnuoc.entities.ImageItemProxy;
 import freelancer.gcsnuoc.login.LoginActivity;
 import freelancer.gcsnuoc.server.GCSAPIInterface;
@@ -63,6 +63,7 @@ import freelancer.gcsnuoc.server.model.GetData.IndexValue;
 import freelancer.gcsnuoc.server.model.GetToken.TokenModelServer;
 import freelancer.gcsnuoc.server.model.LoginServer.LoginPost;
 import freelancer.gcsnuoc.server.model.PostData.DataBookPost;
+import freelancer.gcsnuoc.server.model.PostData.DataBookPostReceived;
 import freelancer.gcsnuoc.sharepref.baseSharedPref.SharePrefManager;
 import freelancer.gcsnuoc.utils.Common;
 import retrofit2.Call;
@@ -106,6 +107,7 @@ public class BookManagerActivity extends BaseActivity {
     private int indexCustomerSize;
     private List<BookItem> bookItemList;
     private List<CustomerItem> customnerItemList;
+    private Map<Integer, DataBookPost> mDataHashMapBookPostsUpload = new HashMap<>();
     private TextView tvStatus;
     //    private TextView tvCountBook;
     private ProgressBar pbarDownload;
@@ -114,6 +116,8 @@ public class BookManagerActivity extends BaseActivity {
     private Dialog dialogDownload;
 
     private TextView tvStatusUpload;
+    private TextView tvNotifyResult;
+    private TextView tvTitleNotifyResult;
     private ProgressBar pbarUpload;
     private TextView tvPercentUpload;
     private Button btnUpload;
@@ -123,6 +127,7 @@ public class BookManagerActivity extends BaseActivity {
     private boolean threadDownloadIsRunning;
     private boolean threadUploadIsRunning;
 
+
     public enum TYPE_FILTER {
         FILTER_BY_BOTTOM_MENU,
         FILTER_BY_SEARCH,
@@ -130,6 +135,12 @@ public class BookManagerActivity extends BaseActivity {
     }
 
     private static boolean isLoadedFolder = false;
+
+    private List<DataBookPostReceived> listPostSucessServer = new ArrayList<>();
+    private List<DataBookPostReceived> listPostErrorServer = new ArrayList<>();
+    private List<DataBookPostReceived> listPostTimeoutServer = new ArrayList<>();
+    private List<DataBookPostReceived> listPostDisConnectServer = new ArrayList<>();
+    private List<DataBookPost> listPostErrorClient = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -440,13 +451,17 @@ public class BookManagerActivity extends BaseActivity {
         window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
         tvStatusUpload = (TextView) dialogUpload.findViewById(R.id.dialog_upload_tv_status);
-//        tvCountBook = (TextView) dialogUpload.findViewById(R.id.dilog_download_tv_count_book);
+
+        tvNotifyResult = (TextView) dialogUpload.findViewById(R.id.dialog_upload_tv_notify_upload);
+        tvTitleNotifyResult = (TextView) dialogUpload.findViewById(R.id.tv_capnhat2);
         pbarUpload = (ProgressBar) dialogUpload.findViewById(R.id.dialog_upload_pbar_upload);
         tvPercentUpload = (TextView) dialogUpload.findViewById(R.id.dialog_upload_tv_percent);
         btnUpload = (Button) dialogUpload.findViewById(R.id.dialog_upload_btn_download);
+        tvNotifyResult.setText("");
+        showNotifyResultUpload(false);
 
-        pbarDownload.setMax(100);
-        pbarDownload.setProgress(0);
+        pbarUpload.setMax(100);
+        pbarUpload.setProgress(0);
 
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -471,7 +486,7 @@ public class BookManagerActivity extends BaseActivity {
                         int ID_TBL_BOOK_OF_CUSTOMER = dataChooseUpload.get(i).getID();
                         int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED, ID_TBL_BOOK_OF_CUSTOMER);
                         int customerItemsNotWrite = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING, ID_TBL_BOOK_OF_CUSTOMER);
-                        int customerItemsUploaded = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED, ID_TBL_BOOK_OF_CUSTOMER);
+//                        int customerItemsUploaded = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED, ID_TBL_BOOK_OF_CUSTOMER);
                         if (customerItemsNotWrite != 0) {
                             map.put(i, customerItemsNotWrite);
                         }
@@ -505,6 +520,14 @@ public class BookManagerActivity extends BaseActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi truy xuất dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                } finally {
+                    BookManagerActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnUpload.setClickable(true);
+                        }
+                    });
+                    threadUploadIsRunning = false;
                 }
 //                try {
 //                    btnUpload.setClickable(false);
@@ -534,6 +557,16 @@ public class BookManagerActivity extends BaseActivity {
         dialogUpload.show();
     }
 
+    private void showNotifyResultUpload(final boolean isShow) {
+        BookManagerActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvStatusUpload.setVisibility(isShow ? View.VISIBLE : View.GONE);
+                tvTitleNotifyResult.setVisibility(isShow ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
     private void startUpload() {
         new Thread(new Runnable() {
             @Override
@@ -542,32 +575,41 @@ public class BookManagerActivity extends BaseActivity {
                 if (apiInterface == null)
                     apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
 
-//                try {
-//                    startDeleteAllOldData();
-//                } catch (final Exception e) {
-//                    e.printStackTrace();
-//
-//                    BookManagerActivity.this.runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(BookManagerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//                            btnDownload.setClickable(true);
-//                        }
-//                    });
-//                    return;
-//                }
+                BookManagerActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnUpload.setClickable(true);
+                    }
+                });
 
                 startGetTokenAndUploadDataBook();
+
+                showNotifyResultUpload(true);
+                //show
+                StringBuilder message = new StringBuilder();
+                message.append("Số sổ yêu cầu đẩy lên: " + dataChooseUpload.size());
+                message.append("\n");
+                message.append("Số khách hàng yêu cầu đẩy lên: " + mDataHashMapBookPostsUpload.size());
+                message.append("\n");
+                message.append("Số khách hàng đẩy thành công: " + listPostSucessServer.size());
+                message.append("\n");
+                message.append("Số khách hàng đẩy bị lỗi do máy chủ trả về: " + listPostErrorServer.size());
+                message.append("\n");
+                message.append("Số khách hàng đẩy bị lỗi do kết nối chờ quá lâu: " + listPostTimeoutServer.size());
+                message.append("\n");
+                message.append("Số khách hàng đẩy bị lỗi do xử lý lỗi từ clien: " + listPostErrorClient.size());
+
+                tvNotifyResult.setText(message);
 
                 BookManagerActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        btnDownload.setClickable(true);
+                        btnUpload.setClickable(true);
                     }
                 });
                 threadUploadIsRunning = false;
             }
-        });
+        }).start();
     }
 
     private void startGetTokenAndUploadDataBook() {
@@ -603,6 +645,7 @@ public class BookManagerActivity extends BaseActivity {
                         Thread.sleep(150);
                         setUIUpload("Đang chuẩn bị dữ liệu sổ để đẩy lên máy chủ...", 0);
                         Thread.sleep(150);
+
                         startPrepareDataAndUploadBook(token);
 
                         return;
@@ -627,6 +670,13 @@ public class BookManagerActivity extends BaseActivity {
 
     private void startPrepareDataAndUploadBook(String token) {
         try {
+            listPostSucessServer = new ArrayList<>();
+            mDataHashMapBookPostsUpload = new HashMap<>();
+            listPostErrorServer = new ArrayList<>();
+            listPostTimeoutServer = new ArrayList<>();
+            listPostDisConnectServer = new ArrayList<>();
+            listPostErrorClient = new ArrayList<>();
+
             if (!Common.isNetworkConnected(BookManagerActivity.this)) {
                 setUIUpload("Không có kết nối internet!", 0);
                 return;
@@ -634,49 +684,114 @@ public class BookManagerActivity extends BaseActivity {
 
             setUIUpload("Đang chuẩn bị dữ liệu sổ để đẩy lên máy chủ...", 1);
             Thread.sleep(150);
-            List<DataBookPost> listBookPreparedPost = new ArrayList<>();
             for (int k = 0; k < dataChooseUpload.size(); k++) {
-                DataBookPost item = new DataBookPost();
+
                 BookItemProxy bookItemProxy = dataChooseUpload.get(k);
-                List<DataBookPost> listCustomer = new ArrayList<>();
-                listCustomer = mSqlDAO.getSelectAllDetailProxy()
-                item.setIndexId();
-                item.setToken();
-                item.setDepartmentId();
-                item.setPointId();
-                item.setTimeOfUse();
-                item.setCoefficient();
-                item.setElectricityMeterId();
-                item.setTerm();
-                item.setMonth();
-                item.setYear();
+                List<DetailProxy> listCustomer = mSqlDAO.getSelectAllDetailProxy(bookItemProxy.getID(), MA_NVIEN);
+                for (int m = 0; m < listCustomer.size(); m++) {
+                    DataBookPost item = new DataBookPost();
+                    DetailProxy detailProxy = listCustomer.get(m);
+                    if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.WRITED) {
+                        item.setIndexId(String.valueOf(detailProxy.getIndexIdOfTBL_CUSTOMER()));
+                        item.setToken(token);
+                        item.setDepartmentId(detailProxy.getDepartmentId());
+                        item.setPointId(detailProxy.getPointId());
+                        item.setTimeOfUse(detailProxy.getTimeOfUse());
+                        ;
+                        item.setCoefficient(String.valueOf(detailProxy.getCoefficient()));
+                        ;
+                        item.setElectricityMeterId(detailProxy.getElectricityMeterId());
+                        ;
+                        item.setTerm(String.valueOf(detailProxy.getTerm()));
+                        ;
+                        item.setMonth(String.valueOf(detailProxy.getMonth()));
+                        ;
+                        item.setYear(String.valueOf(detailProxy.getYear()));
+                        ;
 
-                item.setYear();
-                item.setIndexType();
-                item.setOldValue();
-                item.setNewValue();
-                item.setStartDate();
-                item.setEndDate();
+                        item.setIndexType(detailProxy.getIndexType());
+                        ;
+                        item.setOldValue(String.valueOf(detailProxy.getOLD_INDEXOfTBL_CUSTOMER()));
+                        ;
+                        item.setNewValue(String.valueOf(detailProxy.getNEW_INDEXOfTBL_CUSTOMER()));
+                        ;
+                        item.setStartDate(detailProxy.getStartDate());
+                        ;
+                        item.setEndDate(detailProxy.getEndDate());
+                        ;
 
-                item.setCustomerId();
-                item.setCustomerCode();
-                item.setImg();
+                        item.setCustomerId(detailProxy.getCustomerId());
+                        ;
+                        item.setCustomerCode(detailProxy.getCustomerCode());
+
+                        //get image
+                        String uri = detailProxy.getLOCAL_URIOfTBL_IMAGE();
+                        item.setImg(Common.convertBitmapToByte64(uri));
+                        mDataHashMapBookPostsUpload.put(detailProxy.getIDOfTBL_CUSTOMER(), item);
+                    }
+                }
 
             }
 
+            setUIUpload(" Xử lý dữ liệu thành công...", 100);
+            Thread.sleep(150);
 
+            setUIUpload(" Đang tải lên máy chủ...", 1);
+            Thread.sleep(150);
+            Set<Integer> keys = mDataHashMapBookPostsUpload.keySet();
+            int i = -1;
+            for (Iterator<Integer> it = keys.iterator(); it.hasNext(); ) {
+                Integer integerIterator = it.next();
+                int key = integerIterator.intValue();
+                uploadCustomer(key, mDataHashMapBookPostsUpload.get(key));
+                i++;
+                setUIUpload(" Đang tải lên máy chủ...", (i + 1) * 100 / mDataHashMapBookPostsUpload.size());
+                Thread.sleep(50);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            setUIUpload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+        } finally {
+            //notify
 
-            Call<DataGetModelServer> tokenModelServerCall = apiInterface.EmpGetBookInfo(new BookInfoPost(MA_NVIEN, token));
-            Response<DataGetModelServer> modelServerResponse = null;
-            try {
-                modelServerResponse = tokenModelServerCall.execute();
-                DataGetModelServer result = new DataGetModelServer();
-                int statusCode = modelServerResponse.code();
+        }
+    }
 
-                if (modelServerResponse.isSuccessful()) {
-                    if (statusCode == 200) {
-                        result = modelServerResponse.body();
-                        if (result.getResult() == true) {
+    private void uploadCustomer(int ID_TBL_CUSTOMER, DataBookPost dataBookPost) {
+        Call<DataBookPostReceived> tokenModelServerCall = apiInterface.SaveIndexValue(dataBookPost);
+        Response<DataBookPostReceived> modelServerResponse = null;
+        try {
+            modelServerResponse = tokenModelServerCall.execute();
+            DataBookPostReceived result = new DataBookPostReceived();
+            int statusCode = modelServerResponse.code();
+
+            if (modelServerResponse.isSuccessful()) {
+                if (statusCode == 200) {
+                    result = modelServerResponse.body();
+                    if (result.getResult() == true) {
+                        listPostSucessServer.add(result);
+                        mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER, CustomerItem.STATUS_Customer.UPLOADED, MA_NVIEN);
+                    } else {
+                        listPostErrorServer.add(result);
+//                        setUIUpload("Tải token thất bại!\nNội dung: " + result.getMessage(), 0);
+                        return;
+                    }
+                } else {
+                    listPostTimeoutServer.add(result);
+//                    setUIUpload("Không nhận được phản hồi từ máy chủ! \nCode: " + statusCode, 0);
+                }
+            } else {
+                listPostDisConnectServer.add(result);
+//                setUIUpload("Không kết nối được máy chủ!", 0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            listPostErrorClient.add(dataBookPost);
+//            setUIUpload("Có vấn đề về ghi dữ liệu!\n" + e.getMessage(), 0);
+        }
+    }
+
+    /*{
                             //convert list data server to data mtb
 
                             //get all data book delivery
@@ -800,29 +915,7 @@ public class BookManagerActivity extends BaseActivity {
                             setUIUpload("Hoàn thành quá trình tải sổ!", 100);
 
                             return;
-                        } else {
-                            setUIUpload("Tải token thất bại!\nNội dung: " + result.getMessage(), 0);
-                            return;
-                        }
-                    } else {
-                        setUIUpload("Không nhận được phản hồi từ máy chủ! \nCode: " + statusCode, 0);
-                    }
-                } else {
-                    setUIUpload("Không kết nối được máy chủ!", 0);
-                }
-            } catch (final IOException e) {
-                e.printStackTrace();
-                setUIUpload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
-            } catch (Exception e) {
-                e.printStackTrace();
-                setUIUpload("Có vấn đề về ghi dữ liệu!\n" + e.getMessage(), 0);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            setUIUpload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
-        }
-    }
+                        }*/
 
     private void showDialogWarningUpload(StringBuilder warningMessage) {
         IDialog iDialog = new IDialog() {
@@ -930,20 +1023,20 @@ public class BookManagerActivity extends BaseActivity {
                 threadDownloadIsRunning = true;
                 apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
 
-                try {
-                    startDeleteAllOldData();
-                } catch (final Exception e) {
-                    e.printStackTrace();
-
-                    BookManagerActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(BookManagerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                            btnDownload.setClickable(true);
-                        }
-                    });
-                    return;
-                }
+//                try {
+//                    startDeleteAllOldData();
+//                } catch (final Exception e) {
+//                    e.printStackTrace();
+//
+//                    BookManagerActivity.this.runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(BookManagerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//                            btnDownload.setClickable(true);
+//                        }
+//                    });
+//                    return;
+//                }
 
                 startGetTokenAndGetDataBook();
 
@@ -962,8 +1055,8 @@ public class BookManagerActivity extends BaseActivity {
     private void startDeleteAllOldData() throws Exception {
         //delete all table
         try {
-            mSqlDAO.deleteAllRowTBL_BOOK(MA_NVIEN);
-            mSqlDAO.deleteAllRowTBL_CUSTOMER(MA_NVIEN);
+            mSqlDAO.deleteAllRowUploadedTBL_BOOK(MA_NVIEN);
+            mSqlDAO.deleteAllRowUploadedTBL_CUSTOMER(MA_NVIEN);
             List<ImageItemProxy> itemProxyList = mSqlDAO.selectAllTBL_IMAGE(MA_NVIEN);
             for (ImageItemProxy itemProxy :
                     itemProxyList) {
@@ -1155,7 +1248,11 @@ public class BookManagerActivity extends BaseActivity {
                             //save data
 
                             for (int i = 0; i < bookItemList.size(); i++) {
-                                int id = mSqlDAO.insertTBL_BOOK(bookItemList.get(i));
+                                //check exist book
+                                BookItem bookItem = bookItemList.get(i);
+                                boolean hasExistBook = mSqlDAO.checkExistTBL_BOOK(bookItem.getCODE(), bookItem.getPeriod(),  MA_NVIEN)
+                                if()
+                                int id = mSqlDAO.insertTBL_BOOK();
                                 bookItemList.get(i).setID(id);
                             }
                             //save data

@@ -4,8 +4,8 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center"
     android:layout_margin="@dimen/_16sdp"
-    android:elevation="@dimen/_16sdp"
     android:background="@drawable/xml_border_full_type8"
+    android:elevation="@dimen/_16sdp"
     android:orientation="vertical"
     android:padding="@dimen/_16sdp">
 
@@ -53,6 +53,45 @@
         <!--style="@style/textStyle4"-->
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:orientation="vertical">
+
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/tv_capnhat2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:text="Kết quả tải dữ liệu lên máy chủ"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/dialog_upload_tv_notify_upload"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_100sdp"
+            android:layout_gravity="left"
+            android:layout_marginRight="@dimen/_5sdp"
+            android:layout_weight="1"
+            android:background="@drawable/xml_border_full_type3"
+            android:gravity="left"
+            android:hint="Kết quả...."
+            android:lines="1"
+            android:maxLines="1"
+            android:paddingLeft="@dimen/_5sdp"
+            android:scrollbars="horizontal"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:textColorHint="@color/bb_inActiveBottomBarItemColor"
+            android:textCursorDrawable="@null"
+            android:textSize="@dimen/_10sdp"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"

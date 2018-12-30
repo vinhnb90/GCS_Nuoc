@@ -1,5 +1,7 @@
 package freelancer.gcsnuoc.database;
 
+import freelancer.gcsnuoc.entities.BookItem;
+import freelancer.gcsnuoc.entities.CustomerItem;
 import retrofit2.http.DELETE;
 
 /**
@@ -250,7 +252,17 @@ public class SqlQuery {
                 TBL_BOOK.MA_NVIEN +
                 " = ?"
                 ;
+    }
 
+    public static String getDeleteAllRowUploadedTBL_BOOK() {
+        return "DELETE FROM TBL_BOOK WHERE " +
+                TBL_BOOK.MA_NVIEN +
+                " = ?" +
+                " AND " +
+                TBL_BOOK.STATUS +
+                " = " +
+                BookItem.STATUS_BOOK.UPLOADED
+                ;
     }
     //endregion
 
@@ -280,8 +292,7 @@ public class SqlQuery {
         startDate("startDate"),
         endDate("endDate"),
         customerId("customerId"),
-        customerCode("customerCode"),
-        img("img");
+        customerCode("customerCode");
 
         private String mNameCollumn;
 
@@ -344,20 +355,6 @@ public class SqlQuery {
                 " = ? ";
     }
 
-    public static String getSelectNotUploadTBL_CUSTOMER() {
-        return "SELECT * " +
-                " FROM " +
-                TBL_CUSTOMER.getName() + "" +
-                " WHERE " +
-                TBL_CUSTOMER.MA_NVIEN.name() +
-                " = ? " +
-                "AND " +
-                TBL_CUSTOMER.STATUS_CUSTOMER +
-                "= ?" +
-                "";
-    }
-
-
     public static String getNumberRowStatusTBL_CUSTOMERByBook() {
         return "SELECT * " +
                 " FROM " +
@@ -375,6 +372,23 @@ public class SqlQuery {
     }
 
 
+//    public static String getNumberRowStatusTBL_CUSTOMERByBook() {
+//        return "SELECT * " +
+//                " FROM " +
+//                TBL_CUSTOMER.getName() + "" +
+//                " WHERE " +
+//                TBL_CUSTOMER.MA_NVIEN.name() +
+//                " = ? " +
+//                "AND " +
+//                TBL_CUSTOMER.STATUS_CUSTOMER +
+//                "= ?" +
+//                "AND " +
+//                TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER +
+//                "= ?" +
+//                "";
+//    }
+
+
     public static String getInsertTBL_CUSTOMER() {
         return "INSERT INTO " + TBL_CUSTOMER.getName() + " (" +
                 TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER.name() + ", " +
@@ -384,11 +398,28 @@ public class SqlQuery {
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() + ", " +
                 TBL_CUSTOMER.OLD_INDEX.name() + ", " +
                 TBL_CUSTOMER.NEW_INDEX.name() + ", " +
-                TBL_CUSTOMER.MA_NVIEN.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?" +
+                TBL_CUSTOMER.MA_NVIEN.name() + ", " +
+                TBL_CUSTOMER.IndexId.name() + ", " +
+                TBL_CUSTOMER.departmentId.name() + ", " +
+                TBL_CUSTOMER.pointId.name() + ", " +
+                TBL_CUSTOMER.timeOfUse.name() + ", " +
+                TBL_CUSTOMER.coefficient.name() + ", " +
+                TBL_CUSTOMER.electricityMeterId.name() + ", " +
+                TBL_CUSTOMER.term.name() + ", " +
+                TBL_CUSTOMER.month.name() + ", " +
+                TBL_CUSTOMER.year.name() + ", " +
+                TBL_CUSTOMER.indexType.name() + ", " +
+                TBL_CUSTOMER.startDate.name() + ", " +
+                TBL_CUSTOMER.endDate.name() + ", " +
+                TBL_CUSTOMER.customerId.name() + ", " +
+                TBL_CUSTOMER.customerCode.name() +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
+
+
+    //other post
 
     public static String updateTBL_CUSTOMER() {
         return "UPDATE " +
@@ -518,6 +549,17 @@ public class SqlQuery {
         return "DELETE FROM TBL_CUSTOMER WHERE " +
                 TBL_CUSTOMER.MA_NVIEN +
                 " = ?"
+                ;
+    }
+
+    public static String getDeleteAllRowUploadedTBL_CUSTOMER() {
+        return "DELETE FROM TBL_CUSTOMER WHERE " +
+                TBL_CUSTOMER.MA_NVIEN +
+                " = ?" +
+                " AND " +
+                TBL_CUSTOMER.STATUS_CUSTOMER +
+                " = " +
+                CustomerItem.STATUS_Customer.UPLOADED
                 ;
     }
 

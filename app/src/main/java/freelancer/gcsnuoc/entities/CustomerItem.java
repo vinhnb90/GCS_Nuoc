@@ -29,8 +29,6 @@ public class CustomerItem implements Cloneable{
     private String endDate;
     private String customerId;
     private String customerCode;
-    private String img;
-
 
     public CustomerItem() {
     }
@@ -193,14 +191,6 @@ public class CustomerItem implements Cloneable{
 
     public void setCustomerCode(String customerCode) {
         this.customerCode = customerCode;
-    }
-
-    public String getImg() {
-        return img;
-    }
-
-    public void setImg(String img) {
-        this.img = img;
     }
 
     public enum STATUS_Customer {

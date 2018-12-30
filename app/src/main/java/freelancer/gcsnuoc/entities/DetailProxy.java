@@ -216,5 +216,159 @@ public class DetailProxy extends CursorItemProxy {
         mBitmap = null;
     }
 
+    public int getIndexIdOfTBL_CUSTOMER() {
+        if (mCustomerItem.getIndexId() == 0) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String IndexId = SqlQuery.TBL_CUSTOMER.IndexId.getNameCollumn();
+            mCustomerItem.setIndexId(cursor.getInt(cursor.getColumnIndex(IndexId)));
+        }
+        return mCustomerItem.getIndexId();
+    }
+
+    public String getPointId() {
+        if (TextUtils.isEmpty(mCustomerItem.getPointId())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String pointId = SqlQuery.TBL_CUSTOMER.pointId.getNameCollumn();
+            mCustomerItem.setPointId(cursor.getString(cursor.getColumnIndex(pointId)));
+        }
+        return mCustomerItem.getPointId();
+    }
+
+    public String getTimeOfUse() {
+        if (TextUtils.isEmpty(mCustomerItem.getTimeOfUse())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String timeOfUse = SqlQuery.TBL_CUSTOMER.timeOfUse.getNameCollumn();
+            mCustomerItem.setTimeOfUse(cursor.getString(cursor.getColumnIndex(timeOfUse)));
+        }
+        return mCustomerItem.getTimeOfUse();
+    }
+
+    public double getCoefficient() {
+        if (mCustomerItem.getCoefficient() == 0.0d) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String coefficient = SqlQuery.TBL_CUSTOMER.coefficient.getNameCollumn();
+            mCustomerItem.setCoefficient(cursor.getDouble(cursor.getColumnIndex(coefficient)));
+        }
+        return mCustomerItem.getCoefficient();
+    }
+
+    public String getElectricityMeterId() {
+        if (TextUtils.isEmpty(mCustomerItem.getElectricityMeterId())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String electricityMeterId = SqlQuery.TBL_CUSTOMER.electricityMeterId.getNameCollumn();
+            mCustomerItem.setElectricityMeterId(cursor.getString(cursor.getColumnIndex(electricityMeterId)));
+        }
+        return mCustomerItem.getElectricityMeterId();
+    }
+
+    public int getTerm() {
+        if (mCustomerItem.getTerm() == 0) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String term = SqlQuery.TBL_CUSTOMER.term.getNameCollumn();
+            mCustomerItem.setTerm(cursor.getInt(cursor.getColumnIndex(term)));
+        }
+        return mCustomerItem.getTerm();
+    }
+    public int getMonth() {
+        if (mCustomerItem.getMonth() == 0) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String month = SqlQuery.TBL_CUSTOMER.month.getNameCollumn();
+            mCustomerItem.setMonth(cursor.getInt(cursor.getColumnIndex(month)));
+        }
+        return mCustomerItem.getMonth();
+    }
+    public int getYear() {
+        if (mCustomerItem.getYear() == 0) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String year = SqlQuery.TBL_CUSTOMER.year.getNameCollumn();
+            mCustomerItem.setYear(cursor.getInt(cursor.getColumnIndex(year)));
+        }
+        return mCustomerItem.getYear();
+    }
+
+    public String getDepartmentId() {
+        if (TextUtils.isEmpty(mCustomerItem.getDepartmentId())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String departmentId = SqlQuery.TBL_CUSTOMER.departmentId.getNameCollumn();
+            mCustomerItem.setDepartmentId(cursor.getString(cursor.getColumnIndex(departmentId)));
+        }
+        return mCustomerItem.getDepartmentId();
+    }
+
+
+    public String getIndexType() {
+        if (TextUtils.isEmpty(mCustomerItem.getIndexType())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String indexType = SqlQuery.TBL_CUSTOMER.indexType.getNameCollumn();
+            mCustomerItem.setIndexType(cursor.getString(cursor.getColumnIndex(indexType)));
+        }
+        return mCustomerItem.getIndexType();
+    }
+
+    public String getStartDate() {
+        if (TextUtils.isEmpty(mCustomerItem.getStartDate())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String startDate = SqlQuery.TBL_CUSTOMER.startDate.getNameCollumn();
+            mCustomerItem.setStartDate(cursor.getString(cursor.getColumnIndex(startDate)));
+        }
+        return mCustomerItem.getStartDate();
+    }
+
+    public String getEndDate() {
+        if (TextUtils.isEmpty(mCustomerItem.getEndDate())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String endDate = SqlQuery.TBL_CUSTOMER.endDate.getNameCollumn();
+            mCustomerItem.setEndDate(cursor.getString(cursor.getColumnIndex(endDate)));
+        }
+        return mCustomerItem.getEndDate();
+    }
+
+    public String getCustomerId() {
+        if (TextUtils.isEmpty(mCustomerItem.getCustomerId())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String customerId = SqlQuery.TBL_CUSTOMER.customerId.getNameCollumn();
+            mCustomerItem.setCustomerId(cursor.getString(cursor.getColumnIndex(customerId)));
+        }
+        return mCustomerItem.getCustomerId();
+    }
+
+    public String getCustomerCode() {
+        if (TextUtils.isEmpty(mCustomerItem.getCustomerCode())) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String customerCode = SqlQuery.TBL_CUSTOMER.customerCode.getNameCollumn();
+            mCustomerItem.setCustomerCode(cursor.getString(cursor.getColumnIndex(customerCode)));
+        }
+        return mCustomerItem.getCustomerCode();
+    }
+
+
     //endregion
 }

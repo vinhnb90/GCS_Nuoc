@@ -193,6 +193,28 @@ public class SqlDAO {
         mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowTBL_BOOK(), args);
     }
 
+    public void deleteAllRowUploadedTBL_BOOK(String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowUploadedTBL_BOOK(), args);
+    }
+
+    public void deleteAllRowUploadedTBL_CUSTOMER(String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowUploadedTBL_CUSTOMER(), args);
+    }
+
     public void updateCUS_WRITEDOfTBL_BOOK(int CUS_WRITED, int ID, String MA_NVIEN, boolean isCUS_WRITED) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
@@ -233,8 +255,24 @@ public class SqlDAO {
                 String.valueOf(customerItem.isFocus()),
                 customerItem.getOldIndex(),
                 customerItem.getNewIndex(),
-                customerItem.getMA_NVIEN()
+                customerItem.getMA_NVIEN(),
+
+                customerItem.getIndexId(),
+                customerItem.getDepartmentId(),
+                customerItem.getPointId(),
+                customerItem.getTimeOfUse(),
+                customerItem.getCoefficient(),
+                customerItem.getElectricityMeterId(),
+                customerItem.getTerm(),
+                customerItem.getMonth(),
+                customerItem.getYear(),
+                customerItem.getIndexType(),
+                customerItem.getStartDate(),
+                customerItem.getEndDate(),
+                customerItem.getCustomerId(),
+                customerItem.getCustomerCode()
         );
+
         mSqLiteDatabase.execSQL(getInsertTBL_CUSTOMER(), args);
         return this.getIDLastRow(TBL_CUSTOMER.getName(), TBL_CUSTOMER.ID_TBL_CUSTOMER.name());
     }
@@ -317,7 +355,7 @@ public class SqlDAO {
                 ID_TBL_BOOK_OF_CUSTOMER
         );
 
-        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectNotUploadTBL_CUSTOMER(), args);
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getNumberRowStatusTBL_CUSTOMERByBook(), args);
         if (cursor != null) {
             return cursor.getCount();
         }
@@ -333,7 +371,7 @@ public class SqlDAO {
                 statusCustomer.getStatus()
                 );
 
-        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectNotUploadTBL_CUSTOMER(), args);
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getNumberRowStatusTBL_CUSTOMERByBook(), args);
         if (cursor != null) {
             return cursor.getCount();
         }
