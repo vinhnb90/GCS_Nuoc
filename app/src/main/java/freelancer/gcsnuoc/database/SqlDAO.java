@@ -16,6 +16,7 @@ import freelancer.gcsnuoc.entities.DetailProxy;
 import freelancer.gcsnuoc.entities.ImageItem;
 import freelancer.gcsnuoc.entities.ImageItemProxy;
 import freelancer.gcsnuoc.entities.SESSION;
+import freelancer.gcsnuoc.entities.SessionProxy;
 import freelancer.gcsnuoc.utils.Common;
 
 import static android.content.ContentValues.TAG;
@@ -61,6 +62,31 @@ public class SqlDAO {
     //endregion
 
     //region TBL_SESSION
+    public int insertTBL_BOOK(BookItem bookItem) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                bookItem.getBookName(),
+                bookItem.getStatusBook().getStatus(),
+                bookItem.getCustomerWrited(),
+                bookItem.getCustomerNotWrite(),
+//                bookItem.getPeriod(),
+                bookItem.getTerm_book(),
+                bookItem.getMonth_book(),
+                bookItem.getYear_book(),
+                bookItem.getBookCode(),
+                bookItem.getFigureBookId(),
+                String.valueOf(bookItem.isFocus()),
+                String.valueOf(bookItem.isChoose()),
+                bookItem.getMA_NVIEN(),
+                bookItem.getCODE()
+        );
+
+        mSqLiteDatabase.execSQL(getInsertTBL_BOOK(), args);
+        return this.getIDLastRow(TBL_BOOK.getName(), TBL_BOOK.ID_TBL_BOOK.name());
+    }
+
     public void deleteAllTBL_SESSION(String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
@@ -71,6 +97,18 @@ public class SqlDAO {
 
         mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllTBL_SESSION(), args);
     }
+
+    public void deleteAllTBL_SESSIONByUSER_NAME(String USER_NAME) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                USER_NAME
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.deleteAllTBL_SESSIONByUSER_NAME(), args);
+    }
+
 
     public int insertTBL_SESSION(SESSION tblSession) throws Exception {
         if (!Common.isExistDB())
@@ -85,9 +123,10 @@ public class SqlDAO {
         mSqLiteDatabase.execSQL(getInsertTBL_SESSION(), args);
         return this.getIDLastRow(TBL_BOOK.getName(), TBL_BOOK.ID_TBL_BOOK.name());
     }
-    //endregion
 
+    //endregion
     //region TBL_BOOK
+
     public int getNumberRowTBL_BOOK(String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
@@ -99,26 +138,6 @@ public class SqlDAO {
             return cursor.getCount();
         }
         return 0;
-    }
-
-    public int insertTBL_BOOK(BookItem bookItem) throws Exception {
-        if (!Common.isExistDB())
-            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
-
-        String[] args = SqlDAO.build(
-                bookItem.getBookName(),
-                bookItem.getStatusBook().getStatus(),
-                bookItem.getCustomerWrited(),
-                bookItem.getCustomerNotWrite(),
-                bookItem.getPeriod(),
-                String.valueOf(bookItem.isFocus()),
-                String.valueOf(bookItem.isChoose()),
-                bookItem.getMA_NVIEN(),
-                bookItem.getCODE()
-        );
-
-        mSqLiteDatabase.execSQL(getInsertTBL_BOOK(), args);
-        return this.getIDLastRow(TBL_BOOK.getName(), TBL_BOOK.ID_TBL_BOOK.name());
     }
 
     public void updateChooseTBL_BOOK(int ID, boolean isChoosed) throws Exception {
@@ -270,6 +289,7 @@ public class SqlDAO {
                 customerItem.getStartDate(),
                 customerItem.getEndDate(),
                 customerItem.getCustomerId(),
+                customerItem.getFigureBookId_Customer(),
                 customerItem.getCustomerCode()
         );
 
@@ -369,9 +389,9 @@ public class SqlDAO {
         String[] args = SqlDAO.build(
                 MA_NVIEN,
                 statusCustomer.getStatus()
-                );
+        );
 
-        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getNumberRowStatusTBL_CUSTOMERByBook(), args);
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getNumberRowStatusTBL_CUSTOMER(), args);
         if (cursor != null) {
             return cursor.getCount();
         }
@@ -440,6 +460,19 @@ public class SqlDAO {
         return 0;
     }
 
+    public int checkExistCustomer(String pointId, int term, int month, int year, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = build(pointId, term, month, year, MA_NVIEN);
+
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getCheckExistCustomer(), args);
+        if (cursor != null) {
+            return cursor.getCount();
+        }
+        return 0;
+    }
+
     //endregion
 
     //region IMAGE
@@ -462,6 +495,7 @@ public class SqlDAO {
                 imageItem.getID_TBL_CUSTOMER(),
                 imageItem.getNAME(),
                 imageItem.getLOCAL_URI(),
+                MA_NVIEN,
                 imageItem.getCREATE_DAY()
         );
 
@@ -477,7 +511,7 @@ public class SqlDAO {
         List<ImageItemProxy> imageItemProxies = new ArrayList<>();
 
         Cursor cursor = null;
-        cursor = mSqLiteDatabase.rawQuery(getSelectAllTBL_IMAGE(), args);
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectAllTBL_IMAGE(), args);
 
         if (cursor == null) {
             Log.d(TAG, "getAllCongTo: null cursor");
@@ -495,15 +529,6 @@ public class SqlDAO {
         return imageItemProxies;
     }
 
-    public static String getSelectAllTBL_IMAGE() {
-        return "SELECT * " +
-                " FROM " +
-                TBL_IMAGE.getName() +
-                " WHERE " +
-                TBL_IMAGE.MA_NVIEN +
-                " = ?";
-    }
-
     public void deleteAllRowTBL_IMAGE(String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
@@ -517,6 +542,19 @@ public class SqlDAO {
     //endregion
 
     //region DetailProxy
+    public int checkExistTBL_BOOK(String code, int term_book, int month_book, int year_book, String BookCode, String ma_nvien) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = build(code, term_book, month_book, year_book, BookCode, ma_nvien);
+
+        Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.checkExistTBL_BOOK(), args);
+        if (cursor != null) {
+            return cursor.getCount();
+        }
+        return 0;
+    }
+
     public List<DetailProxy> getSelectAllDetailProxy(int ID_TBL_BOOK_OF_CUSTOMER, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
@@ -545,5 +583,86 @@ public class SqlDAO {
         return CustomerItemProxies;
     }
 
+    public List<DetailProxy> getSelectAllDetailProxyNOTWrite(int ID_TBL_BOOK_OF_CUSTOMER, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                ID_TBL_BOOK_OF_CUSTOMER
+        );
+
+        List<DetailProxy> CustomerItemProxies = new ArrayList<>(ID_TBL_BOOK_OF_CUSTOMER);
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectAllDetailProxyNotWrite(), args);
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return CustomerItemProxies;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            CustomerItemProxies.add(new DetailProxy(cursor, cursor.getPosition()));
+            cursor.moveToNext();
+        }
+
+        if (CustomerItemProxies.isEmpty())
+            closeCursor(cursor);
+        return CustomerItemProxies;
+    }
+
     //endregion
+
+    public SessionProxy getInfoPassTBL_SESSION(String MA_NVIEN, String USER_NAME) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build( MA_NVIEN, USER_NAME);
+        SessionProxy sessionProxy = null;
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectPassTBL_SESSION(), args);
+
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return sessionProxy;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            sessionProxy = new SessionProxy(cursor, cursor.getPosition());
+            cursor.moveToNext();
+        }
+
+        if (sessionProxy == null)
+            closeCursor(cursor);
+        return sessionProxy;
+    }
+
+
+    public SessionProxy checkAccountTBL_SESSION(String USER_NAME, String PASS) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(USER_NAME, PASS);
+        SessionProxy sessionProxy = null;
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.checkAccountTBL_SESSION(), args);
+
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return sessionProxy;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            sessionProxy = new SessionProxy(cursor, cursor.getPosition());
+            cursor.moveToNext();
+        }
+
+        if (sessionProxy == null)
+            closeCursor(cursor);
+        return sessionProxy;
+    }
 }

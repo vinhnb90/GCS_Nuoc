@@ -14,6 +14,9 @@ public class SESSION {
         this.MA_NVIEN = MA_NVIEN;
     }
 
+    public SESSION() {
+    }
+
     public int getID_TABLE_SESSION() {
         return ID_TABLE_SESSION;
     }

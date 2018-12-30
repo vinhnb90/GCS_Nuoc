@@ -60,16 +60,17 @@
                 android:id="@+id/ac_book_manager_name_emp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="NGUYỄN VĂN A"
                 android:textColor="@color/barColorText"
-                android:textSize="@dimen/_16sdp" />
+                android:textSize="@dimen/_16sdp"
+                tools:text="NGUYỄN VĂN A" />
 
             <TextView
                 android:id="@+id/ac_book_manager_address_emp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="ĐỘI 5"
-                android:textColor="@color/barColorText" />
+                android:textColor="@color/barColorText"
+                android:visibility="invisible" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -87,7 +88,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Kỳ ghi chỉ số: "
-                        android:textColor="@color/barColorText" />
+                        android:textColor="@color/barColorText"
+                        android:visibility="invisible" />
 
                     <TextView
                         android:id="@+id/ac_book_manager_tv_text_perior"
@@ -95,7 +97,8 @@
                         android:layout_height="wrap_content"
                         android:layout_toRightOf="@+id/ac_book_manager_tv_title_perior"
                         android:text="25/6/2021"
-                        android:textColor="@color/barColorText" />
+                        android:textColor="@color/barColorText"
+                        android:visibility="invisible" />
                 </LinearLayout>
 
             </RelativeLayout>
@@ -110,10 +113,23 @@
             android:background="@drawable/xml_corner_top_type4"
             android:padding="@dimen/_8sdp">
 
+            <TextView
+                android:id="@+id/ac_book_manager_tv_no_data"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/barColorText"
+                android:gravity="center"
+                android:text="KHÔNG CÓ DỮ LIỆU SỔ !"
+                android:textSize="@dimen/_16sdp"
+                android:textStyle="bold|italic"
+                android:visibility="gone" />
+
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/ac_book_manager_rv_books"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_below="@+id/ac_book_manager_tv_no_data">
 
             </android.support.v7.widget.RecyclerView>
         </RelativeLayout>

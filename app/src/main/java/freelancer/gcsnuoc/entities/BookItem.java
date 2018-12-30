@@ -6,28 +6,37 @@ public class BookItem implements Cloneable{
     private STATUS_BOOK mStatusBook;
     private int mCustomerWrited;
     private int mCustomerNotWrite;
-    private String mPeriod;
+//    private String mPeriod;
+    private int term_book;
+    private int month_book;
+    private int year_book;
+    private String BookCode;
     private boolean mIsFocus;
     private boolean mIsChoose;
 
     //other info
-    private int CODE;
+    private String CODE;
     private String MA_NVIEN;
+    private int FigureBookId;
 
-    public BookItem( String bookName, STATUS_BOOK statusBook, int customerWrited, int customerNotWrite, String period, boolean isFocus, boolean isChoose, int CODE, String MA_NVIEN) {
+    public BookItem() {
+    }
+
+    public BookItem(int ID, String bookName, STATUS_BOOK statusBook, int customerWrited, int customerNotWrite, int term_book, int month_book, int year_book, String bookCode, boolean isFocus, boolean isChoose, String CODE, String MA_NVIEN, int figureBookId) {
+        this.ID = ID;
         mBookName = bookName;
         mStatusBook = statusBook;
         mCustomerWrited = customerWrited;
         mCustomerNotWrite = customerNotWrite;
-        mPeriod = period;
+        this.term_book = term_book;
+        this.month_book = month_book;
+        this.year_book = year_book;
+        BookCode = bookCode;
         mIsFocus = isFocus;
         mIsChoose = isChoose;
         this.CODE = CODE;
         this.MA_NVIEN = MA_NVIEN;
-    }
-
-    public BookItem() {
-
+        FigureBookId = figureBookId;
     }
 
     public int getID() {
@@ -70,6 +79,38 @@ public class BookItem implements Cloneable{
         mCustomerNotWrite = customerNotWrite;
     }
 
+    public int getTerm_book() {
+        return term_book;
+    }
+
+    public void setTerm_book(int term_book) {
+        this.term_book = term_book;
+    }
+
+    public int getMonth_book() {
+        return month_book;
+    }
+
+    public void setMonth_book(int month_book) {
+        this.month_book = month_book;
+    }
+
+    public int getYear_book() {
+        return year_book;
+    }
+
+    public void setYear_book(int year_book) {
+        this.year_book = year_book;
+    }
+
+    public String getBookCode() {
+        return BookCode;
+    }
+
+    public void setBookCode(String bookCode) {
+        BookCode = bookCode;
+    }
+
     public boolean isFocus() {
         return mIsFocus;
     }
@@ -86,19 +127,11 @@ public class BookItem implements Cloneable{
         mIsChoose = choose;
     }
 
-    public String getPeriod() {
-        return mPeriod;
-    }
-
-    public void setPeriod(String period) {
-        mPeriod = period;
-    }
-
-    public int getCODE() {
+    public String getCODE() {
         return CODE;
     }
 
-    public void setCODE(int CODE) {
+    public void setCODE(String CODE) {
         this.CODE = CODE;
     }
 
@@ -108,6 +141,14 @@ public class BookItem implements Cloneable{
 
     public void setMA_NVIEN(String MA_NVIEN) {
         this.MA_NVIEN = MA_NVIEN;
+    }
+
+    public int getFigureBookId() {
+        return FigureBookId;
+    }
+
+    public void setFigureBookId(int figureBookId) {
+        FigureBookId = figureBookId;
     }
 
     public enum STATUS_BOOK {

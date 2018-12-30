@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -69,9 +70,6 @@ import freelancer.gcsnuoc.utils.Common;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import static freelancer.gcsnuoc.utils.Common.INTENT_KEY_MANHANVIEN;
-import static freelancer.gcsnuoc.utils.Common.INTENT_KEY_PASS;
-import static freelancer.gcsnuoc.utils.Common.INTENT_KEY_USER;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM;
 import static freelancer.gcsnuoc.utils.Common.PREF_BOOK;
 import static freelancer.gcsnuoc.utils.Common.REQUEST_CODE_PERMISSION;
@@ -126,6 +124,7 @@ public class BookManagerActivity extends BaseActivity {
     private Thread threadDownload;
     private boolean threadDownloadIsRunning;
     private boolean threadUploadIsRunning;
+    private TextView mEtNoData;
 
 
     public enum TYPE_FILTER {
@@ -235,7 +234,11 @@ public class BookManagerActivity extends BaseActivity {
             }
 
             filterData(mTYPEFilter, String.valueOf(isFilteringBottomMenu));
-
+            if (mRvBook.getAdapter().getItemCount() == 0) {
+                mEtNoData.setVisibility(View.VISIBLE);
+            } else {
+                mEtNoData.setVisibility(View.GONE);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -315,7 +318,7 @@ public class BookManagerActivity extends BaseActivity {
                 boolean isFilter = Boolean.parseBoolean(dataFiltering);
                 if (isFilter) {
                     for (BookItemProxy bookItemProxy : booksAdapter.getList()) {
-                        if (bookItemProxy.getStatusBook() != BookItem.STATUS_BOOK.UPLOADED) {
+                        if (bookItemProxy.getStatusBook() == BookItem.STATUS_BOOK.NON_WRITING) {
                             dataFilter.add(bookItemProxy);
                         }
                     }
@@ -338,9 +341,33 @@ public class BookManagerActivity extends BaseActivity {
                 break;
         }
 
+        if (dataFilter.size() > 0) {
+            refocusItem(0);
+            dataFilter.get(0).setFocus(true);
+            dataDump = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
+        }
+
         booksAdapter.updateList(dataFilter);
         mRvBook.invalidate();
     }
+
+    private void refocusItem(int pos) throws Exception {
+        try {
+            //update database by ID
+            if (pos >= booksAdapter.getItemCount())
+                return;
+
+            int ID = booksAdapter.getList().get(pos).getID();
+            mSqlDAO.updateResetFocusTBL_BOOK(MA_NVIEN);
+            mSqlDAO.updateFocusTBL_BOOK(ID, MA_NVIEN);
+            booksAdapter.getList().get(pos).setFocus(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
+            Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi chọn sổ!\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -379,6 +406,8 @@ public class BookManagerActivity extends BaseActivity {
         mEtPerior = (TextView) findViewById(R.id.ac_book_manager_tv_text_perior);
         mRvBook = (RecyclerView) findViewById(R.id.ac_book_manager_rv_books);
         mBottomBar = (BottomBar) findViewById(R.id.ac_book_manager_bottom_menu);
+        mEtNoData = (TextView) findViewById(R.id.ac_book_manager_tv_no_data);
+
 
         //database
         mDatabase = SqlConnect.getInstance(this).open();
@@ -389,11 +418,13 @@ public class BookManagerActivity extends BaseActivity {
             isLoadedFolder = !isLoadedFolder;
         }
 
-        MA_NVIEN = getIntent().getExtras().getString(INTENT_KEY_MANHANVIEN, "");
-        USER_NAME = getIntent().getExtras().getString(INTENT_KEY_USER, "");
-        PASS = getIntent().getExtras().getString(INTENT_KEY_PASS, "");
-
+        if (!TextUtils.isEmpty(Common.USER)) {
+            MA_NVIEN = Common.MA_NVIEN;
+            USER_NAME = Common.USER;
+            PASS = mSqlDAO.getInfoPassTBL_SESSION(MA_NVIEN, USER_NAME).getPASSWORD();
+        }
     }
+
 
     @Override
     protected void handleListener() throws Exception {
@@ -418,9 +449,9 @@ public class BookManagerActivity extends BaseActivity {
                         case R.id.nav_bot_filter:
                             if (mPrefManager == null)
                                 mPrefManager = SharePrefManager.getInstance(BookManagerActivity.this);
-                            isFilteringBottomMenu = mPrefManager.getSharePref(Common.PREF_BOOK, MODE_PRIVATE).
-                                    getBoolean(Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, false);
-                            isFilteringBottomMenu = !isFilteringBottomMenu;
+//                            isFilteringBottomMenu = mPrefManager.getSharePref(Common.PREF_BOOK, MODE_PRIVATE).
+//                                    getBoolean(Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, false);
+                            isFilteringBottomMenu = true;
                             mPrefManager.getSharePref(Common.PREF_BOOK, MODE_PRIVATE).edit().putBoolean(Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, isFilteringBottomMenu).commit();
                             filterData(TYPE_FILTER.FILTER_BY_BOTTOM_MENU, String.valueOf(isFilteringBottomMenu));
                             break;
@@ -1181,10 +1212,14 @@ public class BookManagerActivity extends BaseActivity {
                                         bookItem.setStatusBook(BookItem.STATUS_BOOK.NON_WRITING);
                                         bookItem.setCustomerWrited(0);
                                         bookItem.setCustomerNotWrite(0);
-                                        bookItem.setPeriod("");
+//                                        bookItem.setPeriod("");
+                                        bookItem.setTerm_book(bookAvailable.getTerm());
+                                        bookItem.setYear_book(bookAvailable.getYear());
+                                        bookItem.setMonth_book(bookAvailable.getMonth());
+                                        bookItem.setFigureBookId(bookAvailable.getFigureBookId());
                                         bookItem.setFocus(i == 0 ? true : false);
                                         bookItem.setChoose(false);
-                                        bookItem.setCODE(deliveryBook.getId().intValue());
+                                        bookItem.setCODE(deliveryBook.getCode());
                                         bookItem.setMA_NVIEN(MA_NVIEN);
                                     }
                                 }
@@ -1195,7 +1230,7 @@ public class BookManagerActivity extends BaseActivity {
                                     CustomerItem customerItem = null;
                                     if (indexValue.getFigureBookId().intValue() == deliveryBook.getId().intValue()) {
                                         customerItem = new CustomerItem();
-                                        customerItem.setIDBook(bookItem.getCODE());
+                                        customerItem.setIDBook(0);
                                         customerItem.setCustomerName(indexValue.getName());
                                         customerItem.setCustomerAddress(indexValue.getAddress());
                                         customerItem.setStatusCustomer(CustomerItem.STATUS_Customer.NON_WRITING);
@@ -1215,6 +1250,7 @@ public class BookManagerActivity extends BaseActivity {
                                         customerItem.setYear(indexValue.getYear());
                                         customerItem.setIndexType(indexValue.getIndexType());
                                         customerItem.setStartDate(indexValue.getStartDate());
+                                        customerItem.setFigureBookId_Customer(indexValue.getFigureBookId());
                                         customerItem.setEndDate(indexValue.getEndDate());
                                         customerItem.setCustomerId(String.valueOf(indexValue.getCustomerId()));
                                         customerItem.setCustomerCode(String.valueOf(indexValue.getPointId()));
@@ -1250,19 +1286,28 @@ public class BookManagerActivity extends BaseActivity {
                             for (int i = 0; i < bookItemList.size(); i++) {
                                 //check exist book
                                 BookItem bookItem = bookItemList.get(i);
-                                boolean hasExistBook = mSqlDAO.checkExistTBL_BOOK(bookItem.getCODE(), bookItem.getPeriod(),  MA_NVIEN)
-                                if()
-                                int id = mSqlDAO.insertTBL_BOOK();
-                                bookItemList.get(i).setID(id);
+                                int idBookExist = mSqlDAO.checkExistTBL_BOOK(bookItem.getCODE(), bookItem.getTerm_book(), bookItem.getMonth_book(), bookItem.getYear_book(), bookItem.getBookCode(), MA_NVIEN);
+                                if (idBookExist == 0) {
+                                    int id = mSqlDAO.insertTBL_BOOK(bookItem);
+                                    bookItemList.get(i).setID(id);
+                                } else {
+                                    bookItemList.get(i).setID(idBookExist);
+                                }
                             }
                             //save data
                             setUIDownload("Đang xử lý lưu dữ liệu!", 50);
                             try {
                                 for (int i = 0; i < customnerItemList.size(); i++) {
                                     for (int j = 0; j < bookItemList.size(); j++) {
-                                        if (customnerItemList.get(i).getIDBook() == bookItemList.get(j).getCODE()) {
+                                        CustomerItem customerItem = customnerItemList.get(i);
+                                        if (customnerItemList.get(i).getFigureBookId_Customer() == bookItemList.get(j).getFigureBookId()) {
                                             customnerItemList.get(i).setIDBook(bookItemList.get(j).getID());
-                                            mSqlDAO.insertTBL_CUSTOMER(customnerItemList.get(i));
+                                            //check Exist customer
+                                            int idCustomerExist = mSqlDAO.checkExistCustomer(customerItem.getPointId(), customerItem.getTerm(), customerItem.getMonth(), customerItem.getYear(), MA_NVIEN);
+                                            if (idCustomerExist == 0)
+                                                mSqlDAO.insertTBL_CUSTOMER(customnerItemList.get(i));
+                                            else
+                                                Log.d(TAG, "startDownloadBook: customer not insert because has data in local, PointId =  " + customerItem.getPointId());
                                         }
                                     }
                                 }
@@ -1392,9 +1437,7 @@ public class BookManagerActivity extends BaseActivity {
 
                     //openActivity
                     Intent intent = new Intent(BookManagerActivity.this, DetailActivity.class);
-                    intent.putExtra(Common.INTENT_KEY_ID_BOOK, ID);
-                    intent.putExtra(Common.INTENT_KEY_MANHANVIEN, MA_NVIEN);
-
+                    Common.setID_TBL_BOOK(ID);
                     startActivity(intent);
                 } catch (Exception e) {
                     e.printStackTrace();

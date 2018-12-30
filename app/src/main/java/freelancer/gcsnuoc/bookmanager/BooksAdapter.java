@@ -92,6 +92,8 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
 
         holder.tvWriteOk.setText(bookItemProxy.getCustomerWrited() + "");
         holder.tvNotWriteOK.setText(bookItemProxy.getCustomerNotWrite() + "");
+        holder.tvPeriod.setText("Kỳ " + bookItemProxy.getTerm_book() + " Tháng " + bookItemProxy.getMonth_book() + "/" + bookItemProxy.getYear_book());
+        holder.tvMaSo.setText(bookItemProxy.getCODE());
 
 //        holder.itemView.setBackgroundColor(bookItemProxy.isFocus() ? ContextCompat.getColor(mContext, R.color.rowBookColor) : ContextCompat.getColor(mContext, R.color.colorTransparent));
 
@@ -106,6 +108,8 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
     }
 
     public class BookViewHolder extends ViewHolder {
+        private final TextView tvPeriod;
+        private final TextView tvMaSo;
         public TextView tvStatus, tvNameBook, tvWriteOk, tvNotWriteOK;
         public ImageButton ibtnChoose;
         public RelativeLayout mView;
@@ -120,6 +124,9 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
             tvNameBook = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_name_book);
             tvWriteOk = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_write_ok);
             tvNotWriteOK = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_not_write);
+            tvPeriod = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_period);
+            tvMaSo = (TextView) itemView.findViewById(R.id.ac_book_manager_rv_item_tv_maso);
+
             mView = (RelativeLayout) itemView.findViewById(R.id.item_rv_book_adapter_rl_row);
             mView1 = (View) itemView.findViewById(R.id.item_rv_book_adapter_v_1);
             mView2 = (View) itemView.findViewById(R.id.item_rv_book_adapter_v_2);

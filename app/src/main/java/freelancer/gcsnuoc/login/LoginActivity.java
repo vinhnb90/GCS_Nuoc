@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import freelancer.gcsnuoc.BaseActivity;
@@ -25,7 +26,9 @@ import freelancer.gcsnuoc.R;
 import freelancer.gcsnuoc.bookmanager.BookManagerActivity;
 import freelancer.gcsnuoc.database.SqlConnect;
 import freelancer.gcsnuoc.database.SqlDAO;
+import freelancer.gcsnuoc.detail.DetailActivity;
 import freelancer.gcsnuoc.entities.SESSION;
+import freelancer.gcsnuoc.entities.SessionProxy;
 import freelancer.gcsnuoc.entities.SettingObject;
 import freelancer.gcsnuoc.server.GCSAPIInterface;
 import freelancer.gcsnuoc.server.GCSApi;
@@ -71,6 +74,7 @@ public class LoginActivity extends BaseActivity {
     private GCSAPIInterface apiInterface;
     private GCSAPIInterface.AsyncApi mAsyncApi;
     private Handler mHandler = new Handler(Looper.getMainLooper());
+    private boolean isCanLoginOffline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +126,6 @@ public class LoginActivity extends BaseActivity {
 
     public void clickSettingButton(View view) {
         Common.runAnimationClickView(view, R.anim.twinking_view, TIME_DELAY_ANIM);
-
         startActivity(new Intent(LoginActivity.this, SettingActivity.class));
     }
 
@@ -136,15 +139,8 @@ public class LoginActivity extends BaseActivity {
         mEtUserError.setVisibility(View.INVISIBLE);
         mEtPassError.setVisibility(View.INVISIBLE);
 
-        try {
-            if (!Common.isNetworkConnected(this)) {
-                Toast.makeText(this, "Không có kết nối internet!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Có vấn đề về kết nối mạng!\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        mUser = mEtUser.getText().toString();
+        mPass = mEtPass.getText().toString();
 
         if (!mPrefManager.checkExistSharePref(PREF_SETTING)) {
             Toast.makeText(this, "Cần cấu hình các thông số!", Toast.LENGTH_SHORT).show();
@@ -159,6 +155,68 @@ public class LoginActivity extends BaseActivity {
         }
 
         Common.setURLServer(url, ip);
+
+        //check Data
+        try {
+            SessionProxy sessionProxy = mSqlDAO.checkAccountTBL_SESSION(mUser, mPass);
+            if (sessionProxy != null)
+                isCanLoginOffline = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                mSqlDAO.deleteAllTBL_SESSIONByUSER_NAME(mUser);
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        try {
+            if (!Common.isNetworkConnected(this) && !isCanLoginOffline) {
+                Toast.makeText(this, "Cần kết nối internet để đăng nhập!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!Common.isNetworkConnected(this) && isCanLoginOffline) {
+                showDialogWarningLogin();
+                return;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Có vấn đề về kết nối mạng!\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        doTaskLoginOnline();
+    }
+
+    private void showDialogWarningLogin() {
+        IDialog iDialog = new IDialog() {
+            @Override
+            protected void clickOK() {
+                try {
+                    doTaskLoginOffline();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(LoginActivity.this, "Gặp vấn đề khi truy xuất dữ liệu để đăng nhập offline!\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            protected void clickCancel() {
+                doTaskLoginOnline();
+            }
+        }.setTextBtnOK("Tiếp tục đăng nhập offline").setTextBtnCancel("Thử lại đăng nhập online");
+        super.showDialog(this, "Hiện không thể đăng nhập online, nhưng tài khoản có thể đăng nhập offline\n", iDialog);
+    }
+
+    private void doTaskLoginOffline() throws Exception {
+        //MA_NVIEN --> ALL info
+        SessionProxy sessionProxy = mSqlDAO.checkAccountTBL_SESSION(mUser, mPass);
+        Common.setUserCommon(mUser, sessionProxy.getMA_NVIEN());
+        startActivity(new Intent(LoginActivity.this, DetailActivity.class));
+    }
+
+    private void doTaskLoginOnline() {
         apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
 
         new Thread(new Runnable() {
@@ -197,11 +255,9 @@ public class LoginActivity extends BaseActivity {
                                 //save data
                                 session.setID_TABLE_SESSION(mSqlDAO.insertTBL_SESSION(session));
 
-                                Intent inent = new Intent(LoginActivity.this, BookManagerActivity.class);
-                                inent.putExtra(Common.INTENT_KEY_MANHANVIEN, String.valueOf(result.getData()));
-                                inent.putExtra(Common.INTENT_KEY_USER, userName);
-                                inent.putExtra(Common.INTENT_KEY_PASS, pass);
-                                startActivity(inent);
+                                Common.setUserCommon(mUser, result.getData() + "");
+                                startActivity(new Intent(LoginActivity.this, BookManagerActivity.class));
+
                                 return;
                             } else {
                                 toastUI("Đăng nhập thất bại!\nNội dung: " + result.getMessage());
@@ -380,7 +436,7 @@ public class LoginActivity extends BaseActivity {
     protected void doTaskOnResume() {
         try {
             super.hideBar();
-            if(mPrefManager == null)
+            if (mPrefManager == null)
                 mPrefManager = SharePrefManager.getInstance(this);
             mUser = mPrefManager.getSharePref(PREF_LOGIN, MODE_PRIVATE).getString(KEY_PREF_USER_NAME, "");
             mPass = mPrefManager.getSharePref(PREF_LOGIN, MODE_PRIVATE).getString(KEY_PREF_USER_PASS, "");

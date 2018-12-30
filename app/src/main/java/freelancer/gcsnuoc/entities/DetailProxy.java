@@ -24,15 +24,15 @@ public class DetailProxy extends CursorItemProxy {
 
 
     //region BOOK
-    public String getPeriodOfTBL_BOOK() {
-        if (TextUtils.isEmpty(mBookItem.getPeriod())) {
-            Cursor cursor = getmCursor();
-            cursor.moveToPosition(getmIndex());
-            String PERIOD = SqlQuery.TBL_BOOK.PERIOD.getNameCollumn();
-            mBookItem.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
-        }
-        return mBookItem.getPeriod();
-    }
+//    public String getPeriodOfTBL_BOOK() {
+//        if (TextUtils.isEmpty(mBookItem.getPeriod())) {
+//            Cursor cursor = getmCursor();
+//            cursor.moveToPosition(getmIndex());
+//            String PERIOD = SqlQuery.TBL_BOOK.PERIOD.getNameCollumn();
+//            mBookItem.setPeriod(cursor.getString(cursor.getColumnIndex(PERIOD)));
+//        }
+//        return mBookItem.getPeriod();
+//    }
     //endregion
 
 
@@ -161,6 +161,11 @@ public class DetailProxy extends CursorItemProxy {
             mCustomerItem.setCustomerAddress(cursor.getString(cursor.getColumnIndex(CustomerAddress)));
         }
         return mCustomerItem.getCustomerAddress();
+    }
+
+    public void setFocusCustomer(boolean isFocus)
+    {
+        mCustomerItem.setFocus(isFocus);
     }
 
     public CustomerItem.STATUS_Customer getStatusCustomerOfTBL_CUSTOMER() {

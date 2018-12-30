@@ -40,8 +40,7 @@
             android:background="@drawable/xml_border_full_type8"
             android:elevation="@dimen/_4sdp"
             android:orientation="vertical"
-            android:padding="@dimen/_6sdp"
-            >
+            android:padding="@dimen/_6sdp">
             <!--android:background="@color/rowBookColor"-->
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -54,6 +53,28 @@
                     android:layout_centerVertical="true"
                     android:text="Tên quyển"
                     android:textColor="@color/colorPrimary" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mã sổ: "
+                        android:textColor="@color/colorPrimary" />
+
+                    <TextView
+                        android:id="@+id/ac_book_manager_rv_item_tv_maso"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="132ABC"
+                        android:textStyle="bold"
+                        android:textColor="@color/buttonColor" />
+
+                </LinearLayout>
+
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -84,7 +105,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_4sdp"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/buttonColor"
                 android:textSize="@dimen/_14sdp"
                 tools:text="Quyển thạch thất" />
 
@@ -135,6 +156,25 @@
                     android:textColor="@color/barColorText"
                     tools:text="75" />
             </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/item_rv_book_adapter_tv_period"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginTop="@dimen/_16sdp"
+                    android:textColor="@color/buttonColor"
+                    android:textSize="@dimen/_14sdp"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    tools:text="Kỳ 2 Tháng 11/2018" />
+            </RelativeLayout>
+
 
         </LinearLayout>
     </RelativeLayout>

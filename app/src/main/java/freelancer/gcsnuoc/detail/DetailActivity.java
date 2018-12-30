@@ -112,6 +112,8 @@ public class DetailActivity extends BaseActivity {
     private SearchView searchView;
     private SettingObject settingObject;
     private String MA_NVIEN;
+    private String USER_NAME;
+    private String PASS;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,7 +182,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 try {
-                    loadDataDetail();
+//                    loadDataDetail();
                     fillDataDetail();
                     filterData(FILTER_BY_SEARCH, newText);
                 } catch (Exception e) {
@@ -200,12 +202,12 @@ public class DetailActivity extends BaseActivity {
                 boolean isFilter = Boolean.parseBoolean(dataFiltering);
                 if (isFilter) {
                     for (DetailProxy detailProxy : customerAdapter.getList()) {
-                        if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() != CustomerItem.STATUS_Customer.UPLOADED) {
+                        if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.NON_WRITING) {
                             dataFilter.add(detailProxy);
                         }
                     }
                 } else {
-                    dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+                    dataFilter = mData;
                 }
                 break;
 
@@ -219,14 +221,22 @@ public class DetailActivity extends BaseActivity {
                 break;
 
             case NONE_FILTER:
-                dataFilter = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+                dataFilter = mData;
                 break;
+        }
+
+        if (dataFilter.size() > 0) {
+            refocusItem(0, dataFilter.get(0).getIDOfTBL_CUSTOMER());
+            dataFilter.get(0).setFocusCustomer(true);
+            updateUI(dataFilter.get(0).getIDOfTBL_CUSTOMER());
         }
 
         customerAdapter.updateList(dataFilter);
         mRvCus.invalidate();
         customerAdapter2.updateList(dataFilter);
         mRvCus2.invalidate();
+
+
     }
 
     @Override
@@ -312,8 +322,11 @@ public class DetailActivity extends BaseActivity {
 
         try {
             //get mData intent
-            ID_TBL_BOOK_OF_CUSTOMER = getIntent().getExtras().getInt(INTENT_KEY_ID_BOOK);
-            MA_NVIEN = getIntent().getExtras().getString(INTENT_KEY_MANHANVIEN, "");
+            if (!TextUtils.isEmpty(Common.USER)) {
+                MA_NVIEN = Common.MA_NVIEN;
+                USER_NAME = Common.USER;
+            }
+            ID_TBL_BOOK_OF_CUSTOMER = Common.ID_TBL_BOOK;
 
             //setup file debug
             init();
@@ -328,6 +341,7 @@ public class DetailActivity extends BaseActivity {
             }
         }
     }
+
 
     @Override
     protected void init() throws Exception {
@@ -375,8 +389,12 @@ public class DetailActivity extends BaseActivity {
                     DetailProxy detailProxy = this.mData.get(focusNow);
                     int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
                     int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
-                    String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
-                    String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
+//                    String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
+//                    String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
+                    int term = detailProxy.getTerm();
+                    int month = detailProxy.getMonth();
+                    int year = detailProxy.getYear();
+                    String PERIOD_Convert = term + "." + month + "." + year;
                     String TEN_ANH = getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
                     String pathURICapturedAnh = getRecordDirectoryFolder("") + "/" + TEN_ANH;
 
@@ -431,6 +449,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 mEtNewIndex.setHint(mEtNewIndex.getText().toString());
+                mEtNewIndex.setText("");
             }
         });
 
@@ -445,14 +464,20 @@ public class DetailActivity extends BaseActivity {
                     switch (tabId) {
                         case R.id.ac_detail_nav_bot_detail:
                             showIncludeListCusView(false);
+                            isFilteringBottomMenu = true;
+                            mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).edit().putBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, isFilteringBottomMenu).commit();
+                            mData.clear();
+                            mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
                             break;
                         case R.id.ac_detail_nav_bot_filter:
                             if (mPrefManager == null)
                                 mPrefManager = SharePrefManager.getInstance(DetailActivity.this);
-                            isFilteringBottomMenu = mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).
-                                    getBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, false);
-                            isFilteringBottomMenu = !isFilteringBottomMenu;
+//                            isFilteringBottomMenu = mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).
+//                                    getBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, false);
+                            isFilteringBottomMenu = true;
                             mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).edit().putBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, isFilteringBottomMenu).commit();
+                            mData.clear();
+                            mData = mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
                             filterData(BookManagerActivity.TYPE_FILTER.FILTER_BY_BOTTOM_MENU, String.valueOf(isFilteringBottomMenu));
                             break;
 
@@ -535,9 +560,13 @@ public class DetailActivity extends BaseActivity {
         timeFileCaptureImage = getDateTimeNow(type12);
         int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
         int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
-        String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
-        String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
-        String TEN_ANH = detailProxy.getNAMEOfTBL_IMAGE();
+//        String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
+//        String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
+        int term = detailProxy.getTerm();
+        int month = detailProxy.getMonth();
+        int year = detailProxy.getYear();
+        String PERIOD_Convert = term + "." + month + "." + year;
+//        String TEN_ANH = detailProxy.getNAMEOfTBL_IMAGE();
 
         String fileName = getRecordDirectoryFolder("")
                 + "/"
@@ -622,7 +651,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void clickItem(final int pos, int ID_TBL_CUSTOMER) {
                 try {
-                    clickItemOutSide(pos, ID_TBL_CUSTOMER);
+                    refocusItem(pos, ID_TBL_CUSTOMER);
                     int posNow = findPosFocusNow(ID_TBL_CUSTOMER);
 //                    mRvCus.scrollToPosition(posNow);
 //                    mRvCus2.scrollToPosition(posNow);
@@ -676,7 +705,7 @@ public class DetailActivity extends BaseActivity {
                     public void run() {
                         try {
                             ID_TBL_CUSTOMER_Focus = mData.get(finalTargetPosition).getIDOfTBL_CUSTOMER();
-                            clickItemOutSide(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
+                            refocusItem(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
                             int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
                             mRvCus.scrollToPosition(posNow);
                             mRvCus2.scrollToPosition(posNow);
@@ -708,7 +737,7 @@ public class DetailActivity extends BaseActivity {
 
                 try {
                     //update rv 1, rv2
-                    clickItemOutSide(pos, ID_TBL_CUSTOMER);
+                    refocusItem(pos, ID_TBL_CUSTOMER);
                     int posNow = findPosFocusNow(ID_TBL_CUSTOMER);
                     mRvCus.scrollToPosition(posNow);
                     mRvCus2.scrollToPosition(posNow);
@@ -728,7 +757,7 @@ public class DetailActivity extends BaseActivity {
         mRvCus2.setAdapter(customerAdapter2);
 
         int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
-        clickItemOutSide(posNow, mData.get(posNow).getIDOfTBL_CUSTOMER());
+        refocusItem(posNow, mData.get(posNow).getIDOfTBL_CUSTOMER());
 
         mRvCus.scrollToPosition(posNow);
         mRvCus2.scrollToPosition(posNow);
@@ -737,7 +766,7 @@ public class DetailActivity extends BaseActivity {
         mRvCus2.postInvalidate();
     }
 
-    private void clickItemOutSide(int pos, int ID_TBL_CUSTOMER) throws Exception {
+    private void refocusItem(int pos, int ID_TBL_CUSTOMER) throws Exception {
         if (pos >= mRvCus.getAdapter().getItemCount())
             return;
         //update database by ID
@@ -752,13 +781,16 @@ public class DetailActivity extends BaseActivity {
         DetailProxy detailProxy = mData.get(mPos);
         mTvNameEmp.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
         mTvAndressEmp.setText(detailProxy.getCustomerAddressOfTBL_CUSTOMER());
-        String perior_convert = Common.convertDateSQLToDateUI(detailProxy.getPeriodOfTBL_BOOK());
-        mTvPerior.setText(perior_convert);
+        int term = detailProxy.getTerm();
+        int month = detailProxy.getMonth();
+        int year = detailProxy.getYear();
+        String PERIOD_Convert = term + " - " + month + "/" + year;
+        mTvPerior.setText(PERIOD_Convert);
 
         Bitmap bitmap = detailProxy.getBitmap();
         mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
 
-        mTvInfoBill.setText("Sinh hoat");
+        mTvInfoBill.setText("");
         mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_CUSTOMER() + "");
         mEtNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_CUSTOMER() + "");
     }
@@ -862,7 +894,7 @@ public class DetailActivity extends BaseActivity {
                 showDialogWarningPercent((int) result, cal);
                 return;
             }
-
+            saveData();
         }
 
 
@@ -892,7 +924,7 @@ public class DetailActivity extends BaseActivity {
                     fillDataDetail();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi load lại dữ liệu! \n"+ e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi load lại dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
 

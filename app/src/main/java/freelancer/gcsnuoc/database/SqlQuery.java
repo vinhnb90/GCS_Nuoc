@@ -8,6 +8,7 @@ import retrofit2.http.DELETE;
  * Created by VinhNB on 8/8/2017.
  */
 public class SqlQuery {
+
     //region TBL_SESSION
     public enum TBL_SESSION {
         ID_TABLE_SESSION("ID_TABLE_SESSION"),
@@ -45,13 +46,16 @@ public class SqlQuery {
         return "DROP TABLE IF EXISTS " + TBL_SESSION.getName() + " ;";
     }
 
-    public static String getSelectTBL_SESSION(String MA_NVIEN) {
+    public static String getSelectPassTBL_SESSION() {
         return "SELECT * " +
                 " FROM " +
                 TBL_SESSION.getName() +
                 " WHERE " +
                 TBL_SESSION.MA_NVIEN +
-                "= ?";
+                "= ?" +
+                " AND " +
+                TBL_SESSION.USERNAME +
+                " = ?";
     }
 
     public static String getInsertTBL_SESSION() {
@@ -94,6 +98,23 @@ public class SqlQuery {
     public static String getDeleteAllTBL_SESSION() {
         return "DELETE FROM " + TBL_SESSION.getName() + " WHERE " + TBL_SESSION.MA_NVIEN + " = ?";
     }
+
+    public static String deleteAllTBL_SESSIONByUSER_NAME() {
+        return "DELETE FROM " + TBL_SESSION.getName() + " WHERE " + TBL_SESSION.USERNAME + " = ?";
+    }
+
+
+    public static String checkAccountTBL_SESSION() {
+        return "SELECT * FROM " +
+                TBL_SESSION.getName() +
+                " WHERE " +
+                TBL_SESSION.USERNAME +
+                " = ?" +
+                " AND " +
+                TBL_SESSION.PASSWORD +
+                " = ?" +
+                "";
+    }
     //endregion
 
     //region TBL_BOOK
@@ -103,11 +124,16 @@ public class SqlQuery {
         STATUS("STATUS"),
         CUS_WRITED("CUS_WRITED"),
         CUS_NOT_WRITED("CUS_NOT_WRITED"),
-        PERIOD("PERIOD"),
+        //        PERIOD("PERIOD"),
+        term_book("term_book"),
+        month_book("month_book"),
+        year_book("year_book"),
+        BookCode("BookCode"),
         FOCUS("FOCUS"),
         CHOOSE("CHOOSE"),
         MA_NVIEN("MA_NVIEN"),
-        CODE("CODE");
+        CODE("CODE"),
+        FigureBookId("FigureBookId");
 
         private String mNameCollumn;
 
@@ -131,8 +157,13 @@ public class SqlQuery {
                 TBL_BOOK.STATUS.name() + " TEXT, " +
                 TBL_BOOK.CUS_WRITED.name() + " INTEGER, " +
                 TBL_BOOK.CUS_NOT_WRITED.name() + " INTEGER, " +
-                TBL_BOOK.PERIOD.name() + " TEXT, " +
+//                TBL_BOOK.PERIOD.name() + " TEXT, " +
+                TBL_BOOK.term_book.name() + " INTEGER, " +
+                TBL_BOOK.month_book.name() + " TEXT, " +
+                TBL_BOOK.year_book.name() + " TEXT, " +
+                TBL_BOOK.BookCode.name() + " TEXT, " +
                 TBL_BOOK.MA_NVIEN.name() + " TEXT, " +
+                TBL_BOOK.FigureBookId.name() + " INTEGER, " +
                 TBL_BOOK.CODE.name() + " TEXT, " +
                 TBL_BOOK.FOCUS.name() + " TEXT DEFAULT \"FALSE\", " +
                 TBL_BOOK.CHOOSE.name() + " TEXT DEFAULT \"FALSE\"" +
@@ -158,12 +189,17 @@ public class SqlQuery {
                 TBL_BOOK.STATUS.name() + ", " +
                 TBL_BOOK.CUS_WRITED.name() + ", " +
                 TBL_BOOK.CUS_NOT_WRITED.name() + ", " +
-                TBL_BOOK.PERIOD.name() + ", " +
+//                TBL_BOOK.PERIOD.name() + ", " +
+                TBL_BOOK.term_book.name() + ", " +
+                TBL_BOOK.month_book.name() + ", " +
+                TBL_BOOK.year_book.name() + ", " +
+                TBL_BOOK.BookCode.name() + ", " +
+                TBL_BOOK.FigureBookId.name() + ", " +
                 TBL_BOOK.FOCUS.name() + ", " +
                 TBL_BOOK.CHOOSE.name() + ", " +
                 TBL_BOOK.MA_NVIEN.name() + ", " +
                 TBL_BOOK.CODE.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -185,7 +221,27 @@ public class SqlQuery {
                 " = ? " +
                 ", " +
 
-                TBL_BOOK.PERIOD.name() +
+//                TBL_BOOK.PERIOD.name() +
+//                " = ? " +
+//                ", " +
+
+                TBL_BOOK.term_book.name() +
+                " = ? " +
+                ", " +
+
+                TBL_BOOK.month_book.name() +
+                " = ? " +
+                ", " +
+
+                TBL_BOOK.year_book.name() +
+                " = ? " +
+                ", " +
+
+                TBL_BOOK.FigureBookId.name() +
+                " = ? " +
+                ", " +
+
+                TBL_BOOK.BookCode.name() +
                 " = ? " +
                 ", " +
 
@@ -264,6 +320,30 @@ public class SqlQuery {
                 BookItem.STATUS_BOOK.UPLOADED
                 ;
     }
+
+    public static String checkExistTBL_BOOK() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_BOOK.getName() +
+                " WHERE " +
+                TBL_BOOK.CODE +
+                " = ?" +
+                " AND " +
+                TBL_BOOK.term_book +
+                " = ?" +
+                " AND " +
+                TBL_BOOK.month_book +
+                " = ?" +
+                " AND " +
+                TBL_BOOK.year_book +
+                " = ?" +
+                " AND " +
+                TBL_BOOK.BookCode +
+                " = ?" +
+                " AND " +
+                TBL_BOOK.MA_NVIEN +
+                " = ?";
+    }
     //endregion
 
     //region TBL_CUSTOMER
@@ -292,6 +372,7 @@ public class SqlQuery {
         startDate("startDate"),
         endDate("endDate"),
         customerId("customerId"),
+        FigureBookId_Customer("FigureBookId_Customer"),
         customerCode("customerCode");
 
         private String mNameCollumn;
@@ -333,6 +414,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.startDate.name() + " TEXT, " +
                 TBL_CUSTOMER.endDate.name() + " TEXT, " +
                 TBL_CUSTOMER.customerId.name() + " TEXT, " +
+                TBL_CUSTOMER.FigureBookId_Customer.name() + " INTEGER, " +
                 TBL_CUSTOMER.customerCode.name() + " TEXT, " +
 
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() + " TEXT DEFAULT \"FALSE\"" +
@@ -371,6 +453,19 @@ public class SqlQuery {
                 "";
     }
 
+    public static String getNumberRowStatusTBL_CUSTOMER() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_CUSTOMER.getName() + "" +
+                " WHERE " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? " +
+                "AND " +
+                TBL_CUSTOMER.STATUS_CUSTOMER +
+                "= ?" +
+                "";
+    }
+
 
 //    public static String getNumberRowStatusTBL_CUSTOMERByBook() {
 //        return "SELECT * " +
@@ -396,24 +491,29 @@ public class SqlQuery {
                 TBL_CUSTOMER.ADDRESS_CUSTOMER.name() + ", " +
                 TBL_CUSTOMER.STATUS_CUSTOMER.name() + ", " +
                 TBL_CUSTOMER.FOCUS_CUSTOMER.name() + ", " +
+
                 TBL_CUSTOMER.OLD_INDEX.name() + ", " +
                 TBL_CUSTOMER.NEW_INDEX.name() + ", " +
                 TBL_CUSTOMER.MA_NVIEN.name() + ", " +
                 TBL_CUSTOMER.IndexId.name() + ", " +
                 TBL_CUSTOMER.departmentId.name() + ", " +
+
                 TBL_CUSTOMER.pointId.name() + ", " +
                 TBL_CUSTOMER.timeOfUse.name() + ", " +
                 TBL_CUSTOMER.coefficient.name() + ", " +
                 TBL_CUSTOMER.electricityMeterId.name() + ", " +
                 TBL_CUSTOMER.term.name() + ", " +
+
                 TBL_CUSTOMER.month.name() + ", " +
                 TBL_CUSTOMER.year.name() + ", " +
                 TBL_CUSTOMER.indexType.name() + ", " +
                 TBL_CUSTOMER.startDate.name() + ", " +
                 TBL_CUSTOMER.endDate.name() + ", " +
+
                 TBL_CUSTOMER.customerId.name() + ", " +
+                TBL_CUSTOMER.FigureBookId_Customer.name() + ", " +
                 TBL_CUSTOMER.customerCode.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -578,6 +678,27 @@ public class SqlQuery {
                 "= ?" +
                 "";
     }
+
+    public static String getCheckExistCustomer() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_CUSTOMER.getName() +
+                " WHERE " +
+                TBL_CUSTOMER.pointId +
+                " = ?" +
+                " AND " +
+                TBL_CUSTOMER.term +
+                " = ?" +
+                " AND " +
+                TBL_CUSTOMER.month +
+                " = ?" +
+                " AND " +
+                TBL_CUSTOMER.year +
+                " = ?" +
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN +
+                " = ?";
+    }
     //endregion
 
     //region TBL_IMAGE
@@ -698,6 +819,15 @@ public class SqlQuery {
                 " = ?"
                 ;
     }
+
+    public static String getSelectAllTBL_IMAGE() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_IMAGE.getName() +
+                " WHERE " +
+                TBL_IMAGE.MA_NVIEN +
+                " = ?";
+    }
     //endregion
 
     //region DetailProxy
@@ -706,6 +836,22 @@ public class SqlQuery {
                 "(\n" +
                 "select * FROM TBL_CUSTOMER LEFT join TBL_BOOK on TBL_BOOK.ID_TBL_BOOK = TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER" +
                 " where TBL_CUSTOMER.MA_NVIEN = ? \n" +
+                ") as e\n" +
+                "LEFT join TBL_IMAGE\n" +
+                "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
+                " where e.ID_TBL_BOOK_OF_CUSTOMER = ?";
+    }
+
+    //region DetailProxy
+    public static String getSelectAllDetailProxyNotWrite() {
+        return "select * from\n" +
+                "(\n" +
+                "select * FROM TBL_CUSTOMER LEFT join TBL_BOOK on TBL_BOOK.ID_TBL_BOOK = TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER" +
+                " where TBL_CUSTOMER.MA_NVIEN = ? and TBL_CUSTOMER.STATUS_CUSTOMER = " +
+                "'" +
+                CustomerItem.STATUS_Customer.NON_WRITING.getStatus() +
+                "'" +
+                " \n" +
                 ") as e\n" +
                 "LEFT join TBL_IMAGE\n" +
                 "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +

@@ -74,6 +74,9 @@ public class Common {
     public static final String PREF_DETAIL = "PREF_DETAIL";
     public static final String PREF_CONFIG = "PREF_CONFIG";
     public static final String PREF_LOGIN = "PREF_LOGIN";
+    public static String MA_NVIEN = "";
+    public static String USER = "";
+    public static int ID_TBL_BOOK;
 
     public static final String INTENT_KEY_ID_BOOK = "INTENT_KEY_ID_BOOK";
     public static final int INTENT_REQUEST_KEY_CAMERA = 1113;
@@ -98,9 +101,16 @@ public class Common {
 
     public static void setURLServer(String andressServer, int port) {
 //        URLServer = "http://" + andressServer + ":" + port  + "/api/MobileApi/";
-        URLServer= "http://103.74.120.18:8001/api/MobileApi/";
+        URLServer = "http://103.74.120.18:8001/api/MobileApi/";
     }
 
+    public static void setUserCommon(String userCommon, String MA_NVIEN) {
+        if (TextUtils.isEmpty(Common.USER))
+        {
+            Common.USER = userCommon;
+            Common.MA_NVIEN = MA_NVIEN;
+        }
+    }
 
     public static void scaleImage(String fileName, Context context) throws Exception {
         File file = new File(fileName);
@@ -162,6 +172,10 @@ public class Common {
         Bitmap newBitmap = Bitmap.createScaledBitmap(realImage, width,
                 height, filter);
         return newBitmap;
+    }
+
+    public static void setID_TBL_BOOK(int id) {
+        Common.ID_TBL_BOOK = id;
     }
 
 

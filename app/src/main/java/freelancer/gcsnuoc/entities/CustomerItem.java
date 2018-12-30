@@ -28,9 +28,37 @@ public class CustomerItem implements Cloneable{
     private String startDate;
     private String endDate;
     private String customerId;
+    private int FigureBookId_Customer;
     private String customerCode;
 
     public CustomerItem() {
+    }
+
+    public CustomerItem(int ID, int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, double newIndex, double oldIndex, String MA_NVIEN, int indexId, String departmentId, String pointId, String timeOfUse, double coefficient, String electricityMeterId, int term, int month, int year, String indexType, String startDate, String endDate, String customerId, int figureBookId_Customer, String customerCode) {
+        this.ID = ID;
+        this.IDBook = IDBook;
+        mCustomerName = customerName;
+        mCustomerAddress = customerAddress;
+        mStatusCustomer = statusCustomer;
+        mIsFocus = isFocus;
+        mNewIndex = newIndex;
+        mOldIndex = oldIndex;
+        this.MA_NVIEN = MA_NVIEN;
+        IndexId = indexId;
+        this.departmentId = departmentId;
+        this.pointId = pointId;
+        this.timeOfUse = timeOfUse;
+        this.coefficient = coefficient;
+        this.electricityMeterId = electricityMeterId;
+        this.term = term;
+        this.month = month;
+        this.year = year;
+        this.indexType = indexType;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.customerId = customerId;
+        FigureBookId_Customer = figureBookId_Customer;
+        this.customerCode = customerCode;
     }
 
     public int getID() {
@@ -141,12 +169,12 @@ public class CustomerItem implements Cloneable{
         return month;
     }
 
-    public void setMonth(int month) {
-        this.month = month;
-    }
-
     public int getYear() {
         return year;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
     }
 
     public void setYear(int year) {
@@ -191,6 +219,14 @@ public class CustomerItem implements Cloneable{
 
     public void setCustomerCode(String customerCode) {
         this.customerCode = customerCode;
+    }
+
+    public int getFigureBookId_Customer() {
+        return FigureBookId_Customer;
+    }
+
+    public void setFigureBookId_Customer(int figureBookId_Customer) {
+        FigureBookId_Customer = figureBookId_Customer;
     }
 
     public enum STATUS_Customer {
