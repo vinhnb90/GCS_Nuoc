@@ -205,7 +205,7 @@ public class LoginActivity extends BaseActivity {
             protected void clickCancel() {
                 doTaskLoginOnline();
             }
-        }.setTextBtnOK("Tiếp tục đăng nhập offline").setTextBtnCancel("Thử lại đăng nhập online");
+        }.setTextBtnOK("Đăng nhập offline").setTextBtnCancel("Thử đăng nhập online");
         super.showDialog(this, "Hiện không thể đăng nhập online, nhưng tài khoản có thể đăng nhập offline\n", iDialog);
     }
 
@@ -323,29 +323,30 @@ public class LoginActivity extends BaseActivity {
         mSqlDAO = new SqlDAO(mDatabase, this);
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        immersiveMode();
-        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener
-                (new View.OnSystemUiVisibilityChangeListener() {
-                    @Override
-                    public void onSystemUiVisibilityChange(int visibility) {
-                        immersiveMode();
-                    }
-                });
-    }
-
-    public void immersiveMode() {
-        final View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
-    }
+//    @Override
+//    public void onWindowFocusChanged(boolean hasFocus) {
+//        super.onWindowFocusChanged(hasFocus);
+//        immersiveMode();
+//        getWindow().getDecorView().setOnSystemUiVisibilityChangeListener
+//                (new View.OnSystemUiVisibilityChangeListener() {
+//                    @Override
+//                    public void onSystemUiVisibilityChange(int visibility) {
+//                        immersiveMode();
+//                    }
+//                });
+//    }
+//
+//    public void immersiveMode() {
+//        final View decorView = getWindow().getDecorView();
+//        decorView.setSystemUiVisibility(
+////                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+////                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                         View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+////                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+//                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+////                        | View.SYSTEM_UI_FLAG_IMMERSIVE
+//        );
+//    }
 
     @Override
     protected void handleListener() throws Exception {

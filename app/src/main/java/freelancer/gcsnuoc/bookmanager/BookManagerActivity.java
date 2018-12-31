@@ -501,7 +501,7 @@ public class BookManagerActivity extends BaseActivity {
                     btnUpload.setClickable(false);
                     //check all data not write yet and notify
                     dataChooseUpload = new ArrayList<>();
-                    dataChooseUpload = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
+                    dataChooseUpload = mSqlDAO.selectAllTBL_BOOKHasWrited(MA_NVIEN);
                     if (dataChooseUpload.size() == 0) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -518,8 +518,8 @@ public class BookManagerActivity extends BaseActivity {
                         int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED, ID_TBL_BOOK_OF_CUSTOMER);
                         int customerItemsNotWrite = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING, ID_TBL_BOOK_OF_CUSTOMER);
 //                        int customerItemsUploaded = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED, ID_TBL_BOOK_OF_CUSTOMER);
-                        if (customerItemsNotWrite != 0) {
-                            map.put(i, customerItemsNotWrite);
+                        if (customerItemsWrited != 0) {
+                            map.put(i, customerItemsWrited);
                         }
                     }
 
@@ -534,11 +534,11 @@ public class BookManagerActivity extends BaseActivity {
 //                    }
 
                     if (!map.isEmpty()) {
-                        StringBuilder warningMessage = new StringBuilder("Số khách hàng chưa ghi của các sổ chuẩn bị tải lên:");
+                        StringBuilder warningMessage = new StringBuilder("Số khách hàng ĐÃ GHI tương ứng các sổ:");
                         Set<Integer> set = map.keySet();
                         for (Integer index :
                                 set) {
-                            warningMessage.append("\nSổ " + dataChooseUpload.get(index).getBookName() + ": " + map.get(index).intValue());
+                            warningMessage.append("\n----Sổ " + dataChooseUpload.get(index).getBookName() + ": " + map.get(index).intValue());
                         }
                         warningMessage.append("\n");
                         showDialogWarningUpload(warningMessage);

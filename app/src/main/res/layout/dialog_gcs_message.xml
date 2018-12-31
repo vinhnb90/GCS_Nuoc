@@ -89,11 +89,13 @@
                     android:layout_weight="1"
                     android:background="@color/rvBookColor"
                     android:text="HỦY THAO TÁC"
+                    android:textSize="@dimen/_7sdp"
                     android:textColor="@color/buttonColor"
                     android:visibility="visible" />
 
 
                 <Button
+                    android:textSize="@dimen/_7sdp"
                     android:id="@+id/btn_tieptuc"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

@@ -100,6 +100,7 @@ public class DetailActivity extends BaseActivity {
     /*ID_BOOK*/
     private int ID_TBL_BOOK_OF_CUSTOMER;
     private List<DetailProxy> mData = new ArrayList<>();
+    private List<DetailProxy> mDataSearch = new ArrayList<>();
     private CustomerAdapter customerAdapter;
     private Customer2Adapter customerAdapter2;
     private int ID_TBL_CUSTOMER_Focus;
@@ -115,6 +116,8 @@ public class DetailActivity extends BaseActivity {
     private String MA_NVIEN;
     private String USER_NAME;
     private String PASS;
+    private boolean isSearching;
+    private int lengthTextSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,7 +186,22 @@ public class DetailActivity extends BaseActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 try {
-//                    loadDataDetail();
+                    if (newText.length() < lengthTextSearch) {
+                        //restore data
+                        mData.clear();
+                        mData.addAll(mDataSearch);
+                    }
+
+                    lengthTextSearch = newText.length();
+                    if (!isSearching && lengthTextSearch != 0) {
+                        //first time search
+                        isSearching = true;
+                        mDataSearch.clear();
+                        mDataSearch.addAll(mData);
+                    } else {
+                        isSearching = false;
+                    }
+
                     fillDataDetail();
                     filterData(FILTER_BY_SEARCH, newText);
                 } catch (Exception e) {
@@ -570,6 +588,10 @@ public class DetailActivity extends BaseActivity {
 
     private void captureImage() throws IOException {
         DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+        if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED) {
+            Toast.makeText(this, "Không cho phép! Chỉ số khách hàng đã được gửi lên máy chủ!", Toast.LENGTH_SHORT).show();
+            return;
+        }
         timeFileCaptureImage = getDateTimeNow(type12);
         int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
         int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
@@ -877,12 +899,18 @@ public class DetailActivity extends BaseActivity {
 
     public void clickButtonSave(View view) {
         DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+
+        if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED) {
+            Toast.makeText(this, "Không cho phép! Chỉ số khách hàng đã được gửi lên máy chủ!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
-        if (TextUtils.isEmpty(LOCAL_URI))
-        {
+        if (TextUtils.isEmpty(LOCAL_URI)) {
             Toast.makeText(this, "Cần chụp ảnh chỉ số trước khi lưu!", Toast.LENGTH_SHORT).show();
             return;
         }
+
         //get bitmap tu URI
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;

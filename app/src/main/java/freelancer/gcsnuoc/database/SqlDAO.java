@@ -190,6 +190,33 @@ public class SqlDAO {
         return bookItemProxies;
     }
 
+    public List<BookItemProxy> selectAllTBL_BOOKHasWrited(String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(MA_NVIEN);
+        List<BookItemProxy> bookItemProxies = new ArrayList<>();
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.selectAllTBL_BOOKHasWrited(), args);
+
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return bookItemProxies;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            bookItemProxies.add(new BookItemProxy(cursor, cursor.getPosition()));
+            cursor.moveToNext();
+        }
+
+        if (bookItemProxies.isEmpty())
+            closeCursor(cursor);
+        return bookItemProxies;
+    }
+
+
     public void updateResetFocusTBL_BOOK(String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());

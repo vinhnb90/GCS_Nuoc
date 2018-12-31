@@ -183,6 +183,20 @@ public class SqlQuery {
                 " = ?";
     }
 
+    public static String selectAllTBL_BOOKHasWrited() {
+
+        return "SELECT * " +
+                " FROM " +
+                TBL_BOOK.getName() +
+                " WHERE " +
+                TBL_BOOK.CUS_WRITED +
+                " > 0" +
+                " AND " +
+                TBL_BOOK.MA_NVIEN +
+                " = ?";
+    }
+
+
     public static String getInsertTBL_BOOK() {
         return "INSERT INTO " + TBL_BOOK.getName() + " (" +
                 TBL_BOOK.NAME.name() + ", " +
