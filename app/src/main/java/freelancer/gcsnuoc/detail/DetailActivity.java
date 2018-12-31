@@ -95,7 +95,8 @@ public class DetailActivity extends BaseActivity {
     private View mVListCustomer;
     private TextView mTvWarning;
     private Button mBtnSave;
-
+    private RelativeLayout mRlSluong;
+    private TextView mTvSluong;
     /*ID_BOOK*/
     private int ID_TBL_BOOK_OF_CUSTOMER;
     private List<DetailProxy> mData = new ArrayList<>();
@@ -369,7 +370,9 @@ public class DetailActivity extends BaseActivity {
         mVListCustomer = (View) findViewById(R.id.ac_detail_include_detail);
         mTvWarning = (TextView) findViewById(R.id.ac_detail_tv_warning);
         mBtnSave = (Button) findViewById(R.id.ac_detail_btn_save_new_index);
-
+        mRlSluong = (RelativeLayout) findViewById(R.id.ac_detail_rl6);
+        mTvSluong = (TextView) findViewById(R.id.ac_detail_tv_sluong);
+        mRlSluong.setVisibility(View.GONE);
         showIncludeListCusView(mIsShowInCludeList);
         mDatabase = SqlConnect.getInstance(this).open();
         mSqlDAO = new SqlDAO(mDatabase, this);
@@ -801,6 +804,17 @@ public class DetailActivity extends BaseActivity {
         mTvInfoBill.setText("");
         mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_CUSTOMER() + "");
         mEtNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_CUSTOMER() + "");
+
+        showTvSanLuong(detailProxy);
+
+    }
+
+    private void showTvSanLuong(DetailProxy detailProxy) {
+        double old = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
+        double newIndex = detailProxy.getNEW_INDEXOfTBL_CUSTOMER();
+        double co = detailProxy.getCoefficient();
+        mRlSluong.setVisibility(newIndex - old > 0 ? View.VISIBLE : View.GONE);
+        mTvSluong.setText(String.valueOf((newIndex - old) * co));
     }
 
     private int findPosFocusNow(int ID_TBL_CUSTOMER_Focus) {
@@ -865,7 +879,10 @@ public class DetailActivity extends BaseActivity {
         DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
         String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
         if (TextUtils.isEmpty(LOCAL_URI))
+        {
+            Toast.makeText(this, "Cần chụp ảnh chỉ số trước khi lưu!", Toast.LENGTH_SHORT).show();
             return;
+        }
         //get bitmap tu URI
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -965,9 +982,9 @@ public class DetailActivity extends BaseActivity {
             String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite1, type7);
             double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
             double NEW_INDEX = detailProxy.getNEW_INDEXOfTBL_CUSTOMER();
-
-
-            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "", "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
+            double co = detailProxy.getCoefficient();
+            double sanluong = (NEW_INDEX - OLD_INDEX) * co;
+            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
 
             File file = new File(LOCAL_URI);
             try (FileOutputStream out = new FileOutputStream(file)) {

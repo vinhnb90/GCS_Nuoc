@@ -105,8 +105,7 @@ public class Common {
     }
 
     public static void setUserCommon(String userCommon, String MA_NVIEN) {
-        if (TextUtils.isEmpty(Common.USER))
-        {
+        if (TextUtils.isEmpty(Common.USER)) {
             Common.USER = userCommon;
             Common.MA_NVIEN = MA_NVIEN;
         }
@@ -1162,14 +1161,14 @@ public class Common {
                 //TODO vẽ CHI_SO
                 drawTextAndBreakLine(false, canvas, paint_text, 0, y_TYPE_IMAGE + textHeight + paddingBetweenText, textHeight, bmRoot.getWidth(), VI_TRI_3, paddingBetweenText);
 
-                 /*   //Vẽ 1 khung chứa CHI_SO
-                    Rect khungCHI_SO = new Rect();
-                    paint_text.getTextBounds(VI_TRI_3, 0, (VI_TRI_3).length(), khungCHI_SO);
-                    int x_CHI_SO = 0;
-                    int y_CHI_SO = y_TYPE_IMAGE + textHeight + paddingBetweenText;
-                    canvas.drawRect(x_CHI_SO, y_CHI_SO - textHeight, bitmapResult.getWidth(), y_CHI_SO + paddingBetweenText, paint_background);
-                    //Vẽ text CHI_SO
-                    canvas.drawText(VI_TRI_3, x_CHI_SO, y_CHI_SO, paint_text);*/
+                //Vẽ 1 khung chứa CHI_SO
+                Rect khungCHI_SO = new Rect();
+                paint_text.getTextBounds(VI_TRI_3, 0, (VI_TRI_3).length(), khungCHI_SO);
+                int x_CHI_SO = 0;
+                int y_CHI_SO = y_TYPE_IMAGE + textHeight + paddingBetweenText;
+                canvas.drawRect(x_CHI_SO, y_CHI_SO - textHeight, bitmapResult.getWidth(), y_CHI_SO + paddingBetweenText, paint_background);
+                //Vẽ text CHI_SO
+                canvas.drawText(VI_TRI_3, x_CHI_SO, y_CHI_SO, paint_text);
 
                 //TODO điền SO_CTO
                 Rect khungSO_CTO = new Rect();

@@ -540,6 +540,7 @@ public class BookManagerActivity extends BaseActivity {
                                 set) {
                             warningMessage.append("\nSổ " + dataChooseUpload.get(index).getBookName() + ": " + map.get(index).intValue());
                         }
+                        warningMessage.append("\n");
                         showDialogWarningUpload(warningMessage);
                         return;
                     }
@@ -962,7 +963,7 @@ public class BookManagerActivity extends BaseActivity {
         }.setTextBtnOK("Tiếp tục đẩy lên").setTextBtnCancel("Hủy thao tác");
         super.showDialog(this, "Có một số Sổ chưa ghi chỉ số đầy đủ!\n " +
                 warningMessage +
-                "Nếu chọn tiếp tục đẩy dữ liệu sổ lên,\n chương trình sẽ chỉ đẩy dữ liệu những khách hàng đó và trạng thái sổ chưa chuyển sang ĐÃ GỬI\n", iDialog);
+                "Nếu chọn tiếp tục, chương trình sẽ chỉ đẩy mỗi dữ liệu những khách hàng ĐÃ GHI. \n", iDialog);
     }
 
     private void showDialogDownload() throws Exception {

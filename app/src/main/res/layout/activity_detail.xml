@@ -153,7 +153,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/ac_detail_iv_image"
-                        android:layout_margin="@dimen/_8sdp">
+                        android:layout_margin="@dimen/_8sdp"
+                        android:visibility="gone">
 
                         <TextView
                             android:id="@+id/ac_detail_tv1"
@@ -223,16 +224,15 @@
                             android:background="@drawable/xml_button_corner_right"
                             android:drawableRight="@mipmap/ic_download_2"
                             android:gravity="left|center_vertical"
+                            android:onClick="clickButtonSave"
                             android:paddingLeft="@dimen/_5sdp"
                             android:text="Ghi chỉ số"
-                            android:onClick="clickButtonSave"
                             android:textColor="@color/barColorText"
                             android:textSize="@dimen/_7sdp"
                             android:translationZ="@dimen/_5sdp" />
 
 
                         <EditText
-                            android:inputType="numberDecimal"
                             android:id="@+id/ac_detail_et_new_index"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -244,11 +244,38 @@
                             android:layout_toRightOf="@+id/ac_detail_tv3"
                             android:background="@drawable/xml_border_full_type3"
                             android:hint="Nhập chỉ số mới"
+                            android:inputType="numberDecimal"
                             android:lines="1"
                             android:maxLines="1"
                             android:padding="@dimen/_8sdp"
                             android:scrollHorizontally="true"
                             android:textSize="@dimen/_10sdp" />
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/ac_detail_rl6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/ac_detail_rl3"
+                        android:layout_marginLeft="@dimen/_8sdp"
+                        android:layout_marginRight="@dimen/_8sdp">
+
+                        <TextView
+                            android:id="@+id/ac_detail_tv5"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sản lượng (m3):"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/ac_detail_tv_sluong"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/_8sdp"
+                            android:layout_toRightOf="@+id/ac_detail_tv5"
+                            android:text="78"
+                            android:textStyle="bold" />
+
                     </RelativeLayout>
 
                 </RelativeLayout>
@@ -273,15 +300,15 @@
 
             <TextView
                 android:id="@+id/ac_detail_tv_warning"
-                android:gravity="center"
-                android:textStyle="bold|italic"
-                android:text="KHÔNG CÓ DỮ LIỆU !"
-                android:visibility="gone"
-                android:textSize="@dimen/_16sdp"
-                android:background="@color/barColorText"
-                android:layout_above="@+id/ac_detail_bottom_menu"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_above="@+id/ac_detail_bottom_menu"
+                android:background="@color/barColorText"
+                android:gravity="center"
+                android:text="KHÔNG CÓ DỮ LIỆU !"
+                android:textSize="@dimen/_16sdp"
+                android:textStyle="bold|italic"
+                android:visibility="gone" />
 
             <!--  </ScrollView>-->
 
