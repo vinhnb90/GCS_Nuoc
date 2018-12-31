@@ -107,7 +107,7 @@ public class BookItemProxy extends CursorItemProxy {
         String isFocus = SqlQuery.TBL_BOOK.FOCUS.getNameCollumn();
         boolean data = Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(isFocus)));
         mBookItem.setFocus(data);
-        return data;
+        return mBookItem.isFocus();
     }
 
 

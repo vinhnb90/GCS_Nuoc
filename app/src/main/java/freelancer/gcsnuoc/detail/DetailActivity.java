@@ -244,13 +244,13 @@ public class DetailActivity extends BaseActivity {
         super.onResume();
 
         //check permission
-        String[] permissionsNeedGrant = needPermission(this);
-        if (permissionsNeedGrant.length == 0 && mTrigger == TRIGGER_NEED_ALLOW_PERMISSION.NONE) {
-            mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.ON_RESUME;
-            return;
-        }
-
-        doTaskOnResume();
+//        String[] permissionsNeedGrant = needPermission(this);
+//        if (permissionsNeedGrant.length == 0 && mTrigger == TRIGGER_NEED_ALLOW_PERMISSION.NONE) {
+//            mTrigger = TRIGGER_NEED_ALLOW_PERMISSION.ON_RESUME;
+//            return;
+//        }
+//
+//        doTaskOnResume();
     }
 
     @Override
@@ -303,14 +303,22 @@ public class DetailActivity extends BaseActivity {
     private void refreshData(int ID_TBL_CUSTOMER_Focus) throws Exception {
         //fill mData
         mData.clear();
-        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+        //TODO
+        mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
         if (mData.size() == 0)
             return;
 
-        customerAdapter.updateList(mData);
-        mRvCus.postInvalidate();
+        int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
+        if (posNow == -1) {
+            posNow = 0;
+            ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
+        }
 
+        customerAdapter.updateList(mData);
         customerAdapter2.updateList(mData);
+        mRvCus.scrollToPosition(posNow);
+        mRvCus2.scrollToPosition(posNow);
+        mRvCus.postInvalidate();
         mRvCus2.postInvalidate();
 
         updateUI(ID_TBL_CUSTOMER_Focus);
@@ -464,10 +472,12 @@ public class DetailActivity extends BaseActivity {
                     switch (tabId) {
                         case R.id.ac_detail_nav_bot_detail:
                             showIncludeListCusView(false);
-                            isFilteringBottomMenu = true;
+                            isFilteringBottomMenu = false;
                             mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).edit().putBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, isFilteringBottomMenu).commit();
                             mData.clear();
                             mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+                            ID_TBL_CUSTOMER_Focus = mData.get(findFocus()).getIDOfTBL_CUSTOMER();
+                            refreshData(ID_TBL_CUSTOMER_Focus);
                             break;
                         case R.id.ac_detail_nav_bot_filter:
                             if (mPrefManager == null)
@@ -607,7 +617,8 @@ public class DetailActivity extends BaseActivity {
         mPrefManager = SharePrefManager.getInstance(this);
 
         this.checkSharePreference(mPrefManager);
-
+        isFilteringBottomMenu = mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).
+                getBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, false);
         //load mData
         loadDataDetail();
         //fill mData
@@ -706,11 +717,7 @@ public class DetailActivity extends BaseActivity {
                         try {
                             ID_TBL_CUSTOMER_Focus = mData.get(finalTargetPosition).getIDOfTBL_CUSTOMER();
                             refocusItem(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
-                            int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
-                            mRvCus.scrollToPosition(posNow);
-                            mRvCus2.scrollToPosition(posNow);
-                            mRvCus.postInvalidate();
-                            mRvCus2.postInvalidate();
+                            refreshData(ID_TBL_CUSTOMER_Focus);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -756,14 +763,15 @@ public class DetailActivity extends BaseActivity {
         mRvCus2.setHasFixedSize(true);
         mRvCus2.setAdapter(customerAdapter2);
 
+
         int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
         refocusItem(posNow, mData.get(posNow).getIDOfTBL_CUSTOMER());
 
-        mRvCus.scrollToPosition(posNow);
-        mRvCus2.scrollToPosition(posNow);
-
-        mRvCus.postInvalidate();
-        mRvCus2.postInvalidate();
+//        mRvCus.scrollToPosition(posNow);
+//        mRvCus2.scrollToPosition(posNow);
+//
+//        mRvCus.postInvalidate();
+//        mRvCus2.postInvalidate();
     }
 
     private void refocusItem(int pos, int ID_TBL_CUSTOMER) throws Exception {
@@ -802,7 +810,7 @@ public class DetailActivity extends BaseActivity {
             }
         }
 
-        return 0;
+        return -1;
     }
 
 
@@ -818,24 +826,28 @@ public class DetailActivity extends BaseActivity {
         }
         //get Focus
         //load first
-        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+        mData.clear();
+        mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+//        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 
-        ID_TBL_CUSTOMER_Focus = findFocus();
-//        if (ID_TBL_CUSTOMER_Focus == 0) {
-//            //first focus
-//            ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
-//            mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, true);
-//        }
+        int posNow = findFocus();
+        if (posNow == -1) {
+            //first focus
+            ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
+            refocusItem(0, ID_TBL_CUSTOMER_Focus);
+        } else {
+            ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
+        }
     }
 
     private int findFocus() {
         for (int i = 0; i < mData.size(); i++) {
             if (mData.get(i).isFocusOfTBL_CUSTOMER()) {
-                return mData.get(i).getIDOfTBL_CUSTOMER();
+                return i;
             }
         }
 
-        return 0;
+        return -1;
     }
 
 //    private void dumpData() throws Exception {
@@ -945,11 +957,11 @@ public class DetailActivity extends BaseActivity {
             mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, CustomerItem.STATUS_Customer.WRITED, MA_NVIEN);
             mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Integer.parseInt(mEtNewIndex.getText().toString()), MA_NVIEN);
             mData.clear();
-            mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+            mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
             DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
             String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
             String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
-            String MA_DDO = "PD011120";
+            String MA_DDO = detailProxy.getPointId();
             String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite1, type7);
             double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
             double NEW_INDEX = detailProxy.getNEW_INDEXOfTBL_CUSTOMER();

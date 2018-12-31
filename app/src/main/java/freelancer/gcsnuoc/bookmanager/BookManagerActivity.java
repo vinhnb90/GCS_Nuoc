@@ -1432,9 +1432,6 @@ public class BookManagerActivity extends BaseActivity {
                     mSqlDAO.updateResetFocusTBL_BOOK(MA_NVIEN);
                     mSqlDAO.updateFocusTBL_BOOK(ID, MA_NVIEN);
 
-                    //refresh data
-                    refreshData();
-
                     //openActivity
                     Intent intent = new Intent(BookManagerActivity.this, DetailActivity.class);
                     Common.setID_TBL_BOOK(ID);
@@ -1457,10 +1454,6 @@ public class BookManagerActivity extends BaseActivity {
         mRvBook.setLayoutManager(new LinearLayoutManager(this));
         mRvBook.setHasFixedSize(true);
         mRvBook.setAdapter(booksAdapter);
-    }
-
-    private void refreshData() throws Exception {
-
     }
 
     private void loadDataBook() throws Exception {

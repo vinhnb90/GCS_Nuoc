@@ -186,7 +186,7 @@ public class DetailProxy extends CursorItemProxy {
         String isFocus = SqlQuery.TBL_CUSTOMER.FOCUS_CUSTOMER.getNameCollumn();
         boolean data = Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(isFocus)));
         mCustomerItem.setFocus(data);
-        return data;
+        return mCustomerItem.isFocus();
     }
 
     public CustomerItem getCustomerItemClone() {
