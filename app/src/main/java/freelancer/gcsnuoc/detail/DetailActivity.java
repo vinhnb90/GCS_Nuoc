@@ -976,8 +976,10 @@ public class DetailActivity extends BaseActivity {
             return;
         }
 
-        double result = Double.parseDouble(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
-        if (result <= 0) {
+        double newIndex = TextUtils.isEmpty(mEtNewIndex.getText().toString()) ? 0.0d : Double.parseDouble(mEtNewIndex.getText().toString());
+        double oldIndex = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
+        double result = newIndex - oldIndex;
+        if (result <= 0.0d) {
             Toast.makeText(this, "Giá trị chỉ số yêu cầu phải lớn hơn giá trị cũ!", Toast.LENGTH_SHORT).show();
             return;
         }

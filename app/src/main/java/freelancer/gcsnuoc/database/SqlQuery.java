@@ -481,9 +481,9 @@ public class SqlQuery {
                 "from\n" +
                 "(SELECT * FROM " +
                 TBL_CUSTOMER.getName() +
-                " WHERE TBL_CUSTOMER.STATUS_CUSTOMER = '" +
+                " WHERE TBL_CUSTOMER.STATUS_CUSTOMER = " +
                 "?" +
-                "' AND MA_NVIEN = " +
+                " AND MA_NVIEN = " +
                 "?" +
                 ") AS A\n" +
                 "INNER JOIN \n" +
@@ -575,7 +575,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.customerId.name() + ", " +
                 TBL_CUSTOMER.FigureBookId_Customer.name() + ", " +
                 TBL_CUSTOMER.customerCode.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -850,7 +850,7 @@ public class SqlQuery {
                 TBL_IMAGE.LOCAL_URI.name() + ", " +
                 TBL_IMAGE.MA_NVIEN.name() + ", " +
                 TBL_IMAGE.CREATE_DAY.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }

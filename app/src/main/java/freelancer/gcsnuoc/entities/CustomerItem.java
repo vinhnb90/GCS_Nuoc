@@ -1,6 +1,6 @@
 package freelancer.gcsnuoc.entities;
 
-public class CustomerItem implements Cloneable{
+public class CustomerItem implements Cloneable {
     private int ID;
     private int IDBook;
     private String mCustomerName;
@@ -9,8 +9,8 @@ public class CustomerItem implements Cloneable{
     private boolean mIsFocus;
 
     //other
-    private double mNewIndex;
-    private double mOldIndex;
+    private double mNewIndex = 0.0d;
+    private double mOldIndex = 0.0d;
     private String MA_NVIEN;
 
     //post
