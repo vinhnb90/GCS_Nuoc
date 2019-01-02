@@ -119,6 +119,7 @@ public class DetailProxy extends CursorItemProxy {
         }
         return mImageItem.getCREATE_DAY();
     }
+
     //endregion
 
 

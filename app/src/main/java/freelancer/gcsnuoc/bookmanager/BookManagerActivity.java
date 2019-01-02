@@ -125,6 +125,12 @@ public class BookManagerActivity extends BaseActivity {
     private boolean threadDownloadIsRunning;
     private boolean threadUploadIsRunning;
     private TextView mEtNoData;
+    private boolean mStateHide;
+    private MenuItem deteleItem;
+    private boolean isClickMenuSearch;
+    private TextView btnDownloadOK;
+    private Button btnUploadOK;
+    private String messageNotifyResult = "";
 
 
     public enum TYPE_FILTER {
@@ -164,7 +170,7 @@ public class BookManagerActivity extends BaseActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         switch (item.getItemId()) {
             // Respond to the action bar's Up/Home button
             case android.R.id.home:
@@ -271,11 +277,20 @@ public class BookManagerActivity extends BaseActivity {
         menuInflater.inflate(R.menu.ac_book_manager_actionbar_menu, menu);
 
         MenuItem menuItem = menu.findItem(R.id.ac_book_manager_menu_search);
+        deteleItem = menu.findItem(R.id.ac_book_manager_menu_delete);
         SearchView searchView = (SearchView) menuItem.getActionView();
         int id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
         TextView textView = (TextView) searchView.findViewById(id);
         textView.setTextColor(ContextCompat.getColor(this, R.color.rowBookColorNomarl));
+
         trimChildMargins(searchView);
+        searchView.setOnSearchClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isClickMenuSearch = true;
+            }
+        });
+
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -295,7 +310,66 @@ public class BookManagerActivity extends BaseActivity {
                 return false;
             }
         });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                isClickMenuSearch = false;
+                return false;
+            }
+        });
+
+        deteleItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (isClickMenuSearch) {
+                    Toast.makeText(BookManagerActivity.this, "Không thể xóa dữ liệu khi đang tìm kiếm!", Toast.LENGTH_SHORT).show();
+                    return true;
+                } else {
+                    showDialogWarningDelete();
+                }
+                return true;
+            }
+        });
+
+
         return super.onCreateOptionsMenu(menu);
+    }
+
+
+    private void showDialogWarningDelete() {
+        IDialog iDialog = new IDialog() {
+            @Override
+            protected void clickOK() {
+                try {
+                    List<ImageItemProxy> list = mSqlDAO.selectAllTBL_IMAGE(MA_NVIEN);
+                    for (ImageItemProxy itemProxy :
+                            list) {
+                        String LOCAL_URIOfTBL_IMAGE = itemProxy.getLOCAL_URI();
+                        if (!TextUtils.isEmpty(LOCAL_URIOfTBL_IMAGE)) {
+                            File fileImage = new File(LOCAL_URIOfTBL_IMAGE);
+                            if (fileImage.isFile()) {
+                                fileImage.delete();
+                            }
+                        }
+                    }
+                    mSqlDAO.deleteAllRowTBL_IMAGE(MA_NVIEN);
+                    mSqlDAO.deleteAllRowTBL_BOOK(MA_NVIEN);
+                    mSqlDAO.deleteAllRowTBL_CUSTOMER(MA_NVIEN);
+
+                    finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi xóa dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            protected void clickCancel() {
+            }
+        }.setTextBtnOK("Xóa tất cả dữ liệu").setTextBtnCancel("Hủy thao tác");
+        super.showDialog(this, "Thao tác này sẽ xóa toàn bộ dữ liệu và ảnh của tất cả các sổ của riêng nhân viên hiện tại!\n" +
+                "Màn hình sẽ trở về màn hình đăng nhập!", iDialog);
     }
 
     @Override
@@ -488,17 +562,34 @@ public class BookManagerActivity extends BaseActivity {
         pbarUpload = (ProgressBar) dialogUpload.findViewById(R.id.dialog_upload_pbar_upload);
         tvPercentUpload = (TextView) dialogUpload.findViewById(R.id.dialog_upload_tv_percent);
         btnUpload = (Button) dialogUpload.findViewById(R.id.dialog_upload_btn_download);
+        btnUploadOK = (Button) dialogUpload.findViewById(R.id.dialog_upload_btn_upload_OK);
+        btnUploadOK.setVisibility(View.INVISIBLE);
+        btnUploadOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogUpload.dismiss();
+            }
+        });
         tvNotifyResult.setText("");
-        showNotifyResultUpload(false);
-
+        tvStatusUpload.setVisibility(View.VISIBLE);
+        tvNotifyResult.setVisibility(View.VISIBLE);
+        tvTitleNotifyResult.setVisibility(View.VISIBLE);
         pbarUpload.setMax(100);
         pbarUpload.setProgress(0);
+        messageNotifyResult = "";
 
         btnUpload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
-                    btnUpload.setClickable(false);
+                    BookManagerActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnUploadOK.setVisibility(View.INVISIBLE);
+                            btnUpload.setClickable(false);
+                        }
+                    });
+
                     //check all data not write yet and notify
                     dataChooseUpload = new ArrayList<>();
                     dataChooseUpload = mSqlDAO.selectAllTBL_BOOKHasWrited(MA_NVIEN);
@@ -506,6 +597,8 @@ public class BookManagerActivity extends BaseActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                tvNotifyResult.setText("Không có dữ liệu nào được chọn để đẩy lên!");
+                                setUIUpload("Kết thúc phiên tải lên máy chủ!\n", 0);
                                 Toast.makeText(BookManagerActivity.this, "Không có dữ liệu nào được chọn để đẩy lên!", Toast.LENGTH_SHORT).show();
                             }
                         });
@@ -552,14 +645,6 @@ public class BookManagerActivity extends BaseActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi truy xuất dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                } finally {
-                    BookManagerActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            btnUpload.setClickable(true);
-                        }
-                    });
-                    threadUploadIsRunning = false;
                 }
 //                try {
 //                    btnUpload.setClickable(false);
@@ -581,8 +666,15 @@ public class BookManagerActivity extends BaseActivity {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 onResume();
-                dialogUpload.dismiss();
-                onBackPressed();
+//                dialogUpload.dismiss();
+                BookManagerActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBottomBar.setDefaultTabPosition(0);
+                        mBottomBar.invalidate();
+                    }
+                });
+//                onBackPressed();
             }
         });
 
@@ -593,8 +685,8 @@ public class BookManagerActivity extends BaseActivity {
         BookManagerActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tvStatusUpload.setVisibility(isShow ? View.VISIBLE : View.GONE);
-                tvTitleNotifyResult.setVisibility(isShow ? View.VISIBLE : View.GONE);
+                tvNotifyResult.setVisibility(isShow ? View.VISIBLE : View.INVISIBLE);
+                tvTitleNotifyResult.setVisibility(isShow ? View.VISIBLE : View.INVISIBLE);
             }
         });
     }
@@ -607,16 +699,8 @@ public class BookManagerActivity extends BaseActivity {
                 if (apiInterface == null)
                     apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
 
-                BookManagerActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        btnUpload.setClickable(true);
-                    }
-                });
-
                 startGetTokenAndUploadDataBook();
 
-                showNotifyResultUpload(true);
                 //show
                 StringBuilder message = new StringBuilder();
                 message.append("Số sổ yêu cầu đẩy lên: " + dataChooseUpload.size());
@@ -629,20 +713,26 @@ public class BookManagerActivity extends BaseActivity {
                 message.append("\n");
                 message.append("Số khách hàng đẩy bị lỗi do kết nối chờ quá lâu: " + listPostTimeoutServer.size());
                 message.append("\n");
-                message.append("Số khách hàng đẩy bị lỗi do xử lý lỗi từ clien: " + listPostErrorClient.size());
+                message.append("Số khách hàng đẩy bị lỗi do xử lý lỗi từ smartphone: " + listPostErrorClient.size());
 
-                tvNotifyResult.setText(message);
+                messageNotifyResult = message.toString();
 
+                showNotifyResultUpload(true);
                 BookManagerActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         btnUpload.setClickable(true);
+                        btnUploadOK.setVisibility(View.VISIBLE);
+                        if (!TextUtils.isEmpty(messageNotifyResult))
+                            tvNotifyResult.setText(messageNotifyResult);
                     }
                 });
+                setUIUpload("Kết thúc phiên tải lên máy chủ!\n", 100);
                 threadUploadIsRunning = false;
-            }
-        }).start();
-    }
+        }
+    }).start();
+
+}
 
     private void startGetTokenAndUploadDataBook() {
         try {
@@ -765,10 +855,10 @@ public class BookManagerActivity extends BaseActivity {
 
             }
 
-            setUIUpload(" Xử lý dữ liệu thành công...", 100);
+            setUIUpload("Xử lý dữ liệu thành công...", 100);
             Thread.sleep(150);
 
-            setUIUpload(" Đang tải lên máy chủ...", 1);
+            setUIUpload("Đang tải lên máy chủ...", 1);
             Thread.sleep(150);
             Set<Integer> keys = mDataHashMapBookPostsUpload.keySet();
             int i = -1;
@@ -777,7 +867,7 @@ public class BookManagerActivity extends BaseActivity {
                 int key = integerIterator.intValue();
                 uploadCustomer(key, mDataHashMapBookPostsUpload.get(key));
                 i++;
-                setUIUpload(" Đang tải lên máy chủ...", (i + 1) * 100 / mDataHashMapBookPostsUpload.size());
+                setUIUpload("Đang tải lên máy chủ...", (i + 1) * 100 / mDataHashMapBookPostsUpload.size());
                 Thread.sleep(50);
             }
         } catch (Exception e) {
@@ -979,18 +1069,27 @@ public class BookManagerActivity extends BaseActivity {
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL);
 
         tvStatus = (TextView) dialogDownload.findViewById(R.id.dialog_download_tv_status);
-//        tvCountBook = (TextView) dialogDownload.findViewById(R.id.dilog_download_tv_count_book);
+
+        btnDownloadOK = (Button) dialogDownload.findViewById(R.id.dialog_download_btn_download_OK);
         pbarDownload = (ProgressBar) dialogDownload.findViewById(R.id.dialog_download_pbar_download);
         tvPercent = (TextView) dialogDownload.findViewById(R.id.dialog_download_tv_percent);
         btnDownload = (Button) dialogDownload.findViewById(R.id.dialog_download_btn_download);
 
+        btnDownloadOK.setVisibility(View.INVISIBLE);
+        btnDownloadOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogDownload.dismiss();
+            }
+        });
         pbarDownload.setMax(100);
         pbarDownload.setProgress(0);
-
+        setUIDownload("Phiên tải lên máy chủ!\n", 0);
         btnDownload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try {
+                    btnDownloadOK.setVisibility(View.INVISIBLE);
                     btnDownload.setClickable(false);
                     //check all data not write yet and notify
                     int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
@@ -1010,8 +1109,15 @@ public class BookManagerActivity extends BaseActivity {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
                 onResume();
-                dialogDownload.dismiss();
-                onBackPressed();
+                BookManagerActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mBottomBar.setDefaultTabPosition(0);
+                        mBottomBar.invalidate();
+                    }
+                });
+//                dialogDownload.dismiss();
+//                onBackPressed();
             }
         });
 
@@ -1076,6 +1182,7 @@ public class BookManagerActivity extends BaseActivity {
                     @Override
                     public void run() {
                         btnDownload.setClickable(true);
+                        btnDownloadOK.setVisibility(View.VISIBLE);
                     }
                 });
                 threadDownloadIsRunning = false;
@@ -1455,6 +1562,12 @@ public class BookManagerActivity extends BaseActivity {
         mRvBook.setLayoutManager(new LinearLayoutManager(this));
         mRvBook.setHasFixedSize(true);
         mRvBook.setAdapter(booksAdapter);
+
+        if (mRvBook.getAdapter().getItemCount() == 0) {
+            mEtNoData.setVisibility(View.VISIBLE);
+        } else {
+            mEtNoData.setVisibility(View.GONE);
+        }
     }
 
     private void loadDataBook() throws Exception {
@@ -1463,8 +1576,6 @@ public class BookManagerActivity extends BaseActivity {
         int rowDataTBL_BOOK = 0;
         rowDataTBL_BOOK = mSqlDAO.getNumberRowTBL_BOOK(MA_NVIEN);
         if (rowDataTBL_BOOK == 0) {
-//            dumpData();
-
             return;
         }
         dataDump = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
@@ -1477,15 +1588,4 @@ public class BookManagerActivity extends BaseActivity {
             mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), count, MA_NVIEN, true);
         }
     }
-
-//    private void dumpData() throws Exception {
-//        //dumpData
-//        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 1", BookItem.STATUS_BOOK.NON_WRITING, 0, 43, "2018-12-23T02:51:02", false, false));
-//        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 2", BookItem.STATUS_BOOK.NON_WRITING, 0, 12, "2018-12-23T02:51:02", false, false));
-//        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 3", BookItem.STATUS_BOOK.NON_WRITING, 0, 54, "2018-12-23T02:51:02", false, false));
-//        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 4", BookItem.STATUS_BOOK.NON_WRITING, 0, 21, "2018-12-23T02:51:02", false, false));
-//        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 5", BookItem.STATUS_BOOK.NON_WRITING, 0, 23, "2018-12-23T02:51:02", false, false));
-//        mSqlDAO.insertTBL_BOOK(new BookItem("bookName 6", BookItem.STATUS_BOOK.NON_WRITING, 0, 52, "2018-12-23T02:51:02", false, false));
-//
-//    }
 }

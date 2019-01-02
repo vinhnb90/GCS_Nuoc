@@ -74,16 +74,6 @@ public class SettingActivity extends BaseActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     protected void init() {
@@ -233,6 +223,7 @@ public class SettingActivity extends BaseActivity {
         //fill data
         fillSettingData();
     }
+
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -274,12 +265,12 @@ public class SettingActivity extends BaseActivity {
         }
 
         settingObject.setURL(mEtURL.getText().toString());
-        settingObject.setPort(Integer.parseInt(mEtPort.getText().toString()));
+        settingObject.setPort(TextUtils.isEmpty(mEtPort.getText().toString())? 0 : Integer.parseInt(mEtPort.getText().toString()));
 
         //save data db
         if (!isSaveDatabaseSuccess(settingObject))
             Toast.makeText(this, "Gặp lỗi khi lưu cấu hình!", Toast.LENGTH_SHORT).show();
-        else{
+        else {
             GCSApplication.setSettingObject(settingObject);
             Toast.makeText(this, "Đã lưu cấu hình!", Toast.LENGTH_SHORT).show();
         }
@@ -307,7 +298,12 @@ public class SettingActivity extends BaseActivity {
             return false;
         }
 
-        if (TextUtils.isEmpty(mEtPort.getText()) || Integer.parseInt(mEtPort.getText().toString()) == 0) {
+        if (mEtURL.getText().toString().contains(":") && !TextUtils.isEmpty(mEtPort.getText().toString())) {
+            Toast.makeText(this, "Địa chỉ máy chủ đã bao gồm cổng!. Vui lòng kiểm tra lại.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        if (TextUtils.isEmpty(mEtPort.getText()) && !mEtURL.getText().toString().contains(":")) {
             Toast.makeText(this, "Cần nhập cổng máy chủ", Toast.LENGTH_SHORT).show();
             return false;
         }

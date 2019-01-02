@@ -86,6 +86,7 @@ public class DetailActivity extends BaseActivity {
     private ImageView mImageView;
     private BottomBar mBottomBar;
     private FloatingActionButton mFabCapture;
+    private TextView mTvCusCode;
     private TextView mTvInfoBill;
     private TextView mTvOldIndex;
     private EditText mEtNewIndex;
@@ -161,9 +162,9 @@ public class DetailActivity extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.ac_book_manager_actionbar_menu, menu);
+        menuInflater.inflate(R.menu.ac_detail_actionbar_menu, menu);
 
-        MenuItem menuItem = menu.findItem(R.id.ac_book_manager_menu_search);
+        MenuItem menuItem = menu.findItem(R.id.ac_detail_menu_search);
         searchView = (SearchView) menuItem.getActionView();
         int id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
         TextView textView = (TextView) searchView.findViewById(id);
@@ -172,6 +173,7 @@ public class DetailActivity extends BaseActivity {
         searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mFabCapture.setVisibility(View.GONE);
                 mBottomBar.setDefaultTabPosition(2);
                 mBottomBar.postInvalidate();
             }
@@ -202,8 +204,17 @@ public class DetailActivity extends BaseActivity {
                         isSearching = false;
                     }
 
+                    showIncludeListCusView(true);
+
                     fillDataDetail();
                     filterData(FILTER_BY_SEARCH, newText);
+                    DetailActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFabCapture.setVisibility(View.GONE);
+                            mFabCapture.postInvalidate();
+                        }
+                    });
                 } catch (Exception e) {
                     e.printStackTrace();
                     Toast.makeText(DetailActivity.this, "Gặp vấn đề. Vui lòng thử tìm kiếm lại!", Toast.LENGTH_SHORT).show();
@@ -305,8 +316,8 @@ public class DetailActivity extends BaseActivity {
     @Override
     public void doTaskOnResume() {
         try {
-            ID_TBL_CUSTOMER_Focus = findFocus();
-            refreshData(ID_TBL_CUSTOMER_Focus);
+//            ID_TBL_CUSTOMER_Focus = findPosFocusInList();
+//            refreshData(ID_TBL_CUSTOMER_Focus);
 
             //filter mData
 //            mDetailActivitySharePref = (DetailActivitySharePref) SharePrefManager.getInstance().getSharePref(DetailActivitySharePref.class);
@@ -360,12 +371,7 @@ public class DetailActivity extends BaseActivity {
             handleListener();
             setAction(savedInstanceState);
         } catch (Exception e) {
-            try {
-                getInstance().loge(DetailActivity.class, e.getMessage());
-            } catch (Exception e1) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                e1.printStackTrace();
-            }
+            Toast.makeText(this, "Lỗi khởi tạo " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -373,6 +379,7 @@ public class DetailActivity extends BaseActivity {
     @Override
     protected void init() throws Exception {
         mTvNameEmp = (TextView) findViewById(R.id.ac_detail_name_emp);
+        mTvCusCode = (TextView) findViewById(R.id.ac_book_manager_tv_cus_code);
         mTvAndressEmp = (TextView) findViewById(R.id.ac_detail_address_emp);
         mTvPerior = (TextView) findViewById(R.id.ac_detail_tv_text_perior);
         mImageView = (ImageView) findViewById(R.id.ac_detail_iv_image);
@@ -414,6 +421,11 @@ public class DetailActivity extends BaseActivity {
             try {
                 if (requestCode == INTENT_REQUEST_KEY_CAMERA && resultCode == RESULT_OK) {
                     //getData
+                    if (isFilteringBottomMenu) {
+                        mBottomBar.setDefaultTabPosition(1);
+                        mBottomBar.postInvalidate();
+                    }
+
                     int focusNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
                     DetailProxy detailProxy = this.mData.get(focusNow);
                     int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
@@ -439,29 +451,39 @@ public class DetailActivity extends BaseActivity {
                     bitmapImageTemp = BitmapFactory.decodeFile(pathURICapturedAnh, options);
                     //set image and set flag is captured again image
                     mImageView.setImageBitmap(bitmapImageTemp);
-                    flagChangeData = true;
 
 
                     //delete old image and insert
                     String LOCAL_URIOfTBL_IMAGE = detailProxy.getLOCAL_URIOfTBL_IMAGE();
                     if (!TextUtils.isEmpty(LOCAL_URIOfTBL_IMAGE)) {
                         File fileImage = new File(LOCAL_URIOfTBL_IMAGE);
-                        if (fileImage.isFile())
+                        if (fileImage.isFile()) {
                             fileImage.delete();
+                            flagChangeData = true;
+                        }
+                    }
+
+                    if (flagChangeData) {
+                        //update chua ghi
+                        mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, CustomerItem.STATUS_Customer.NON_WRITING, MA_NVIEN);
+                        flagChangeData = false;
                     }
 
                     int ID_TBL_IMAGE = detailProxy.getIDOfTBL_IMAGE();
-                    mSqlDAO.deleteIMAGE(ID_TBL_IMAGE);
+                    mSqlDAO.deleteIMAGE(ID_TBL_IMAGE, MA_NVIEN);
 
                     ImageItem imageItem = new ImageItem();
-                    imageItem.setCREATE_DAY(Common.convertDateToDate(timeFileCaptureImage, type12, sqlite2));
+                    //TODO
+                    imageItem.setCREATE_DAY(Common.convertDateToDate(timeFileCaptureImage, type13, sqlite2));
                     imageItem.setID_TBL_CUSTOMER(ID_TBL_CUSTOMER_Focus);
                     imageItem.setNAME(TEN_ANH);
                     imageItem.setLOCAL_URI(pathURICapturedAnh);
                     mSqlDAO.insertTBL_IMAGE(imageItem, MA_NVIEN);
 
                     //refreshUI
-                    loadDataDetail();
+                    mData.clear();
+                    mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+
                     refreshData(ID_TBL_CUSTOMER_Focus);
                 }
             } catch (Exception e) {
@@ -497,7 +519,7 @@ public class DetailActivity extends BaseActivity {
                             mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).edit().putBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, isFilteringBottomMenu).commit();
                             mData.clear();
                             mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
-                            ID_TBL_CUSTOMER_Focus = mData.get(findFocus()).getIDOfTBL_CUSTOMER();
+                            ID_TBL_CUSTOMER_Focus = mData.get(findPosFocusInList()).getIDOfTBL_CUSTOMER();
                             refreshData(ID_TBL_CUSTOMER_Focus);
                             break;
                         case R.id.ac_detail_nav_bot_filter:
@@ -556,6 +578,8 @@ public class DetailActivity extends BaseActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                     Toast.makeText(DetailActivity.this, "Gặp vấn đề khi chụp ảnh!", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -586,22 +610,22 @@ public class DetailActivity extends BaseActivity {
 //        dialogCusList.show();
 //    }
 
-    private void captureImage() throws IOException {
-        DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
+    private void captureImage() throws Exception {
+        mData.clear();
+        mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+//    đsa
+        DetailProxy detailProxy = mData.get(findPosFocusInList());
         if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED) {
             Toast.makeText(this, "Không cho phép! Chỉ số khách hàng đã được gửi lên máy chủ!", Toast.LENGTH_SHORT).show();
             return;
         }
-        timeFileCaptureImage = getDateTimeNow(type12);
+        timeFileCaptureImage = getDateTimeNow(type13);
         int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
         int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
-//        String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
-//        String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
         int term = detailProxy.getTerm();
         int month = detailProxy.getMonth();
         int year = detailProxy.getYear();
         String PERIOD_Convert = term + "." + month + "." + year;
-//        String TEN_ANH = detailProxy.getNAMEOfTBL_IMAGE();
 
         String fileName = getRecordDirectoryFolder("")
                 + "/"
@@ -644,6 +668,15 @@ public class DetailActivity extends BaseActivity {
         this.checkSharePreference(mPrefManager);
         isFilteringBottomMenu = mPrefManager.getSharePref(PREF_DETAIL, MODE_PRIVATE).
                 getBoolean(KEY_PREF_DETAIL_IS_FILTER_BOTTOM, false);
+        if (isFilteringBottomMenu) {
+            DetailActivity.this.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mBottomBar.setDefaultTabPosition(1);
+                    mBottomBar.postInvalidate();
+                }
+            });
+        }
         //load mData
         loadDataDetail();
         //fill mData
@@ -809,10 +842,11 @@ public class DetailActivity extends BaseActivity {
         refreshData(ID_TBL_CUSTOMER);
     }
 
-    private void updateUI(int ID_TBL_CUSTOMER_Focus) throws Exception {
-        int mPos = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
-        DetailProxy detailProxy = mData.get(mPos);
+    private void updateUI(final int varID_TBL_CUSTOMER_Focus) throws Exception {
+        int mPos = findPosFocusNow(varID_TBL_CUSTOMER_Focus);
+        final DetailProxy detailProxy = mData.get(mPos);
         mTvNameEmp.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
+        mTvCusCode.setText(detailProxy.getCustomerCode());
         mTvAndressEmp.setText(detailProxy.getCustomerAddressOfTBL_CUSTOMER());
         int term = detailProxy.getTerm();
         int month = detailProxy.getMonth();
@@ -820,15 +854,20 @@ public class DetailActivity extends BaseActivity {
         String PERIOD_Convert = term + " - " + month + "/" + year;
         mTvPerior.setText(PERIOD_Convert);
 
-        Bitmap bitmap = detailProxy.getBitmap();
+        String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
         mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
 
         mTvInfoBill.setText("");
         mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_CUSTOMER() + "");
+        if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED)
+            mEtNewIndex.setClickable(false);
+        else mEtNewIndex.setClickable(true);
         mEtNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_CUSTOMER() + "");
 
         showTvSanLuong(detailProxy);
-
     }
 
     private void showTvSanLuong(DetailProxy detailProxy) {
@@ -866,17 +905,19 @@ public class DetailActivity extends BaseActivity {
         mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 //        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 
-        int posNow = findFocus();
+        int posNow = findPosFocusInList();
         if (posNow == -1) {
             //first focus
             ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
-            refocusItem(0, ID_TBL_CUSTOMER_Focus);
+            //update database by ID
+            mSqlDAO.updateResetFocusTBL_CUSTOMER(MA_NVIEN, ID_TBL_BOOK_OF_CUSTOMER);
+            mSqlDAO.updateFocusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, true, MA_NVIEN);
         } else {
             ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
         }
     }
 
-    private int findFocus() {
+    private int findPosFocusInList() {
         for (int i = 0; i < mData.size(); i++) {
             if (mData.get(i).isFocusOfTBL_CUSTOMER()) {
                 return i;
@@ -920,10 +961,10 @@ public class DetailActivity extends BaseActivity {
             return;
         }
 
-        if (bitmap == null) {
-            Toast.makeText(this, "Cần nhập giá trị chỉ số!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (bitmap == null) {
+//            Toast.makeText(this, "Cần nhập giá trị chỉ số!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         double result = Double.parseDouble(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
         if (result <= 0) {
@@ -942,7 +983,7 @@ public class DetailActivity extends BaseActivity {
             saveData();
         } else {
             double oldRanger = (detailProxy.getOLD_INDEXOfTBL_CUSTOMER() - 0);
-            double newRanger = Integer.parseInt(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
+            double newRanger = Double.parseDouble(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
             //oldRanger = 100 % --> new Ranger = ? %
             oldRanger = (oldRanger == 0 ? 1 : oldRanger);
             result = (newRanger / oldRanger) * 100;
@@ -1000,19 +1041,17 @@ public class DetailActivity extends BaseActivity {
     private void saveData() {
         try {
             mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, CustomerItem.STATUS_Customer.WRITED, MA_NVIEN);
-            mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Integer.parseInt(mEtNewIndex.getText().toString()), MA_NVIEN);
-            mData.clear();
-            mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+            mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Double.parseDouble(mEtNewIndex.getText().toString()), MA_NVIEN);
             DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
             String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
             String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
             String MA_DDO = detailProxy.getPointId();
-            String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite1, type7);
+            String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite2, type7);
             double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
-            double NEW_INDEX = detailProxy.getNEW_INDEXOfTBL_CUSTOMER();
+            double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());
             double co = detailProxy.getCoefficient();
             double sanluong = (NEW_INDEX - OLD_INDEX) * co;
-            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
+            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong,"Mã khách hàng: "  + detailProxy.getCustomerCode(),"Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
 
             File file = new File(LOCAL_URI);
             try (FileOutputStream out = new FileOutputStream(file)) {
@@ -1022,6 +1061,16 @@ public class DetailActivity extends BaseActivity {
                 e.printStackTrace();
                 throw e;
             }
+
+            mData.clear();
+            mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+            if (isFilteringBottomMenu)
+                Toast.makeText(this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
+
+            ID_TBL_CUSTOMER_Focus = findPosFocusInList();
+            refreshData(ID_TBL_CUSTOMER_Focus);
 
         } catch (Exception e) {
             e.printStackTrace();

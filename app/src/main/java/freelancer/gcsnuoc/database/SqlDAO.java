@@ -351,7 +351,7 @@ public class SqlDAO {
         mSqLiteDatabase.execSQL(getUpdateStatusTBL_CUSTOMER(), args);
     }
 
-    public void updateNEW_INDEXOfTBL_CUSTOMER(int ID_TBL_CUSTOMER, int NEW_INDEX, String MA_NVIEN) throws FileNotFoundException {
+    public void updateNEW_INDEXOfTBL_CUSTOMER(int ID_TBL_CUSTOMER, double NEW_INDEX, String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
@@ -503,12 +503,13 @@ public class SqlDAO {
     //endregion
 
     //region IMAGE
-    public void deleteIMAGE(int ID_TBL_IMAGE) throws FileNotFoundException {
+    public void deleteIMAGE(int ID_TBL_IMAGE, String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
-                ID_TBL_IMAGE
+                ID_TBL_IMAGE,
+                MA_NVIEN
         );
 
         mSqLiteDatabase.execSQL(SqlQuery.getDeleteIMAGE(), args);

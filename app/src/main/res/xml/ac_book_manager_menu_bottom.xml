@@ -14,7 +14,7 @@
         barColorWhenSelected="@color/barColorWhenSelected"
         icon="@drawable/ic_filter"
         id="@+id/nav_bot_filter"
-        title="Lọc khách hàng chưa ghi" />
+        title="Lọc sổ chưa ghi" />
     <tab
         barColorWhenSelected="@color/barColorWhenSelected"
         icon="@drawable/ic_upload"

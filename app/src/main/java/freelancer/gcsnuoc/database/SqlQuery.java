@@ -721,7 +721,7 @@ public class SqlQuery {
         ID_TBL_CUSTOMER_OF_IMAGE("ID_TBL_CUSTOMER_OF_IMAGE"),
         NAME_IMAGE("NAME_IMAGE"),
         LOCAL_URI("LOCAL_URI"),
-        CREATE_DAY("FOCUS_CUSTOMER"),
+        CREATE_DAY("CREATE_DAY"),
 
         //other
         MA_NVIEN("MA_NVIEN");
@@ -749,7 +749,7 @@ public class SqlQuery {
                 TBL_IMAGE.NAME_IMAGE.name() + " TEXT, " +
                 TBL_IMAGE.LOCAL_URI.name() + " TEXT, " +
                 TBL_IMAGE.MA_NVIEN.name() + " TEXT, " +
-                TBL_IMAGE.CREATE_DAY.name() + " TEXT DEFAULT \"FALSE\"" +
+                TBL_IMAGE.CREATE_DAY.name() + " TEXT" +
                 ");";
     }
 

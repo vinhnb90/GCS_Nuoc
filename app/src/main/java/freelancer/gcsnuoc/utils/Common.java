@@ -100,8 +100,11 @@ public class Common {
     private static final int SIZE_WIDTH_IMAGE_BASIC = 500;
 
     public static void setURLServer(String andressServer, int port) {
-//        URLServer = "http://" + andressServer + ":" + port  + "/api/MobileApi/";
-        URLServer = "http://103.74.120.18:8001/api/MobileApi/";
+        if (andressServer.contains(":") && port == 0)
+            URLServer = "http://" + andressServer + "/api/MobileApi/";
+        else
+            URLServer = "http://" + andressServer + ":" + port + "/api/MobileApi/";
+//        URLServer = "http://103.74.120.18:8001/api/MobileApi/";
     }
 
     public static void setUserCommon(String userCommon, String MA_NVIEN) {
@@ -300,6 +303,7 @@ public class Common {
         type10("MM/dd/yyyy HH:mm:ss a"),
         type11("yyyy-MM-dd HH:mm:ss"),
         type12("yyyyMMddHHmm"),
+        type13("yyyyMMddHHmmss"),
         //2017-11-23T22:18
         sqlite1("yyyy-MM-dd'T'HH:mm"),
         sqlite2("yyyy-MM-dd'T'HH:mm:ss"),
@@ -1016,11 +1020,12 @@ public class Common {
      * @param VI_TRI_2_1  : dòng thứ 2 bên trái
      * @param VI_TRI_2_2  : dòng thứ 2 bên phải
      * @param VI_TRI_3    : dòng thứ 3 bên trái
+     * @param VI_TRI_3_2  : dòng thứ 3 bên phải
      * @param VI_TRI_4_1: dòng thứ 4 dưới cùng bên trái
      * @param VI_TRI_4_2: dòng thứ 4 dưới cùng bên phải
      * @return
      */
-    public static Bitmap drawTextOnBitmapCongTo(Context context, String PATH_ANH, String VI_TRI_1, String VI_TRI_2_1, String VI_TRI_2_2, String VI_TRI_3, String VI_TRI_4_1, String VI_TRI_4_2) throws Exception {
+    public static Bitmap drawTextOnBitmapCongTo(Context context, String PATH_ANH, String VI_TRI_1, String VI_TRI_2_1, String VI_TRI_2_2, String VI_TRI_3, String VI_TRI_3_2, String VI_TRI_4_1, String VI_TRI_4_2) throws Exception {
         String fileName = PATH_ANH;
         File fBitmap = new File(fileName);
         if (fBitmap.exists()) {
@@ -1050,7 +1055,7 @@ public class Common {
                 int soDongCuaTextVI_TRI_1 = drawTextAndBreakLine(true, null, paint_text, 0, 0, textHeight, bmRoot.getWidth(), VI_TRI_1, paddingBetweenText);
 
                 // TODO tính dòng sẽ được vẽ của chuỗi dài chưa xác định CHI_SO
-                int soDongCuaTextVI_TRI_3 = drawTextAndBreakLine(true, null, paint_text, 0, 0, textHeight, bmRoot.getWidth(), VI_TRI_3, paddingBetweenText);
+//                int soDongCuaTextVI_TRI_3 = drawTextAndBreakLine(true, null, paint_text, 0, 0, textHeight, bmRoot.getWidth(), VI_TRI_3, paddingBetweenText);
 
                 //TODO tạo bitmap với diện tích như khung chứa để vẽ ảnh và thông tin
                 Bitmap.Config conf = Bitmap.Config.ARGB_8888;
@@ -1064,7 +1069,7 @@ public class Common {
                                     + (soDongCuaTextVI_TRI_1) * (textHeight + paddingBetweenText)
                                     + textHeight
                                     + paddingBetweenText
-                                    + (soDongCuaTextVI_TRI_3) * (textHeight + paddingBetweenText)
+                                    + (textHeight + paddingBetweenText)
                                     + SIZE_HEIGHT_IMAGE
                                     + paddingBetweenText
                                     + textHeight
@@ -1077,7 +1082,7 @@ public class Common {
                                     + (soDongCuaTextVI_TRI_1) * (textHeight + paddingBetweenText)
                                     + textHeight
                                     + paddingBetweenText
-                                    + (soDongCuaTextVI_TRI_3) * (textHeight + paddingBetweenText)
+                                    + (textHeight + paddingBetweenText)
                                     + SIZE_HEIGHT_IMAGE
                                     + paddingBetweenText
                                     + textHeight
@@ -1096,7 +1101,7 @@ public class Common {
                         + (soDongCuaTextVI_TRI_1) * (textHeight + paddingBetweenText)
                         + textHeight
                         + paddingBetweenText
-                        + (soDongCuaTextVI_TRI_3) * (textHeight + paddingBetweenText); //vẽ từ vị trí trên SIZE_HEIGHT_IMAGE
+                        + (textHeight + paddingBetweenText); //vẽ từ vị trí trên SIZE_HEIGHT_IMAGE
 
                 //TODO tạo khung chứa bitmap từ tọa độ x0, y0 tới .. ...
                 RectF frameBitmap = new RectF(x0, y0, x0 + bmRoot.getWidth(), y0 + SIZE_HEIGHT_IMAGE);
@@ -1158,17 +1163,40 @@ public class Common {
                 //Vẽ text DATENOW
                 canvas.drawText(VI_TRI_2_2, x_DATENOW, y_DATENOW, paint_text);
 
-                //TODO vẽ CHI_SO
-                drawTextAndBreakLine(false, canvas, paint_text, 0, y_TYPE_IMAGE + textHeight + paddingBetweenText, textHeight, bmRoot.getWidth(), VI_TRI_3, paddingBetweenText);
 
-                //Vẽ 1 khung chứa CHI_SO
-                Rect khungCHI_SO = new Rect();
-                paint_text.getTextBounds(VI_TRI_3, 0, (VI_TRI_3).length(), khungCHI_SO);
-                int x_CHI_SO = 0;
-                int y_CHI_SO = y_TYPE_IMAGE + textHeight + paddingBetweenText;
-                canvas.drawRect(x_CHI_SO, y_CHI_SO - textHeight, bitmapResult.getWidth(), y_CHI_SO + paddingBetweenText, paint_background);
-                //Vẽ text CHI_SO
-                canvas.drawText(VI_TRI_3, x_CHI_SO, y_CHI_SO, paint_text);
+                Rect khung3_1 = new Rect();
+                paint_text.getTextBounds(VI_TRI_3, 0, VI_TRI_3.length(), khung3_1);
+                int x_3_1 = 0;
+                int y_3_1 = soDongCuaTextVI_TRI_1 * (textHeight + paddingBetweenText) + textHeight  + paddingBetweenText + textHeight ;
+                canvas.drawRect(x_3_1, y_3_1 - textHeight, VI_TRI_3.length(), y_3_1 + paddingBetweenText, paint_background);
+
+                //Vẽ text TYPE IMAGE
+                canvas.drawText(VI_TRI_3, x_3_1, y_3_1, paint_text);
+
+                //TODO vẽ Ngày
+                //Vẽ 1 khung chứa DATENOW
+                Rect khung3_2 = new Rect();
+                paint_text.getTextBounds(VI_TRI_3_2, 0, VI_TRI_3_2.length(), khung3_2);
+                int textWidth3_2 = Math.round(paint_text.measureText(VI_TRI_3_2));
+                int x_3_2 = bitmapResult.getWidth() - textWidth3_2;
+                int y_3_2 = y_3_1;
+                canvas.drawRect(x_3_2, y_3_2 - textHeight, bitmapResult.getWidth(), y_3_2 + paddingBetweenText, paint_background);
+
+                //Vẽ text DATENOW
+                canvas.drawText(VI_TRI_3_2, x_3_2, y_3_2, paint_text);
+//
+
+//                //TODO vẽ CHI_SO
+//                drawTextAndBreakLine(false, canvas, paint_text, 0, y_3_1 + textHeight + paddingBetweenText, textHeight, bmRoot.getWidth(), VI_TRI_3, paddingBetweenText);
+
+//                //Vẽ 1 khung chứa CHI_SO
+//                Rect khungCHI_SO = new Rect();
+//                paint_text.getTextBounds(VI_TRI_3, 0, (VI_TRI_3).length(), khungCHI_SO);
+//                int x_CHI_SO = 0;
+//                int y_CHI_SO = y_3_1 + textHeight + paddingBetweenText;
+//                canvas.drawRect(x_CHI_SO, y_CHI_SO - textHeight, bitmapResult.getWidth(), y_CHI_SO + paddingBetweenText, paint_background);
+//                //Vẽ text CHI_SO
+//                canvas.drawText(VI_TRI_3, x_CHI_SO, y_CHI_SO, paint_text);
 
                 //TODO điền SO_CTO
                 Rect khungSO_CTO = new Rect();

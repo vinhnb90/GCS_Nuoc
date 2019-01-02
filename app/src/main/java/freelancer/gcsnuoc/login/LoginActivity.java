@@ -149,10 +149,6 @@ public class LoginActivity extends BaseActivity {
 
         String url = mPrefManager.getSharePref(PREF_SETTING, MODE_PRIVATE).getString(KEY_PREF_URL, "");
         int ip = mPrefManager.getSharePref(PREF_SETTING, MODE_PRIVATE).getInt(KEY_PREF_PORT, 0);
-        if (TextUtils.isEmpty(url) || ip == 0) {
-            Toast.makeText(this, "Cần cấu hình các thông số của máy chủ!", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         Common.setURLServer(url, ip);
 
@@ -213,7 +209,7 @@ public class LoginActivity extends BaseActivity {
         //MA_NVIEN --> ALL info
         SessionProxy sessionProxy = mSqlDAO.checkAccountTBL_SESSION(mUser, mPass);
         Common.setUserCommon(mUser, sessionProxy.getMA_NVIEN());
-        startActivity(new Intent(LoginActivity.this, DetailActivity.class));
+        startActivity(new Intent(LoginActivity.this, BookManagerActivity.class));
     }
 
     private void doTaskLoginOnline() {
@@ -316,7 +312,12 @@ public class LoginActivity extends BaseActivity {
         mPrefManager = SharePrefManager.getInstance(this);
 
         this.checkSharePreference();
-
+        if (mPrefManager == null)
+            mPrefManager = SharePrefManager.getInstance(this);
+        mUser = mPrefManager.getSharePref(PREF_LOGIN, MODE_PRIVATE).getString(KEY_PREF_USER_NAME, "");
+        mPass = mPrefManager.getSharePref(PREF_LOGIN, MODE_PRIVATE).getString(KEY_PREF_USER_PASS, "");
+        mEtUser.setText(mUser);
+        mEtPass.setText(mPass);
         //setup data
         //create database
         mDatabase = SqlConnect.getInstance(this).open();
@@ -502,7 +503,7 @@ public class LoginActivity extends BaseActivity {
             return false;
         }
 
-        if (settingObject.getPort() == 0) {
+        if (!settingObject.getURL().contains(":") && settingObject.getPort() == 0) {
             Toast.makeText(this, "Cần nhập cổng máy chủ tại màn hình cấu hình", Toast.LENGTH_SHORT).show();
             return false;
         }

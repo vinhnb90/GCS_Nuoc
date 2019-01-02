@@ -90,7 +90,7 @@
                             android:id="@+id/ac_book_manager_tv_title_perior"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Kỳ ghi chỉ số: "
+                            android:text="Kỳ: "
                             android:textColor="@color/barColorText" />
 
                         <TextView
@@ -98,7 +98,28 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/ac_book_manager_tv_title_perior"
-                            android:text="25/6/2021"
+                            tools:text="25/6/2021"
+                            android:textColor="@color/barColorText" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/ac_book_manager_tv_title_cus_code"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Mã KH: "
+                            android:textColor="@color/barColorText" />
+
+                        <TextView
+                            android:id="@+id/ac_book_manager_tv_cus_code"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toRightOf="@+id/ac_book_manager_tv_title_cus_code"
+                            tools:text="BAC"
                             android:textColor="@color/barColorText" />
                     </LinearLayout>
 

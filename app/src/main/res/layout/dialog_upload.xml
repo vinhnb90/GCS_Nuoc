@@ -61,7 +61,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:visibility="gone"
+            android:visibility="visible"
             android:id="@+id/tv_capnhat2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -76,21 +76,16 @@
             android:layout_width="match_parent"
             android:layout_height="@dimen/_100sdp"
             android:layout_gravity="left"
-            android:layout_marginRight="@dimen/_5sdp"
-            android:layout_weight="1"
+            android:paddingRight="@dimen/_5sdp"
             android:background="@drawable/xml_border_full_type3"
             android:gravity="left"
             android:hint="Kết quả...."
-            android:lines="1"
-            android:maxLines="1"
             android:paddingLeft="@dimen/_5sdp"
-            android:scrollbars="horizontal"
-            android:scrollHorizontally="true"
-            android:singleLine="true"
+            android:scrollbars="vertical"
             android:textColorHint="@color/bb_inActiveBottomBarItemColor"
             android:textCursorDrawable="@null"
             android:textSize="@dimen/_10sdp"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </LinearLayout>
 
     <RelativeLayout
@@ -114,6 +109,22 @@
             android:textColor="@color/barColorText"
             android:textSize="@dimen/_7sdp"
             android:translationZ="@dimen/_2sdp" />
+        <Button
+            android:id="@+id/dialog_upload_btn_upload_OK"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/_24sdp"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:background="@drawable/xml_button_corner_right"
+            android:elevation="@dimen/_2sdp"
+            android:gravity="left|center_vertical"
+            android:paddingLeft="@dimen/_5sdp"
+            android:paddingRight="@dimen/_5sdp"
+            android:text="Kết thúc phiên"
+            android:textColor="@color/barColorText"
+            android:textSize="@dimen/_7sdp"
+            android:translationZ="@dimen/_2sdp" />
+
     </RelativeLayout>
 
     <!--style="@style/buttonStyle1"-->
