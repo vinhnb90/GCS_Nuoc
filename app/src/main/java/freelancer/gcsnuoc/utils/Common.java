@@ -77,7 +77,7 @@ public class Common {
     public static String MA_NVIEN = "";
     public static String USER = "";
     public static int ID_TBL_BOOK;
-
+    public static boolean isChooseUpload = false;
     public static final String INTENT_KEY_ID_BOOK = "INTENT_KEY_ID_BOOK";
     public static final int INTENT_REQUEST_KEY_CAMERA = 1113;
 

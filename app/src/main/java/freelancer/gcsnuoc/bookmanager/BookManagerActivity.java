@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -75,6 +76,7 @@ import retrofit2.Response;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM;
 import static freelancer.gcsnuoc.utils.Common.PREF_BOOK;
 import static freelancer.gcsnuoc.utils.Common.REQUEST_CODE_PERMISSION;
+import static freelancer.gcsnuoc.utils.Common.isChooseUpload;
 import static freelancer.gcsnuoc.utils.Log.getInstance;
 
 public class BookManagerActivity extends BaseActivity {
@@ -133,6 +135,7 @@ public class BookManagerActivity extends BaseActivity {
     private TextView btnDownloadOK;
     private Button btnUploadOK;
     private String messageNotifyResult = "";
+    private FloatingActionButton mFab;
 
 
     public enum TYPE_FILTER {
@@ -148,6 +151,7 @@ public class BookManagerActivity extends BaseActivity {
     private List<DataBookPostReceived> listPostTimeoutServer = new ArrayList<>();
     private List<DataBookPostReceived> listPostDisConnectServer = new ArrayList<>();
     private List<DataBookPost> listPostErrorClient = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -483,7 +487,8 @@ public class BookManagerActivity extends BaseActivity {
         mRvBook = (RecyclerView) findViewById(R.id.ac_book_manager_rv_books);
         mBottomBar = (BottomBar) findViewById(R.id.ac_book_manager_bottom_menu);
         mEtNoData = (TextView) findViewById(R.id.ac_book_manager_tv_no_data);
-
+        mFab = (FloatingActionButton) findViewById(R.id.ac_book_manage_fab_upload);
+        mFab.setVisibility(View.GONE);
 
         //database
         mDatabase = SqlConnect.getInstance(this).open();
@@ -501,6 +506,17 @@ public class BookManagerActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isChooseUpload = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        isChooseUpload = false;
+    }
 
     @Override
     protected void handleListener() throws Exception {
@@ -510,6 +526,9 @@ public class BookManagerActivity extends BaseActivity {
             @Override
             public void onTabSelected(@IdRes int tabId) {
                 try {
+                    Common.isChooseUpload = false;
+                    mFab.setVisibility(View.GONE);
+                    mFab.postInvalidate();
                     switch (tabId) {
                         case R.id.nav_bot_list:
                             if (dialogDownload != null && dialogDownload.isShowing())
@@ -533,7 +552,16 @@ public class BookManagerActivity extends BaseActivity {
                             break;
 
                         case R.id.nav_bot_upload:
-                            showDialogUpload();
+                            Common.isChooseUpload = true;
+                            mFab.setVisibility(View.VISIBLE);
+                            mFab.postInvalidate();
+
+                            if (mPrefManager == null)
+                                mPrefManager = SharePrefManager.getInstance(BookManagerActivity.this);
+                            isFilteringBottomMenu = mPrefManager.getSharePref(Common.PREF_BOOK, MODE_PRIVATE).
+                                    getBoolean(Common.KEY_PREF_BOOK_MANAGER_IS_FILTER_BOTTOM, false);
+                            filterData(TYPE_FILTER.FILTER_BY_BOTTOM_MENU, String.valueOf(isFilteringBottomMenu));
+                            Toast.makeText(BookManagerActivity.this, "Vui lòng xác nhận chọn các sổ để tải lên!", Toast.LENGTH_SHORT).show();
                             break;
 
                     }
@@ -544,6 +572,13 @@ public class BookManagerActivity extends BaseActivity {
                 }
             }
         }, false);
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialogUpload();
+            }
+        });
     }
 
     private void showDialogUpload() {
@@ -594,7 +629,8 @@ public class BookManagerActivity extends BaseActivity {
 
                     //check all data not write yet and notify
                     dataChooseUpload = new ArrayList<>();
-                    dataChooseUpload = mSqlDAO.selectAllTBL_BOOKHasWrited(MA_NVIEN);
+                    dataChooseUpload = mSqlDAO.selectAllTBL_BOOKByChoose(MA_NVIEN);
+//                    dataDump = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
                     if (dataChooseUpload.size() == 0) {
                         runOnUiThread(new Runnable() {
                             @Override
@@ -612,21 +648,10 @@ public class BookManagerActivity extends BaseActivity {
                         int ID_TBL_BOOK_OF_CUSTOMER = dataChooseUpload.get(i).getID();
                         int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED, ID_TBL_BOOK_OF_CUSTOMER);
                         int customerItemsNotWrite = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING, ID_TBL_BOOK_OF_CUSTOMER);
-//                        int customerItemsUploaded = mSqlDAO.getNumberRowStatusTBL_CUSTOMERByBook(MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED, ID_TBL_BOOK_OF_CUSTOMER);
                         if (customerItemsWrited != 0) {
                             map.put(i, customerItemsWrited);
                         }
                     }
-
-//                    if (customerItemsWrited == 0 && customerItemsNotWrite == 0 && customerItemsNotWrite == 0) {
-//                        runOnUiThread(new Runnable() {
-//                            @Override
-//                            public void run() {
-//                                Toast.makeText(BookManagerActivity.this, "Không có dữ liệu để đẩy lên!", Toast.LENGTH_SHORT).show();
-//                            }
-//                        });
-//                        return;
-//                    }
 
                     if (!map.isEmpty()) {
                         StringBuilder warningMessage = new StringBuilder("Số khách hàng ĐÃ GHI tương ứng các sổ:");
@@ -648,19 +673,6 @@ public class BookManagerActivity extends BaseActivity {
                     e.printStackTrace();
                     Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi truy xuất dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-//                try {
-//                    btnUpload.setClickable(false);
-//                    //check all data not write yet and notify
-//                    int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
-//                    if (customerItemsWrited != 0) {
-//                        showDialogWarningUpload();
-//                        return;
-//                    }
-//                    startUpload();
-//                } catch (FileNotFoundException e) {
-//                    e.printStackTrace();
-//                    Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi truy xuất dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-//                }
             }
         });
 
@@ -871,6 +883,23 @@ public class BookManagerActivity extends BaseActivity {
                 i++;
                 setUIUpload("Đang tải lên máy chủ...", (i + 1) * 100 / mDataHashMapBookPostsUpload.size());
                 Thread.sleep(50);
+            }
+            try {
+                for (int q = 0; q < dataChooseUpload.size(); q++) {
+
+                    //update database by ID
+                    int ID = dataChooseUpload.get(q).getID();
+                    mSqlDAO.updateChooseTBL_BOOK(ID, false, MA_NVIEN);
+
+                    dataDump.clear();
+                    loadDataBook();
+                    booksAdapter.updateList(dataDump);
+                    booksAdapter.notifyDataSetChanged();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
+                Toast.makeText(BookManagerActivity.this, "Gặp vấn đề khi chọn sổ!\n" + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1526,10 +1555,14 @@ public class BookManagerActivity extends BaseActivity {
                 try {
                     //update database by ID
                     int ID = booksAdapter.getList().get(pos).getID();
-//                    mSqlDAO.updateChooseTBL_BOOK(ID, isChecked);
+                    mSqlDAO.updateChooseTBL_BOOK(ID, isChecked, MA_NVIEN);
                     mSqlDAO.updateResetFocusTBL_BOOK(MA_NVIEN);
                     mSqlDAO.updateFocusTBL_BOOK(ID, MA_NVIEN);
 
+                    dataDump.clear();
+                    loadDataBook();
+                    booksAdapter.updateList(dataDump);
+                    booksAdapter.notifyDataSetChanged();
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());

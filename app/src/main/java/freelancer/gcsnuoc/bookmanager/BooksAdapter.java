@@ -22,7 +22,9 @@ import freelancer.gcsnuoc.entities.BookItem;
 import freelancer.gcsnuoc.entities.BookItemProxy;
 import freelancer.gcsnuoc.utils.Common;
 
+import static freelancer.gcsnuoc.entities.BookItem.STATUS_BOOK.NON_WRITING;
 import static freelancer.gcsnuoc.entities.BookItem.STATUS_BOOK.UPLOADED;
+import static freelancer.gcsnuoc.entities.BookItem.STATUS_BOOK.WRITED;
 import static freelancer.gcsnuoc.utils.Common.TIME_DELAY_ANIM;
 
 public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHolder> {
@@ -71,19 +73,21 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
     public void onBindViewHolder(final BookViewHolder holder, final int position) {
         BookItemProxy bookItemProxy = mList.get(position);
         holder.tvNameBook.setText(bookItemProxy.getBookName());
-        holder.ibtnChoose.setVisibility(View.VISIBLE);
-        holder.ibtnChoose.setImageResource(bookItemProxy.isChoose() ? R.drawable.xml_button_cricle_checkbox : R.drawable.xml_button_cricle_checkbox_2);
+        holder.ibtnChoose.setVisibility(View.INVISIBLE);
+        holder.ibtnChoose.setImageResource(bookItemProxy.isChoose() ? R.drawable.xml_button_cricle_checkbox_2 : R.drawable.xml_button_cricle_checkbox);
         switch (bookItemProxy.getStatusBook()) {
             case UPLOADED:
                 holder.tvStatus.setText(UPLOADED.getStatus());
-                holder.ibtnChoose.setVisibility(View.INVISIBLE);
                 break;
             case WRITED:
-                holder.tvStatus.setText(BookItem.STATUS_BOOK.WRITED.getStatus());
+                if (Common.isChooseUpload)
+                    holder.ibtnChoose.setVisibility(View.VISIBLE);
+                holder.tvStatus.setText(WRITED.getStatus());
                 break;
             case NON_WRITING:
-                holder.tvStatus.setText(BookItem.STATUS_BOOK.NON_WRITING.getStatus());
-                holder.ibtnChoose.setVisibility(View.INVISIBLE);
+                if (Common.isChooseUpload)
+                    holder.ibtnChoose.setVisibility(View.VISIBLE);
+                holder.tvStatus.setText(NON_WRITING.getStatus());
                 break;
         }
 
@@ -94,8 +98,6 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
         holder.tvNotWriteOK.setText(bookItemProxy.getCustomerNotWrite() + "");
         holder.tvPeriod.setText("Kỳ " + bookItemProxy.getTerm_book() + " Tháng " + bookItemProxy.getMonth_book() + "/" + bookItemProxy.getYear_book());
         holder.tvMaSo.setText(bookItemProxy.getCODE());
-
-//        holder.itemView.setBackgroundColor(bookItemProxy.isFocus() ? ContextCompat.getColor(mContext, R.color.rowBookColor) : ContextCompat.getColor(mContext, R.color.colorTransparent));
 
         //trigger pos to scroll
         if (bookItemProxy.isFocus())
@@ -142,8 +144,10 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
             ibtnChoose.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (ibtnChoose.getVisibility() == View.VISIBLE)
-                        mIBookAdapterCallback.clickCbChoose(getAdapterPosition(), !mList.get(getAdapterPosition()).isChoose());
+                    if (ibtnChoose.getVisibility() == View.VISIBLE) {
+                        BookItemProxy bookItemProxy = mList.get(getAdapterPosition());
+                        mIBookAdapterCallback.clickCbChoose(getAdapterPosition(), !bookItemProxy.isChoose());
+                    }
                 }
             });
         }
@@ -152,17 +156,12 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
     }
 
     public interface IBookAdapterCallback {
-//        void clickBtnGhimRowCto(int pos, List<CongToGuiKDProxy> listCtoKD, List<CongToPBProxy> listCtoPB);
-
         void clickCbChoose(int pos, boolean isChecked);
 
         void clickItem(int pos);
 
         void scrollToPosition(int pos);
 
-//        String interactionDataINFO_RESULT(int id, Common.TYPE_SESSION mTypeSessionHistory, String mDateSessionHistory);
-
-//        void clickTvInfoResult(String infoResult);
     }
 
 }

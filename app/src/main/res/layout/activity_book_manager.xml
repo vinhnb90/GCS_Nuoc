@@ -133,6 +133,21 @@
 
             </android.support.v7.widget.RecyclerView>
         </RelativeLayout>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/ac_book_manage_fab_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="@dimen/_64sdp"
+            android:layout_marginRight="@dimen/_20sdp"
+            android:src="@drawable/ic_upload"
+            android:layout_alignParentRight="true"
+            app:backgroundTint="@color/buttonColor"
+            app:fabSize="mini"
+            tools:visibility="visible"
+            android:visibility="gone"
+            app:layout_anchorGravity="bottom|right|end" />
     </RelativeLayout>
 
 </RelativeLayout>

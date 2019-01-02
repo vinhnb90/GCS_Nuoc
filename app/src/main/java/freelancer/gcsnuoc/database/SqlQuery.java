@@ -183,6 +183,19 @@ public class SqlQuery {
                 " = ?";
     }
 
+    public static String getsSelectAllTBL_BOOKByChoose() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_BOOK.getName() +
+                " WHERE " +
+                TBL_BOOK.CHOOSE +
+                " = 'true'" +
+                " AND " +
+                TBL_BOOK.MA_NVIEN +
+                " = ?";
+    }
+
+
     public static String selectAllTBL_BOOKHasWrited() {
 
         return "SELECT * " +
