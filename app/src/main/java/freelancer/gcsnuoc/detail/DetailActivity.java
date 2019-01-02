@@ -947,6 +947,13 @@ public class DetailActivity extends BaseActivity {
 //    }
 
     public void clickButtonSave(View view) {
+        DetailActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hideKeyboard(DetailActivity.this);
+            }
+        });
+
         DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
 
         if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED) {
@@ -982,6 +989,7 @@ public class DetailActivity extends BaseActivity {
 
         //warning
         loadSettingData();
+
         if (settingObject.isMaxNotPercent()) {
             if (result > settingObject.getMax()) {
                 showDialogWarningMaximum(settingObject.getMax(), result);
@@ -989,6 +997,7 @@ public class DetailActivity extends BaseActivity {
             }
 
             saveData();
+
         } else {
             double oldRanger = (detailProxy.getOLD_INDEXOfTBL_CUSTOMER() - 0);
             double newRanger = Double.parseDouble(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
@@ -1001,6 +1010,7 @@ public class DetailActivity extends BaseActivity {
                 return;
             }
             saveData();
+
         }
 
 
