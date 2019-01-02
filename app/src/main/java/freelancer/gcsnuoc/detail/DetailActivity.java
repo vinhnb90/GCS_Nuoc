@@ -1046,7 +1046,7 @@ public class DetailActivity extends BaseActivity {
             DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
             String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
             String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
-            String MA_DDO = detailProxy.getPointId();
+            String MA_DDO = detailProxy.getPointcode();
             String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite2, type7);
             double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
             double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());

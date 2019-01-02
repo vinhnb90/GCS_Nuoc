@@ -18,6 +18,7 @@ public class CustomerItem implements Cloneable{
     private int IndexId;
     private String departmentId;
     private String pointId;
+    private String pointcode;
     private String timeOfUse;
     private double coefficient;
     private String electricityMeterId;
@@ -34,7 +35,7 @@ public class CustomerItem implements Cloneable{
     public CustomerItem() {
     }
 
-    public CustomerItem(int ID, int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, double newIndex, double oldIndex, String MA_NVIEN, int indexId, String departmentId, String pointId, String timeOfUse, double coefficient, String electricityMeterId, int term, int month, int year, String indexType, String startDate, String endDate, String customerId, int figureBookId_Customer, String customerCode) {
+    public CustomerItem(int ID, int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, double newIndex, double oldIndex, String MA_NVIEN, int indexId, String departmentId, String pointId, String pointcode, String timeOfUse, double coefficient, String electricityMeterId, int term, int month, int year, String indexType, String startDate, String endDate, String customerId, int figureBookId_Customer, String customerCode) {
         this.ID = ID;
         this.IDBook = IDBook;
         mCustomerName = customerName;
@@ -47,6 +48,7 @@ public class CustomerItem implements Cloneable{
         IndexId = indexId;
         this.departmentId = departmentId;
         this.pointId = pointId;
+        this.pointcode = pointcode;
         this.timeOfUse = timeOfUse;
         this.coefficient = coefficient;
         this.electricityMeterId = electricityMeterId;
@@ -155,6 +157,14 @@ public class CustomerItem implements Cloneable{
 
     public void setElectricityMeterId(String electricityMeterId) {
         this.electricityMeterId = electricityMeterId;
+    }
+
+    public String getPointcode() {
+        return pointcode;
+    }
+
+    public void setPointcode(String pointcode) {
+        this.pointcode = pointcode;
     }
 
     public int getTerm() {

@@ -1358,6 +1358,7 @@ public class BookManagerActivity extends BaseActivity {
                                         customerItem.setIndexId(indexValue.getIndexId().intValue());
                                         customerItem.setDepartmentId(String.valueOf(indexValue.getDepartmentId()));
                                         customerItem.setPointId(String.valueOf(indexValue.getPointId()));
+                                        customerItem.setPointcode(String.valueOf(indexValue.getPointCode()));
                                         customerItem.setTimeOfUse(String.valueOf(indexValue.getTimeOfUse()));
                                         customerItem.setCoefficient(indexValue.getCoefficient());
                                         customerItem.setElectricityMeterId(String.valueOf(indexValue.getElectricityMeterId()));
@@ -1369,7 +1370,7 @@ public class BookManagerActivity extends BaseActivity {
                                         customerItem.setFigureBookId_Customer(indexValue.getFigureBookId());
                                         customerItem.setEndDate(indexValue.getEndDate());
                                         customerItem.setCustomerId(String.valueOf(indexValue.getCustomerId()));
-                                        customerItem.setCustomerCode(String.valueOf(indexValue.getPointId()));
+                                        customerItem.setCustomerCode(String.valueOf(indexValue.getCustomerCode()));
                                         flag = true;
                                     } else {
                                         if (i == bookItemList.size() - 1) {

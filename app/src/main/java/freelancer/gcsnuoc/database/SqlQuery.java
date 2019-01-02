@@ -386,6 +386,7 @@ public class SqlQuery {
         IndexId("IndexId"),
         departmentId("departmentId"),
         pointId("pointId"),
+        PointCode("PointCode"),
         timeOfUse("timeOfUse"),
         coefficient("coefficient"),
         electricityMeterId("electricityMeterId"),
@@ -428,6 +429,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.IndexId.name() + " INTEGER, " +
                 TBL_CUSTOMER.departmentId.name() + " TEXT, " +
                 TBL_CUSTOMER.pointId.name() + " TEXT, " +
+                TBL_CUSTOMER.PointCode.name() + " TEXT, " +
                 TBL_CUSTOMER.timeOfUse.name() + " TEXT, " +
                 TBL_CUSTOMER.coefficient.name() + " REAL, " +
                 TBL_CUSTOMER.electricityMeterId.name() + " TEXT, " +
@@ -543,7 +545,6 @@ public class SqlQuery {
 //                "";
 //    }
 
-
     public static String getInsertTBL_CUSTOMER() {
         return "INSERT INTO " + TBL_CUSTOMER.getName() + " (" +
                 TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER.name() + ", " +
@@ -559,6 +560,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.departmentId.name() + ", " +
 
                 TBL_CUSTOMER.pointId.name() + ", " +
+                TBL_CUSTOMER.PointCode.name() + ", " +
                 TBL_CUSTOMER.timeOfUse.name() + ", " +
                 TBL_CUSTOMER.coefficient.name() + ", " +
                 TBL_CUSTOMER.electricityMeterId.name() + ", " +

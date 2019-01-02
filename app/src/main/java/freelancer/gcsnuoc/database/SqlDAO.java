@@ -332,6 +332,7 @@ public class SqlDAO {
                 customerItem.getIndexId(),
                 customerItem.getDepartmentId(),
                 customerItem.getPointId(),
+                customerItem.getPointcode(),
                 customerItem.getTimeOfUse(),
                 customerItem.getCoefficient(),
                 customerItem.getElectricityMeterId(),
