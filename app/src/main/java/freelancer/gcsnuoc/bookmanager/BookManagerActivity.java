@@ -1091,8 +1091,6 @@ public class BookManagerActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 try {
-                    btnDownloadOK.setVisibility(View.INVISIBLE);
-                    btnDownload.setClickable(false);
                     //check all data not write yet and notify
                     int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
                     int customerItemsNonWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
@@ -1161,10 +1159,19 @@ public class BookManagerActivity extends BaseActivity {
         threadDownload = new Thread(new Runnable() {
             @Override
             public void run() {
-                threadDownloadIsRunning = true;
-                apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
-
                 try {
+                    threadDownloadIsRunning = true;
+                    BookManagerActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnDownloadOK.setVisibility(View.INVISIBLE);
+                            btnDownload.setClickable(false);
+                        }
+                    });
+
+                    apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
+
+                    startGetTokenAndGetDataBook();
                     startDeleteAllOldData();
                 } catch (final Exception e) {
                     e.printStackTrace();
@@ -1173,22 +1180,19 @@ public class BookManagerActivity extends BaseActivity {
                         @Override
                         public void run() {
                             Toast.makeText(BookManagerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    return;
+                } finally {
+                    BookManagerActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
                             btnDownload.setClickable(true);
                             btnDownloadOK.setVisibility(View.VISIBLE);
                         }
                     });
-                    return;
                 }
 
-                startGetTokenAndGetDataBook();
-
-                BookManagerActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        btnDownload.setClickable(true);
-                        btnDownloadOK.setVisibility(View.VISIBLE);
-                    }
-                });
                 threadDownloadIsRunning = false;
             }
         });
@@ -1224,7 +1228,7 @@ public class BookManagerActivity extends BaseActivity {
         }
     }
 
-    private void startGetTokenAndGetDataBook() {
+    private void startGetTokenAndGetDataBook() throws Exception {
         try {
             if (!Common.isNetworkConnected(BookManagerActivity.this)) {
                 setUIDownload("Không có kết nối internet!", 0);
@@ -1232,8 +1236,9 @@ public class BookManagerActivity extends BaseActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            setUIDownload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+            throw new Exception("Có vấn đề về kết nối mạng!\n");
         }
+
         setUIDownload("Đang cập nhật token từ máy chủ...", 10);
         try {
             Thread.sleep(150);
@@ -1261,25 +1266,23 @@ public class BookManagerActivity extends BaseActivity {
 
                         return;
                     } else {
-                        setUIDownload("Tải token thất bại!\nNội dung: " + result.getMessage(), 0);
-                        return;
+                        throw new Exception("Tải token thất bại!\nNội dung: " + result.getMessage());
                     }
                 } else {
-                    setUIDownload("Không nhận được phản hồi từ máy chủ! \nCode: " + statusCode, 0);
+                    throw new Exception("Không nhận được phản hồi từ máy chủ!\nNội dung: " + statusCode);
                 }
             } else {
-                setUIDownload("Không kết nối được máy chủ!", 0);
+                throw new Exception("Không kết nối được máy chủ! ");
             }
         } catch (final IOException e) {
             e.printStackTrace();
-            setUIDownload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+            throw new Exception("Có vấn đề về kết nối mạng!\nNội dung: " + e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
-            setUIDownload("Có vấn đề về ghi dữ liệu!\n" + e.getMessage(), 0);
+            throw new Exception("Có vấn đề về ghi dữ liệu!\nNội dung: " + e.getMessage());
         }
     }
 
-    private void startDownloadBook(String token) {
+    private void startDownloadBook(String token) throws Exception {
         try {
             if (!Common.isNetworkConnected(BookManagerActivity.this)) {
                 setUIDownload("Không có kết nối internet!", 0);
@@ -1436,32 +1439,28 @@ public class BookManagerActivity extends BaseActivity {
 
                             } catch (Exception e) {
                                 mSqlDAO.deleteAllRowTBL_BOOK(MA_NVIEN);
-                                throw e;
+                                throw new Exception("Có vấn đề khi xử lý lưu dữ liệu!\nNội dung: " + e.getMessage());
                             }
                             setUIDownload("Hoàn thành quá trình tải sổ!", 100);
-
-                            return;
                         } else {
-                            setUIDownload("Tải token thất bại!\nNội dung: " + result.getMessage(), 0);
-                            return;
+                            throw new Exception("Tải token thất bại!\nNội dung: " + result.getMessage());
                         }
                     } else {
-                        setUIDownload("Không nhận được phản hồi từ máy chủ! \nCode: " + statusCode, 0);
+                        throw new Exception("Không nhận được phản hồi từ máy chủ! \nCode: " + statusCode);
                     }
                 } else {
-                    setUIDownload("Không kết nối được máy chủ!", 0);
+                    throw new Exception("Không kết nối được máy chủ!");
                 }
             } catch (final IOException e) {
                 e.printStackTrace();
-                setUIDownload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+                throw new Exception("Có vấn đề về kết nối mạng!\n" + e.getMessage());
             } catch (Exception e) {
                 e.printStackTrace();
-                setUIDownload("Có vấn đề về ghi dữ liệu!\n" + e.getMessage(), 0);
+                throw new Exception("Có vấn đề về ghi dữ liệu!\n" + e.getMessage());
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            setUIDownload("Có vấn đề về kết nối mạng!\n" + e.getMessage(), 0);
+            throw new Exception("Có vấn đề khi tải về dữ liệu từ máy chủ!\nNội dung: " + e.getMessage());
         }
     }
 

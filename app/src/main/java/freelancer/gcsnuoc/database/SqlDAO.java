@@ -257,7 +257,7 @@ public class SqlDAO {
 
         String[] args = SqlDAO.build(
                 MA_NVIEN,
-                statusBook
+                statusBook.getStatus()
         );
 
         mSqLiteDatabase.execSQL(SqlQuery.deleteAllRowUploadedTBL_BOOKByStatus(), args);
@@ -280,7 +280,7 @@ public class SqlDAO {
 
         String[] args = SqlDAO.build(
                 MA_NVIEN,
-                statusCustomer
+                statusCustomer.getStatus()
         );
 
         mSqLiteDatabase.execSQL(SqlQuery.deleteAllRowUploadedTBL_CUSTOMERByStatus(), args);

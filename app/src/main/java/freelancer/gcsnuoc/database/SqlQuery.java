@@ -341,8 +341,7 @@ public class SqlQuery {
                 " = ?" +
                 " AND " +
                 TBL_BOOK.STATUS +
-                " = " +
-                "?";
+                " = ?";
     }
 
     public static String checkExistTBL_BOOK() {
@@ -481,10 +480,10 @@ public class SqlQuery {
                 "from\n" +
                 "(SELECT * FROM " +
                 TBL_CUSTOMER.getName() +
-                " WHERE TBL_CUSTOMER.STATUS_CUSTOMER = " +
-                "?" +
-                " AND MA_NVIEN = " +
-                "?" +
+                " WHERE TBL_CUSTOMER.STATUS_CUSTOMER " +
+                " = ?" +
+                " AND MA_NVIEN " +
+                " = ?" +
                 ") AS A\n" +
                 "INNER JOIN \n" +
                 "(select * FROM " +
@@ -746,8 +745,7 @@ public class SqlQuery {
                 " = ?" +
                 " AND " +
                 TBL_CUSTOMER.STATUS_CUSTOMER +
-                " = " +
-                "?";
+                " = ?";
     }
 
     public static String getSelectTBL_CUSTOMERbyStatus() {
