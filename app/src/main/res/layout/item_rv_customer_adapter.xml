@@ -39,18 +39,31 @@
                 tools:text="Trần Văn A" />
 
             <TextView
-                android:textSize="@dimen/_10sdp"
-                android:layout_marginTop="@dimen/_5sdp"
                 android:id="@+id/item_rv_customer_adapter_tv_address_customer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:layout_marginTop="@dimen/_5sdp"
                 android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/_10sdp"
                 tools:text="Hà Đông" />
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/item_rv_customer_adapter_tv_index"
+                    android:layout_width="@dimen/_32sdp"
+                    android:layout_height="@dimen/_18sdp"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/xml_button_cricle"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textColor="@color/barColorWhenSelected"
+                    android:textSize="@dimen/_10sdp"
+                    android:textStyle="bold"
+                    android:visibility="visible"
+                    tools:text="123" />
 
                 <TextView
                     android:id="@+id/item_rv_customer_adapter_tv_status"
@@ -61,8 +74,8 @@
                     android:layout_marginTop="@dimen/_10sdp"
                     android:text="ĐÃ GỬI THÀNH CÔNG"
                     android:textColor="@color/buttonColor"
-                    android:textStyle="bold"
                     android:textSize="@dimen/_10sdp"
+                    android:textStyle="bold"
                     android:visibility="visible" />
             </RelativeLayout>
 

@@ -71,9 +71,11 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
     @Override
     public void onBindViewHolder(final CustomerViewHolder holder, final int position) {
+        holder.tvIndex.setText(String.valueOf(position + 1));
         DetailProxy detailProxy = mList.get(position);
         holder.tvNameCustomer.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
         holder.tvAddressCustomer.setText(detailProxy.getCustomerAddressOfTBL_CUSTOMER());
+
         switch (detailProxy.getStatusCustomerOfTBL_CUSTOMER()) {
             case UPLOADED:
                 holder.tvStatus.setText(UPLOADED.getStatus());
@@ -96,11 +98,13 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
     }
 
     public class CustomerViewHolder extends ViewHolder {
-        public TextView tvStatus, tvNameCustomer, tvAddressCustomer;
+        public TextView tvStatus, tvNameCustomer, tvAddressCustomer, tvIndex;
         public LinearLayout mView;
 
         public CustomerViewHolder(final View itemView) {
             super(itemView);
+
+            tvIndex = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_index);
             tvStatus = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_status);
             tvNameCustomer = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_name_customer);
             tvAddressCustomer = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter_tv_address_customer);
