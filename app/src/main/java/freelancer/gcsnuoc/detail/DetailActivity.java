@@ -486,6 +486,13 @@ public class DetailActivity extends BaseActivity {
                     mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 
                     refreshData(ID_TBL_CUSTOMER_Focus);
+                    DetailActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEtNewIndex.requestFocus();
+                            mEtNewIndex.postInvalidate();
+                        }
+                    });
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1052,7 +1059,7 @@ public class DetailActivity extends BaseActivity {
             double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());
             double co = detailProxy.getCoefficient();
             double sanluong = (NEW_INDEX - OLD_INDEX) * co;
-            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong,"Mã khách hàng: "  + detailProxy.getCustomerCode(),"Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
+            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã khách hàng: " + detailProxy.getCustomerCode(), "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
 
             File file = new File(LOCAL_URI);
             try (FileOutputStream out = new FileOutputStream(file)) {
