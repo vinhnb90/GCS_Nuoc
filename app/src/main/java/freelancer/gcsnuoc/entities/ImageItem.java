@@ -3,18 +3,28 @@ package freelancer.gcsnuoc.entities;
 public class ImageItem implements Cloneable{
     private int ID;
     private int ID_TBL_CUSTOMER;
+    private int ID_TBL_BOOK_OF_IMAGE;
     private String NAME;
     private String mLOCAL_URI;
     private String CREATE_DAY;
 
-    public ImageItem(int ID_TBL_CUSTOMER, String NAME, String LOCAL_URI, String CREATE_DAY) {
+    public ImageItem(int ID_TBL_CUSTOMER, int ID_TBL_BOOK_OF_IMAGE, String NAME, String LOCAL_URI, String CREATE_DAY) {
         this.ID_TBL_CUSTOMER = ID_TBL_CUSTOMER;
+        this.ID_TBL_BOOK_OF_IMAGE = ID_TBL_BOOK_OF_IMAGE;
         this.NAME = NAME;
         mLOCAL_URI = LOCAL_URI;
         this.CREATE_DAY = CREATE_DAY;
     }
 
     public ImageItem() {
+    }
+
+    public int getID_TBL_BOOK_OF_IMAGE() {
+        return ID_TBL_BOOK_OF_IMAGE;
+    }
+
+    public void setID_TBL_BOOK_OF_IMAGE(int ID_TBL_BOOK_OF_IMAGE) {
+        this.ID_TBL_BOOK_OF_IMAGE = ID_TBL_BOOK_OF_IMAGE;
     }
 
     public int getID() {

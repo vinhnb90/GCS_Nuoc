@@ -13,6 +13,7 @@ import freelancer.gcsnuoc.entities.BookItem;
 import freelancer.gcsnuoc.entities.BookItemProxy;
 import freelancer.gcsnuoc.entities.CustomerItem;
 import freelancer.gcsnuoc.entities.DetailProxy;
+import freelancer.gcsnuoc.entities.ImageCustomerProxy;
 import freelancer.gcsnuoc.entities.ImageItem;
 import freelancer.gcsnuoc.entities.ImageItemProxy;
 import freelancer.gcsnuoc.entities.SESSION;
@@ -250,6 +251,18 @@ public class SqlDAO {
         mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowUploadedTBL_BOOK(), args);
     }
 
+    public void deleteAllRowUploadedTBL_BOOKByStatus(String MA_NVIEN, BookItem.STATUS_BOOK statusBook) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                statusBook
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.deleteAllRowUploadedTBL_BOOKByStatus(), args);
+    }
+
     public void deleteAllRowUploadedTBL_CUSTOMER(String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
@@ -260,6 +273,19 @@ public class SqlDAO {
 
         mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowUploadedTBL_CUSTOMER(), args);
     }
+
+    public void deleteAllRowUploadedTBL_CUSTOMERByStatus(String MA_NVIEN, CustomerItem.STATUS_Customer statusCustomer) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                statusCustomer
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.deleteAllRowUploadedTBL_CUSTOMERByStatus(), args);
+    }
+
 
     public void updateCUS_WRITEDOfTBL_BOOK(int CUS_WRITED, int ID, String MA_NVIEN, boolean isCUS_WRITED) throws FileNotFoundException {
         if (!Common.isExistDB())
@@ -351,6 +377,19 @@ public class SqlDAO {
         mSqLiteDatabase.execSQL(getUpdateStatusTBL_CUSTOMER(), args);
     }
 
+    public void updateStatusTBL_BOOK(int ID_TBL_BOOK, BookItem.STATUS_BOOK statusBook, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                statusBook.getStatus(),
+                ID_TBL_BOOK,
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(getUpdateStatusTBL_BOOK(), args);
+    }
+
     public void updateNEW_INDEXOfTBL_CUSTOMER(int ID_TBL_CUSTOMER, double NEW_INDEX, String MA_NVIEN) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
@@ -390,6 +429,32 @@ public class SqlDAO {
         if (CustomerItemProxies.isEmpty())
             closeCursor(cursor);
         return CustomerItemProxies;
+    }
+
+    public List<ImageCustomerProxy> selectAllTBL_CUSTOMERByStatus(String MA_NVIEN, CustomerItem.STATUS_Customer statusCustomer) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(statusCustomer.getStatus(), MA_NVIEN);
+        List<ImageCustomerProxy> imageCustomerProxies = new ArrayList<>();
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(getJOINSelectAllTBL_IMAGEByStatus(), args);
+
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return imageCustomerProxies;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            imageCustomerProxies.add(new ImageCustomerProxy(cursor, cursor.getPosition()));
+            cursor.moveToNext();
+        }
+
+        if (imageCustomerProxies.isEmpty())
+            closeCursor(cursor);
+        return imageCustomerProxies;
     }
 
     public int getNumberRowStatusTBL_CUSTOMERByBook(String MA_NVIEN, CustomerItem.STATUS_Customer statusCustomer, int ID_TBL_BOOK_OF_CUSTOMER) throws FileNotFoundException {
@@ -521,6 +586,7 @@ public class SqlDAO {
 
         String[] args = SqlDAO.build(
                 imageItem.getID_TBL_CUSTOMER(),
+                imageItem.getID_TBL_BOOK_OF_IMAGE(),
                 imageItem.getNAME(),
                 imageItem.getLOCAL_URI(),
                 MA_NVIEN,
@@ -566,6 +632,18 @@ public class SqlDAO {
         );
 
         mSqLiteDatabase.execSQL(SqlQuery.getDeleteAllRowTBL_IMAGE(), args);
+    }
+
+    public void deleteRowTBL_IMAGE(int ID_TBL_CUSTOMER_OF_IMAGE, String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                ID_TBL_CUSTOMER_OF_IMAGE,
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getDeleteRowTBL_IMAGE(), args);
     }
     //endregion
 
@@ -645,7 +723,7 @@ public class SqlDAO {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
-        String[] args = SqlDAO.build( MA_NVIEN, USER_NAME);
+        String[] args = SqlDAO.build(MA_NVIEN, USER_NAME);
         SessionProxy sessionProxy = null;
 
         Cursor cursor = null;

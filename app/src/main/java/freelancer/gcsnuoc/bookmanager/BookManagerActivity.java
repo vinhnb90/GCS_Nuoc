@@ -45,6 +45,7 @@ import java.util.Set;
 
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
+import freelancer.gcsnuoc.database.CustomerItemProxy;
 import freelancer.gcsnuoc.database.SqlConnect;
 import freelancer.gcsnuoc.database.SqlDAO;
 import freelancer.gcsnuoc.detail.DetailActivity;
@@ -52,6 +53,7 @@ import freelancer.gcsnuoc.entities.BookItem;
 import freelancer.gcsnuoc.entities.BookItemProxy;
 import freelancer.gcsnuoc.entities.CustomerItem;
 import freelancer.gcsnuoc.entities.DetailProxy;
+import freelancer.gcsnuoc.entities.ImageCustomerProxy;
 import freelancer.gcsnuoc.entities.ImageItemProxy;
 import freelancer.gcsnuoc.login.LoginActivity;
 import freelancer.gcsnuoc.server.GCSAPIInterface;
@@ -729,10 +731,10 @@ public class BookManagerActivity extends BaseActivity {
                 });
                 setUIUpload("Kết thúc phiên tải lên máy chủ!\n", 100);
                 threadUploadIsRunning = false;
-        }
-    }).start();
+            }
+        }).start();
 
-}
+    }
 
     private void startGetTokenAndUploadDataBook() {
         try {
@@ -1093,7 +1095,8 @@ public class BookManagerActivity extends BaseActivity {
                     btnDownload.setClickable(false);
                     //check all data not write yet and notify
                     int customerItemsWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
-                    if (customerItemsWrited != 0) {
+                    int customerItemsNonWrited = mSqlDAO.getNumberRowStatusTBL_CUSTOMER(MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
+                    if (customerItemsWrited != 0 || customerItemsNonWrited != 0) {
                         showDialogWarningDownload();
                         return;
                     }
@@ -1136,8 +1139,8 @@ public class BookManagerActivity extends BaseActivity {
             protected void clickCancel() {
             }
         }.setTextBtnOK("Tiếp tục tải về").setTextBtnCancel("Hủy thao tác");
-        super.showDialog(this, "Có một số khách hàng đã ghi dữ liệu nhưng chưa đẩy lên máy chủ!\n " +
-                "Nếu chọn tiếp tục tải về, chương trình sẽ xóa những khách hàng đó\n" +
+        super.showDialog(this, "Có một số khách hàng chưa ghi hoặc chưa đẩy dữ liệu lên máy chủ!\n " +
+                "Nếu chọn tiếp tục tải về, chương trình sẽ giữ lại những khách hàng đó\n" +
                 "Gợi ý: Hãy kiểm tra lại và đẩy lên máy chủ những dữ liệu đã ghi!", iDialog);
     }
 
@@ -1161,20 +1164,21 @@ public class BookManagerActivity extends BaseActivity {
                 threadDownloadIsRunning = true;
                 apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
 
-//                try {
-//                    startDeleteAllOldData();
-//                } catch (final Exception e) {
-//                    e.printStackTrace();
-//
-//                    BookManagerActivity.this.runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(BookManagerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//                            btnDownload.setClickable(true);
-//                        }
-//                    });
-//                    return;
-//                }
+                try {
+                    startDeleteAllOldData();
+                } catch (final Exception e) {
+                    e.printStackTrace();
+
+                    BookManagerActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(BookManagerActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            btnDownload.setClickable(true);
+                            btnDownloadOK.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    return;
+                }
 
                 startGetTokenAndGetDataBook();
 
@@ -1192,21 +1196,25 @@ public class BookManagerActivity extends BaseActivity {
     }
 
     private void startDeleteAllOldData() throws Exception {
-        //delete all table
         try {
-            mSqlDAO.deleteAllRowUploadedTBL_BOOK(MA_NVIEN);
-            mSqlDAO.deleteAllRowUploadedTBL_CUSTOMER(MA_NVIEN);
-            List<ImageItemProxy> itemProxyList = mSqlDAO.selectAllTBL_IMAGE(MA_NVIEN);
-            for (ImageItemProxy itemProxy :
-                    itemProxyList) {
-                String localURI = itemProxy.getLOCAL_URI();
+
+            List<ImageCustomerProxy> imageCustomerProxies = mSqlDAO.selectAllTBL_CUSTOMERByStatus(MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED);
+
+            for (ImageCustomerProxy imageCustomerProxy :
+                    imageCustomerProxies) {
+                String localURI = imageCustomerProxy.getLOCAL_URIOfTBL_IMAGE();
                 File image = new File(localURI);
                 if (image.isFile()) {
                     image.delete();
                 }
-            }
 
-            mSqlDAO.deleteAllRowTBL_IMAGE(MA_NVIEN);
+                int ID = imageCustomerProxy.getID();
+
+                mSqlDAO.deleteRowTBL_IMAGE(ID, MA_NVIEN);
+            }
+            mSqlDAO.deleteAllRowUploadedTBL_BOOKByStatus(MA_NVIEN, BookItem.STATUS_BOOK.UPLOADED);
+            mSqlDAO.deleteAllRowUploadedTBL_CUSTOMERByStatus(MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED);
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             throw new FileNotFoundException("Gặp vấn đề khi xóa dữ liệu cũ!\n" + e.getMessage());
@@ -1581,11 +1589,16 @@ public class BookManagerActivity extends BaseActivity {
         dataDump = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
 
         for (int j = 0; j < dataDump.size(); j++) {
-            int count = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
-            mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), count, MA_NVIEN, false);
+            int countNON_WRITING = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
+            mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), countNON_WRITING, MA_NVIEN, false);
 
-            count = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
-            mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), count, MA_NVIEN, true);
+            int countWRITED = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
+            mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), countWRITED, MA_NVIEN, true);
+
+            int countUPLOADED = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED);
+
+            if (countNON_WRITING == 0 && countWRITED == 0)
+                mSqlDAO.updateStatusTBL_BOOK(dataDump.get(j).getID(), BookItem.STATUS_BOOK.UPLOADED, MA_NVIEN);
         }
     }
 }

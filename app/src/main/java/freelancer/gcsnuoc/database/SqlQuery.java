@@ -335,6 +335,16 @@ public class SqlQuery {
                 ;
     }
 
+    public static String deleteAllRowUploadedTBL_BOOKByStatus() {
+        return "DELETE FROM TBL_BOOK WHERE " +
+                TBL_BOOK.MA_NVIEN +
+                " = ?" +
+                " AND " +
+                TBL_BOOK.STATUS +
+                " = " +
+                "?";
+    }
+
     public static String checkExistTBL_BOOK() {
         return "SELECT * " +
                 " FROM " +
@@ -450,6 +460,42 @@ public class SqlQuery {
                 TBL_CUSTOMER.MA_NVIEN.name() +
                 " = ? ";
     }
+
+
+    public static String getSelectAllTBL_CUSTOMERByStatus() {
+        return "SELECT * " +
+                " FROM " +
+                TBL_CUSTOMER.getName() + "" +
+                " WHERE " +
+                TBL_CUSTOMER.STATUS_CUSTOMER.name() +
+                " = ? " +
+                " AND " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? ";
+    }
+
+    public static String getJOINSelectAllTBL_IMAGEByStatus() {
+        return "select *\n" +
+                "from\n" +
+                "(SELECT * FROM " +
+                TBL_CUSTOMER.getName() +
+                " WHERE TBL_CUSTOMER.STATUS_CUSTOMER = '" +
+                "?" +
+                "' AND MA_NVIEN = " +
+                "?" +
+                ") AS A\n" +
+                "INNER JOIN \n" +
+                "(select * FROM " +
+                TBL_IMAGE.getName() +
+                ") AS B\n" +
+                "ON\n" +
+                " A." +
+                TBL_CUSTOMER.ID_TBL_CUSTOMER.getNameCollumn() +
+                " = B." +
+                TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE.getNameCollumn();
+
+    }
+
 
     public static String getNumberRowStatusTBL_CUSTOMERByBook() {
         return "SELECT * " +
@@ -598,6 +644,20 @@ public class SqlQuery {
                 " = ? ";
     }
 
+    public static String getUpdateStatusTBL_BOOK() {
+        return "UPDATE " +
+                TBL_BOOK.getName() +
+                " SET " +
+                TBL_BOOK.STATUS.name() +
+                " = ? " +
+                " WHERE " +
+                TBL_BOOK.ID_TBL_BOOK.name() +
+                " = ? " +
+                " AND " +
+                TBL_BOOK.MA_NVIEN.name() +
+                " = ? ";
+    }
+
 
     public static String getUpdateResetFocusTBL_CUSTOMER() {
         return "UPDATE " +
@@ -671,10 +731,21 @@ public class SqlQuery {
                 TBL_CUSTOMER.MA_NVIEN +
                 " = ?" +
                 " AND " +
-                TBL_CUSTOMER.STATUS_CUSTOMER +
+                TBL_CUSTOMER.STATUS_CUSTOMER.getNameCollumn() +
                 " = " +
                 CustomerItem.STATUS_Customer.UPLOADED
                 ;
+    }
+
+
+    public static String deleteAllRowUploadedTBL_CUSTOMERByStatus() {
+        return "DELETE FROM TBL_CUSTOMER WHERE " +
+                TBL_CUSTOMER.MA_NVIEN +
+                " = ?" +
+                " AND " +
+                TBL_CUSTOMER.STATUS_CUSTOMER +
+                " = " +
+                "?";
     }
 
     public static String getSelectTBL_CUSTOMERbyStatus() {
@@ -718,6 +789,7 @@ public class SqlQuery {
     //region TBL_IMAGE
     public enum TBL_IMAGE {
         ID_TBL_IMAGE("ID_TBL_IMAGE"),
+        ID_TBL_BOOK_OF_IMAGE("ID_TBL_BOOK_OF_IMAGE"),
         ID_TBL_CUSTOMER_OF_IMAGE("ID_TBL_CUSTOMER_OF_IMAGE"),
         NAME_IMAGE("NAME_IMAGE"),
         LOCAL_URI("LOCAL_URI"),
@@ -746,6 +818,7 @@ public class SqlQuery {
         return "CREATE TABLE IF NOT EXISTS " + TBL_IMAGE.getName() + " (" +
                 TBL_IMAGE.ID_TBL_IMAGE.name() + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE.name() + " INTEGER, " +
+                TBL_IMAGE.ID_TBL_BOOK_OF_IMAGE.name() + " INTEGER, " +
                 TBL_IMAGE.NAME_IMAGE.name() + " TEXT, " +
                 TBL_IMAGE.LOCAL_URI.name() + " TEXT, " +
                 TBL_IMAGE.MA_NVIEN.name() + " TEXT, " +
@@ -770,6 +843,7 @@ public class SqlQuery {
     public static String getInsertTBL_IMAGE() {
         return "INSERT INTO " + TBL_IMAGE.getName() + " (" +
                 TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE.name() + ", " +
+                TBL_IMAGE.ID_TBL_BOOK_OF_IMAGE.name() + ", " +
                 TBL_IMAGE.NAME_IMAGE.name() + ", " +
                 TBL_IMAGE.LOCAL_URI.name() + ", " +
                 TBL_IMAGE.MA_NVIEN.name() + ", " +
@@ -833,6 +907,17 @@ public class SqlQuery {
                 " = ?"
                 ;
     }
+
+    public static String getDeleteRowTBL_IMAGE() {
+        return "DELETE FROM TBL_IMAGE WHERE " +
+                TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE +
+                " = ?" +
+                " AND " +
+                TBL_IMAGE.MA_NVIEN +
+                " = ?"
+                ;
+    }
+
 
     public static String getSelectAllTBL_IMAGE() {
         return "SELECT * " +

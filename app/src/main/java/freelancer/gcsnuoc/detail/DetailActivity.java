@@ -476,6 +476,7 @@ public class DetailActivity extends BaseActivity {
                     //TODO
                     imageItem.setCREATE_DAY(Common.convertDateToDate(timeFileCaptureImage, type13, sqlite2));
                     imageItem.setID_TBL_CUSTOMER(ID_TBL_CUSTOMER_Focus);
+                    imageItem.setID_TBL_BOOK_OF_IMAGE(detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER());
                     imageItem.setNAME(TEN_ANH);
                     imageItem.setLOCAL_URI(pathURICapturedAnh);
                     mSqlDAO.insertTBL_IMAGE(imageItem, MA_NVIEN);
