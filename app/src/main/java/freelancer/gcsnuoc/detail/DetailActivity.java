@@ -976,14 +976,9 @@ public class DetailActivity extends BaseActivity {
             return;
         }
 
-//        if (bitmap == null) {
-//            Toast.makeText(this, "Cần nhập giá trị chỉ số!", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
         double result = Double.parseDouble(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
         if (result <= 0) {
-            Toast.makeText(this, "Giá trị chỉ số hiện tại nhỏ nhỏ hơn giá trị cũ!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Giá trị chỉ số yêu cầu phải lớn hơn giá trị cũ!", Toast.LENGTH_SHORT).show();
             return;
         }
 

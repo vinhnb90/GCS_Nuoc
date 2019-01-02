@@ -95,7 +95,7 @@ public class DetailProxy extends CursorItemProxy {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
             String OLD_INDEX = SqlQuery.TBL_CUSTOMER.OLD_INDEX.getNameCollumn();
-            mCustomerItem.setOldIndex(cursor.getInt(cursor.getColumnIndex(OLD_INDEX)));
+            mCustomerItem.setOldIndex(cursor.getDouble(cursor.getColumnIndex(OLD_INDEX)));
         }
         return mCustomerItem.getOldIndex();
     }
@@ -105,7 +105,7 @@ public class DetailProxy extends CursorItemProxy {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
             String NEW_INDEX = SqlQuery.TBL_CUSTOMER.NEW_INDEX.getNameCollumn();
-            mCustomerItem.setNewIndex(cursor.getInt(cursor.getColumnIndex(NEW_INDEX)));
+            mCustomerItem.setNewIndex(cursor.getDouble(cursor.getColumnIndex(NEW_INDEX)));
         }
         return mCustomerItem.getNewIndex();
     }
