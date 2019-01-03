@@ -17,7 +17,7 @@ public class CustomerItem implements Cloneable {
     //other post
     private int IndexId;
     private String departmentId;
-    private String pointId;
+    private int pointId;
     private String pointcode;
     private String timeOfUse;
     private double coefficient;
@@ -35,7 +35,7 @@ public class CustomerItem implements Cloneable {
     public CustomerItem() {
     }
 
-    public CustomerItem(int ID, int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, double newIndex, double oldIndex, String MA_NVIEN, int indexId, String departmentId, String pointId, String pointcode, String timeOfUse, double coefficient, String electricityMeterId, int term, int month, int year, String indexType, String startDate, String endDate, String customerId, int figureBookId_Customer, String customerCode) {
+    public CustomerItem(int ID, int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, double newIndex, double oldIndex, String MA_NVIEN, int indexId, String departmentId, int pointId, String pointcode, String timeOfUse, double coefficient, String electricityMeterId, int term, int month, int year, String indexType, String startDate, String endDate, String customerId, int figureBookId_Customer, String customerCode) {
         this.ID = ID;
         this.IDBook = IDBook;
         mCustomerName = customerName;
@@ -71,16 +71,16 @@ public class CustomerItem implements Cloneable {
         this.ID = ID;
     }
 
-    public int getIDBook() {
-        return IDBook;
-    }
-
     public void setIDBook(int IDBook) {
         this.IDBook = IDBook;
     }
 
     public String getCustomerName() {
         return mCustomerName;
+    }
+
+    public int getIDBook() {
+        return IDBook;
     }
 
     public void setCustomerName(String customerName) {
@@ -127,11 +127,11 @@ public class CustomerItem implements Cloneable {
         this.departmentId = departmentId;
     }
 
-    public String getPointId() {
+    public int getPointId() {
         return pointId;
     }
 
-    public void setPointId(String pointId) {
+    public void setPointId(int pointId) {
         this.pointId = pointId;
     }
 

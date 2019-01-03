@@ -831,7 +831,7 @@ public class BookManagerActivity extends BaseActivity {
                         item.setIndexId(String.valueOf(detailProxy.getIndexIdOfTBL_CUSTOMER()));
                         item.setToken(token);
                         item.setDepartmentId(detailProxy.getDepartmentId());
-                        item.setPointId(detailProxy.getPointId());
+                        item.setPointId(detailProxy.getPointId() + "");
                         item.setTimeOfUse(detailProxy.getTimeOfUse());
                         ;
                         item.setCoefficient(String.valueOf(detailProxy.getCoefficient()));
@@ -1389,7 +1389,7 @@ public class BookManagerActivity extends BaseActivity {
 
                                         customerItem.setIndexId(indexValue.getIndexId().intValue());
                                         customerItem.setDepartmentId(String.valueOf(indexValue.getDepartmentId()));
-                                        customerItem.setPointId(String.valueOf(indexValue.getPointId()));
+                                        customerItem.setPointId(indexValue.getPointId());
                                         customerItem.setPointcode(String.valueOf(indexValue.getPointCode()));
                                         customerItem.setTimeOfUse(String.valueOf(indexValue.getTimeOfUse()));
                                         customerItem.setCoefficient(indexValue.getCoefficient());

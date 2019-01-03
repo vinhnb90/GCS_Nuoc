@@ -330,13 +330,13 @@ public class DetailActivity extends BaseActivity {
         }
     }
 
-    private void refreshData(int ID_TBL_CUSTOMER_Focus) throws Exception {
+    private int refreshData(int ID_TBL_CUSTOMER_Focus) throws Exception {
         //fill mData
         mData.clear();
         //TODO
         mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
         if (mData.size() == 0)
-            return;
+            return 0;
 
         int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
         if (posNow == -1) {
@@ -346,12 +346,26 @@ public class DetailActivity extends BaseActivity {
 
         customerAdapter.updateList(mData);
         customerAdapter2.updateList(mData);
-        mRvCus.scrollToPosition(posNow);
-        mRvCus2.scrollToPosition(posNow);
-        mRvCus.postInvalidate();
-        mRvCus2.postInvalidate();
+        final int finalPosNow = posNow;
+        final int finalID_TBL_CUSTOMER_Focus = ID_TBL_CUSTOMER_Focus;
+        DetailActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRvCus.scrollToPosition(finalPosNow);
+                mRvCus2.scrollToPosition(finalPosNow);
+                mRvCus.postInvalidate();
+                mRvCus2.postInvalidate();
+                try {
+                    updateUI(finalID_TBL_CUSTOMER_Focus);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi làm mới dữ liệu! \nNội dung: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
-        updateUI(ID_TBL_CUSTOMER_Focus);
+
+        return ID_TBL_CUSTOMER_Focus;
     }
 
     @Override
@@ -1084,7 +1098,6 @@ public class DetailActivity extends BaseActivity {
             else
                 Toast.makeText(this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
 
-            ID_TBL_CUSTOMER_Focus = findPosFocusInList();
             refreshData(ID_TBL_CUSTOMER_Focus);
 
         } catch (Exception e) {

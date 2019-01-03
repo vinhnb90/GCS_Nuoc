@@ -440,7 +440,7 @@ public class SqlQuery {
 
                 TBL_CUSTOMER.IndexId.name() + " INTEGER, " +
                 TBL_CUSTOMER.departmentId.name() + " TEXT, " +
-                TBL_CUSTOMER.pointId.name() + " TEXT, " +
+                TBL_CUSTOMER.pointId.name() + " INTEGER, " +
                 TBL_CUSTOMER.PointCode.name() + " TEXT, " +
                 TBL_CUSTOMER.timeOfUse.name() + " TEXT, " +
                 TBL_CUSTOMER.coefficient.name() + " REAL, " +
@@ -570,7 +570,6 @@ public class SqlQuery {
                 TBL_CUSTOMER.MA_NVIEN.name() + ", " +
                 TBL_CUSTOMER.IndexId.name() + ", " +
                 TBL_CUSTOMER.departmentId.name() + ", " +
-
                 TBL_CUSTOMER.pointId.name() + ", " +
                 TBL_CUSTOMER.PointCode.name() + ", " +
                 TBL_CUSTOMER.timeOfUse.name() + ", " +
@@ -951,10 +950,9 @@ public class SqlQuery {
                 ") as e\n" +
                 "LEFT join TBL_IMAGE\n" +
                 "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
-                " where e.ID_TBL_BOOK_OF_CUSTOMER = ?";
+                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY pointId ASC";
     }
 
-    //region DetailProxy
     public static String getSelectAllDetailProxyNotWrite() {
         return "select * from\n" +
                 "(\n" +
@@ -967,7 +965,7 @@ public class SqlQuery {
                 ") as e\n" +
                 "LEFT join TBL_IMAGE\n" +
                 "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
-                " where e.ID_TBL_BOOK_OF_CUSTOMER = ?";
+                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY pointId ASC";
     }
     //endregion
 }

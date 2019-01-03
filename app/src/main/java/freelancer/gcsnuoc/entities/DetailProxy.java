@@ -244,13 +244,13 @@ public class DetailProxy extends CursorItemProxy {
         return mCustomerItem.getPointcode();
     }
 
-    public String getPointId() {
-        if (TextUtils.isEmpty(mCustomerItem.getPointId())) {
+    public int getPointId() {
+        if (mCustomerItem.getPointId() == 0) {
 
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
             String pointId = SqlQuery.TBL_CUSTOMER.pointId.getNameCollumn();
-            mCustomerItem.setPointId(cursor.getString(cursor.getColumnIndex(pointId)));
+            mCustomerItem.setPointId(cursor.getInt(cursor.getColumnIndex(pointId)));
         }
         return mCustomerItem.getPointId();
     }

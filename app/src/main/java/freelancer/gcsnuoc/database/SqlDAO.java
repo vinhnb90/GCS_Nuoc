@@ -332,7 +332,7 @@ public class SqlDAO {
 
                 customerItem.getIndexId(),
                 customerItem.getDepartmentId(),
-                customerItem.getPointId(),
+                String.valueOf(customerItem.getPointId()),
                 customerItem.getPointcode(),
                 customerItem.getTimeOfUse(),
                 customerItem.getCoefficient(),
@@ -554,11 +554,11 @@ public class SqlDAO {
         return 0;
     }
 
-    public int checkExistCustomer(String pointId, int term, int month, int year, String MA_NVIEN) throws Exception {
+    public int checkExistCustomer(int pointId, int term, int month, int year, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
-        String[] args = build(pointId, term, month, year, MA_NVIEN);
+        String[] args = build(String.valueOf(pointId), term, month, year, MA_NVIEN);
 
         Cursor cursor = mSqLiteDatabase.rawQuery(SqlQuery.getCheckExistCustomer(), args);
         if (cursor != null) {
