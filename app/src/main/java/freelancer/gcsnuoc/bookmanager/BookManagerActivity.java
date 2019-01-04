@@ -514,6 +514,12 @@ public class BookManagerActivity extends BaseActivity {
     protected void onStart() {
         super.onStart();
         isChooseUpload = false;
+        try {
+            loadDataBook();
+            fillDataBook();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

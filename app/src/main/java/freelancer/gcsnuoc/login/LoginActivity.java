@@ -251,7 +251,7 @@ public class LoginActivity extends BaseActivity {
                                 //save data
                                 session.setID_TABLE_SESSION(mSqlDAO.insertTBL_SESSION(session));
 
-                                Common.setUserCommon(mUser, result.getData() + "");
+                                Common.setUserCommon(mUser, result.getData().getEmpId() + "");
                                 startActivity(new Intent(LoginActivity.this, BookManagerActivity.class));
 
                                 return;

@@ -443,7 +443,7 @@ public class DetailActivity extends BaseActivity {
                     int focusNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
                     DetailProxy detailProxy = this.mData.get(focusNow);
                     int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
-                    int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
+                    int ID_CUSTOMER = detailProxy.getIDOfTBL_CUSTOMER();
 //                    String PERIOD = detailProxy.getPeriodOfTBL_BOOK();
 //                    String PERIOD_Convert = convertDateToDate(PERIOD, sqlite2, type12);
                     int term = detailProxy.getTerm();
@@ -636,6 +636,7 @@ public class DetailActivity extends BaseActivity {
         mData.clear();
         mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 //    đsa
+
         DetailProxy detailProxy = mData.get(findPosFocusInList());
         if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED) {
             Toast.makeText(this, "Không cho phép! Chỉ số khách hàng đã được gửi lên máy chủ!", Toast.LENGTH_SHORT).show();
@@ -643,7 +644,7 @@ public class DetailActivity extends BaseActivity {
         }
         timeFileCaptureImage = getDateTimeNow(type13);
         int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
-        int ID_CUSTOMER = detailProxy.getID_TBL_CUSTOMEROfTBL_IMAGE();
+        ID_TBL_CUSTOMER_Focus = detailProxy.getIDOfTBL_CUSTOMER();
         int term = detailProxy.getTerm();
         int month = detailProxy.getMonth();
         int year = detailProxy.getYear();
@@ -651,7 +652,7 @@ public class DetailActivity extends BaseActivity {
 
         String fileName = getRecordDirectoryFolder("")
                 + "/"
-                + getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
+                + getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_TBL_CUSTOMER_Focus), timeFileCaptureImage);
 
         File file = new File(fileName);
         if (file.exists()) {
@@ -1040,8 +1041,8 @@ public class DetailActivity extends BaseActivity {
             double NowQuatity = (NEW_INDEX - OLD_INDEX) * co;
 
             double OldQuatity = detailProxy.getPrevQuantity();
-            if(OldQuatity == 0)
-            {
+            if (OldQuatity == 0) {
+                Toast.makeText(this, "Sản lượng tháng trước là 0. Chỉ số mới sẽ được ghi!", Toast.LENGTH_SHORT).show();
                 saveData();
                 return;
             }
@@ -1077,15 +1078,6 @@ public class DetailActivity extends BaseActivity {
             protected void clickOK() {
                 //save
                 saveData();
-                //reload
-                try {
-                    loadDataDetail();
-
-                    fillDataDetail();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi load lại dữ liệu! \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
             }
 
             @Override
@@ -1113,7 +1105,7 @@ public class DetailActivity extends BaseActivity {
             double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());
             double co = detailProxy.getCoefficient();
             double sanluong = (NEW_INDEX - OLD_INDEX) * co;
-            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã khách hàng: " + detailProxy.getCustomerCode(), "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
+            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã KH: " + detailProxy.getCustomerCode(), "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
 
             File file = new File(LOCAL_URI);
             try (FileOutputStream out = new FileOutputStream(file)) {

@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/dialog_detail_list_customer_tv_statifis"
-                android:text="Tổng số hóa đơn :" />
+                android:text="Danh sách các khách hàng: " />
 
             <TextView
                 android:id="@+id/dialog_detail_list_customer_tv_statifis"
@@ -50,7 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:text="Đã ghi / Chưa ghi :" />
+                tools:text="Đã ghi / Chưa ghi :" />
 
             <TextView
                 android:id="@+id/dialog_detail_list_customer_tv_count"

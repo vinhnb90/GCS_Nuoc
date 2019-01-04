@@ -594,7 +594,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.customerId.name() + ", " +
                 TBL_CUSTOMER.FigureBookId_Customer.name() + ", " +
                 TBL_CUSTOMER.customerCode.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -777,8 +777,8 @@ public class SqlQuery {
                 " = ? " +
                 "AND " +
                 TBL_CUSTOMER.STATUS_CUSTOMER +
-                "= ?" +
-                "AND " +
+                "= ? " +
+                " AND " +
                 TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER +
                 "= ?" +
                 "";
