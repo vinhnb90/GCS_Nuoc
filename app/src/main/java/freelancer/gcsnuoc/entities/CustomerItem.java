@@ -15,6 +15,7 @@ public class CustomerItem implements Cloneable {
 
     //post
     //other post
+    private int Index;
     private int IndexId;
     private String departmentId;
     private int pointId;
@@ -33,34 +34,6 @@ public class CustomerItem implements Cloneable {
     private String customerCode;
 
     public CustomerItem() {
-    }
-
-    public CustomerItem(int ID, int IDBook, String customerName, String customerAddress, STATUS_Customer statusCustomer, boolean isFocus, double newIndex, double oldIndex, String MA_NVIEN, int indexId, String departmentId, int pointId, String pointcode, String timeOfUse, double coefficient, String electricityMeterId, int term, int month, int year, String indexType, String startDate, String endDate, String customerId, int figureBookId_Customer, String customerCode) {
-        this.ID = ID;
-        this.IDBook = IDBook;
-        mCustomerName = customerName;
-        mCustomerAddress = customerAddress;
-        mStatusCustomer = statusCustomer;
-        mIsFocus = isFocus;
-        mNewIndex = newIndex;
-        mOldIndex = oldIndex;
-        this.MA_NVIEN = MA_NVIEN;
-        IndexId = indexId;
-        this.departmentId = departmentId;
-        this.pointId = pointId;
-        this.pointcode = pointcode;
-        this.timeOfUse = timeOfUse;
-        this.coefficient = coefficient;
-        this.electricityMeterId = electricityMeterId;
-        this.term = term;
-        this.month = month;
-        this.year = year;
-        this.indexType = indexType;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.customerId = customerId;
-        FigureBookId_Customer = figureBookId_Customer;
-        this.customerCode = customerCode;
     }
 
     public int getID() {
@@ -109,6 +82,14 @@ public class CustomerItem implements Cloneable {
 
     public void setMA_NVIEN(String MA_NVIEN) {
         this.MA_NVIEN = MA_NVIEN;
+    }
+
+    public int getIndex() {
+        return Index;
+    }
+
+    public void setIndex(int index) {
+        Index = index;
     }
 
     public int getIndexId() {

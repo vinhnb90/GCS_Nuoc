@@ -329,7 +329,7 @@ public class SqlDAO {
                 customerItem.getOldIndex(),
                 customerItem.getNewIndex(),
                 customerItem.getMA_NVIEN(),
-
+                customerItem.getIndex(),
                 customerItem.getIndexId(),
                 customerItem.getDepartmentId(),
                 String.valueOf(customerItem.getPointId()),

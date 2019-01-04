@@ -4,11 +4,11 @@ android {
     compileSdkVersion 25
     buildToolsVersion '28.0.3'
     defaultConfig {
-        applicationId "freelancer.gcsnuoc"
+        applicationId "freelancer.gcsnuoc.h2o"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
+        versionCode 4
+        versionName "1.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

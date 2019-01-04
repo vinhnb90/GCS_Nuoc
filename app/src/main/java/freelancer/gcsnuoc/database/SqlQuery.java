@@ -395,6 +395,7 @@ public class SqlQuery {
         MA_NVIEN("MA_NVIEN"),
 
         //other post
+        Index("Index_Cus"),
         IndexId("IndexId"),
         departmentId("departmentId"),
         pointId("pointId"),
@@ -437,7 +438,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.OLD_INDEX.name() + " REAL, " +
                 TBL_CUSTOMER.NEW_INDEX.name() + " REAL, " +
                 TBL_CUSTOMER.MA_NVIEN.name() + " TEXT, " +
-
+                TBL_CUSTOMER.Index.getNameCollumn() + " INTEGER, " +
                 TBL_CUSTOMER.IndexId.name() + " INTEGER, " +
                 TBL_CUSTOMER.departmentId.name() + " TEXT, " +
                 TBL_CUSTOMER.pointId.name() + " INTEGER, " +
@@ -568,6 +569,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.OLD_INDEX.name() + ", " +
                 TBL_CUSTOMER.NEW_INDEX.name() + ", " +
                 TBL_CUSTOMER.MA_NVIEN.name() + ", " +
+                TBL_CUSTOMER.Index.getNameCollumn() + ", " +
                 TBL_CUSTOMER.IndexId.name() + ", " +
                 TBL_CUSTOMER.departmentId.name() + ", " +
                 TBL_CUSTOMER.pointId.name() + ", " +
@@ -586,7 +588,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.customerId.name() + ", " +
                 TBL_CUSTOMER.FigureBookId_Customer.name() + ", " +
                 TBL_CUSTOMER.customerCode.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -950,7 +952,7 @@ public class SqlQuery {
                 ") as e\n" +
                 "LEFT join TBL_IMAGE\n" +
                 "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
-                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY pointId ASC";
+                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY Index_Cus ASC";
     }
 
     public static String getSelectAllDetailProxyNotWrite() {
@@ -965,7 +967,7 @@ public class SqlQuery {
                 ") as e\n" +
                 "LEFT join TBL_IMAGE\n" +
                 "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
-                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY pointId ASC";
+                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY Index_Cus ASC";
     }
     //endregion
 }

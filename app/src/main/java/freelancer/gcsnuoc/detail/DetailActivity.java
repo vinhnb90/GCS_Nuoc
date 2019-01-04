@@ -22,6 +22,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.LinearSnapHelper;
+import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -762,35 +763,11 @@ public class DetailActivity extends BaseActivity {
         customerAdapter.setList(mData);
         mRvCus.setHasFixedSize(true);
         mRvCus.setAdapter(customerAdapter);
-        final LinearSnapHelper snapHelper = new LinearSnapHelper() {
+        final PagerSnapHelper snapHelper = new PagerSnapHelper() {
             @Override
             public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
-                View centerView = findSnapView(layoutManager);
-                if (centerView == null)
-                    return RecyclerView.NO_POSITION;
-
-                int position = layoutManager.getPosition(centerView);
-                int targetPosition = -1;
-                if (layoutManager.canScrollHorizontally()) {
-                    if (velocityX < 0) {
-                        targetPosition = position - 1;
-                    } else {
-                        targetPosition = position + 1;
-                    }
-                }
-
-                if (layoutManager.canScrollVertically()) {
-                    if (velocityY < 0) {
-                        targetPosition = position - 1;
-                    } else {
-                        targetPosition = position + 1;
-                    }
-                }
-
-                final int firstItem = 0;
-                final int lastItem = layoutManager.getItemCount() - 1;
-                targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
-                final int finalTargetPosition = targetPosition;
+                int pos = super.findTargetSnapPosition(layoutManager, velocityX, velocityY);
+                final int finalTargetPosition = pos;
                 DetailActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -798,8 +775,10 @@ public class DetailActivity extends BaseActivity {
                             ID_TBL_CUSTOMER_Focus = mData.get(finalTargetPosition).getIDOfTBL_CUSTOMER();
                             refocusItem(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
                             refreshData(ID_TBL_CUSTOMER_Focus);
+                            //Toast.makeText(DetailActivity.this, "pos" + finalTargetPosition, Toast.LENGTH_SHORT).show();
                         } catch (Exception e) {
                             e.printStackTrace();
+                            Toast.makeText(DetailActivity.this, "Gặp vấn đề khi thực hiện thao tác vuốt danh sách! \nNội dung: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -807,6 +786,52 @@ public class DetailActivity extends BaseActivity {
                 return finalTargetPosition;
             }
         };
+
+//                new LinearSnapHelper() {
+//            @Override
+//            public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
+//                View centerView = findSnapView(layoutManager);
+//                if (centerView == null)
+//                    return RecyclerView.NO_POSITION;
+//
+//                int position = layoutManager.getPosition(centerView);
+//                int targetPosition = -1;
+//                if (layoutManager.canScrollHorizontally()) {
+//                    if (velocityX < 0) {
+//                        targetPosition = position - 1;
+//                    } else {
+//                        targetPosition = position + 1;
+//                    }
+//                }
+//
+//                if (layoutManager.canScrollVertically()) {
+//                    if (velocityY < 0) {
+//                        targetPosition = position - 1;
+//                    } else {
+//                        targetPosition = position + 1;
+//                    }
+//                }
+//
+//                final int firstItem = 0;
+//                final int lastItem = layoutManager.getItemCount() - 1;
+//                targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
+//                final int finalTargetPosition = targetPosition;
+//                DetailActivity.this.runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            ID_TBL_CUSTOMER_Focus = mData.get(finalTargetPosition).getIDOfTBL_CUSTOMER();
+//                            refocusItem(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
+//                            refreshData(ID_TBL_CUSTOMER_Focus);
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                });
+//
+//                return finalTargetPosition;
+//            }
+//        };
 
         try {
             snapHelper.attachToRecyclerView(mRvCus);

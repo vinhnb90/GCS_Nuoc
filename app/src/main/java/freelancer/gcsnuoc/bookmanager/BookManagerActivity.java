@@ -1386,7 +1386,7 @@ public class BookManagerActivity extends BaseActivity {
                                         customerItem.setOldIndex(indexValue.getOldValue());
                                         customerItem.setNewIndex(0);
                                         customerItem.setMA_NVIEN(MA_NVIEN);
-
+                                        customerItem.setIndex(indexValue.getIndex().intValue());
                                         customerItem.setIndexId(indexValue.getIndexId().intValue());
                                         customerItem.setDepartmentId(String.valueOf(indexValue.getDepartmentId()));
                                         customerItem.setPointId(indexValue.getPointId());
@@ -1619,6 +1619,7 @@ public class BookManagerActivity extends BaseActivity {
         if (rowDataTBL_BOOK == 0) {
             return;
         }
+        dataDump.clear();
         dataDump = mSqlDAO.selectAllTBL_BOOK(MA_NVIEN);
 
         for (int j = 0; j < dataDump.size(); j++) {
