@@ -118,6 +118,7 @@ public class SqlDAO {
                 tblSession.getUSERNAME(),
                 tblSession.getPASSWORD(),
                 tblSession.getDATE_LOGIN(),
+                tblSession.getNAME_NVIEN(),
                 tblSession.getMA_NVIEN()
         );
 
@@ -341,6 +342,7 @@ public class SqlDAO {
                 customerItem.getMonth(),
                 customerItem.getYear(),
                 customerItem.getIndexType(),
+                String.valueOf(customerItem.getPrevQuantity()),
                 customerItem.getStartDate(),
                 customerItem.getEndDate(),
                 customerItem.getCustomerId(),

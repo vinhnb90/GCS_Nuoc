@@ -56,6 +56,7 @@ import freelancer.gcsnuoc.entities.CustomerItem;
 import freelancer.gcsnuoc.entities.DetailProxy;
 import freelancer.gcsnuoc.entities.ImageCustomerProxy;
 import freelancer.gcsnuoc.entities.ImageItemProxy;
+import freelancer.gcsnuoc.entities.SessionProxy;
 import freelancer.gcsnuoc.login.LoginActivity;
 import freelancer.gcsnuoc.server.GCSAPIInterface;
 import freelancer.gcsnuoc.server.GCSApi;
@@ -102,6 +103,7 @@ public class BookManagerActivity extends BaseActivity {
     private String MA_NVIEN;
     private String USER_NAME;
     private String PASS;
+    private String NAME_NVIEN = "";
     private GCSAPIInterface apiInterface;
 
     //data
@@ -502,7 +504,9 @@ public class BookManagerActivity extends BaseActivity {
         if (!TextUtils.isEmpty(Common.USER)) {
             MA_NVIEN = Common.MA_NVIEN;
             USER_NAME = Common.USER;
-            PASS = mSqlDAO.getInfoPassTBL_SESSION(MA_NVIEN, USER_NAME).getPASSWORD();
+            SessionProxy sessionProxy = mSqlDAO.getInfoPassTBL_SESSION(MA_NVIEN, USER_NAME);
+            PASS = sessionProxy.getPASSWORD();
+            NAME_NVIEN = sessionProxy.getNAME_NVIEN();
         }
     }
 
@@ -1398,6 +1402,7 @@ public class BookManagerActivity extends BaseActivity {
                                         customerItem.setMonth(indexValue.getMonth());
                                         customerItem.setYear(indexValue.getYear());
                                         customerItem.setIndexType(indexValue.getIndexType());
+                                        customerItem.setPrevQuantity(indexValue.getPrevQuantity());
                                         customerItem.setStartDate(indexValue.getStartDate());
                                         customerItem.setFigureBookId_Customer(indexValue.getFigureBookId());
                                         customerItem.setEndDate(indexValue.getEndDate());
@@ -1533,6 +1538,8 @@ public class BookManagerActivity extends BaseActivity {
         loadDataBook();
         //fill data
         fillDataBook();
+
+        mEtNameEmp.setText(NAME_NVIEN);
     }
 
     public static void checkSharePreference(SharePrefManager mPrefManager) {

@@ -73,7 +73,6 @@ import static freelancer.gcsnuoc.utils.Common.REQUEST_CODE_PERMISSION;
 import static freelancer.gcsnuoc.utils.Log.getInstance;
 
 public class DetailActivity extends BaseActivity {
-
     private static final String TAG = "DetailActivity";
     private static final String MANHANVIEN1 = "MANHANVIEN1";
     private SQLiteDatabase mDatabase;
@@ -1035,16 +1034,25 @@ public class DetailActivity extends BaseActivity {
             saveData();
 
         } else {
-            double oldRanger = (detailProxy.getOLD_INDEXOfTBL_CUSTOMER() - 0);
-            double newRanger = Double.parseDouble(mEtNewIndex.getText().toString()) - detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
-            //oldRanger = 100 % --> new Ranger = ? %
-            oldRanger = (oldRanger == 0 ? 1 : oldRanger);
-            result = (newRanger / oldRanger) * 100;
-            int cal = (settingObject.getPercent());
-            if (result > cal) {
-                showDialogWarningPercent((int) result, cal);
+            double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
+            double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());
+            double co = detailProxy.getCoefficient();
+            double NowQuatity = (NEW_INDEX - OLD_INDEX) * co;
+
+            double OldQuatity = detailProxy.getPrevQuantity();
+            if(OldQuatity == 0)
+            {
+                saveData();
                 return;
             }
+
+            double percent = (NowQuatity / OldQuatity) * 100;
+            int cal = (settingObject.getPercent());
+            if (percent > cal) {
+                showDialogWarningPercent((int) percent, cal);
+                return;
+            }
+
             saveData();
 
         }

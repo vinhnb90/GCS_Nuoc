@@ -27,6 +27,7 @@ public class CustomerItem implements Cloneable {
     private int month;
     private int year;
     private String indexType;
+    private double PrevQuantity = 0.0d;
     private String startDate;
     private String endDate;
     private String customerId;
@@ -178,6 +179,14 @@ public class CustomerItem implements Cloneable {
 
     public void setIndexType(String indexType) {
         this.indexType = indexType;
+    }
+
+    public double getPrevQuantity() {
+        return PrevQuantity;
+    }
+
+    public void setPrevQuantity(double prevQuantity) {
+        PrevQuantity = prevQuantity;
     }
 
     public String getStartDate() {

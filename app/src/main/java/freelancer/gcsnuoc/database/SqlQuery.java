@@ -15,6 +15,7 @@ public class SqlQuery {
         USERNAME("USERNAME"),
         PASSWORD("PASSWORD"),
         DATE_LOGIN("DATE_LOGIN"),
+        NAME_NVIEN("NAME_NVIEN"),
         MA_NVIEN("MA_NVIEN");
 
         private String mNameCollumn;
@@ -38,6 +39,7 @@ public class SqlQuery {
                 TBL_SESSION.USERNAME.name() + " TEXT, " +
                 TBL_SESSION.PASSWORD.name() + " TEXT, " +
                 TBL_SESSION.DATE_LOGIN.name() + " TEXT, " +
+                TBL_SESSION.NAME_NVIEN.name() + " TEXT, " +
                 TBL_SESSION.MA_NVIEN.name() + " TEXT" +
                 ");";
     }
@@ -63,8 +65,9 @@ public class SqlQuery {
                 TBL_SESSION.USERNAME.name() + ", " +
                 TBL_SESSION.PASSWORD.name() + ", " +
                 TBL_SESSION.DATE_LOGIN.name() + ", " +
+                TBL_SESSION.NAME_NVIEN.name() + ", " +
                 TBL_SESSION.MA_NVIEN.name() +
-                ") " + "VALUES (?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -407,6 +410,7 @@ public class SqlQuery {
         month("month"),
         year("year"),
         indexType("indexType"),
+        PrevQuantity("PrevQuantity"),
         startDate("startDate"),
         endDate("endDate"),
         customerId("customerId"),
@@ -450,6 +454,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.month.name() + " INTEGER, " +
                 TBL_CUSTOMER.year.name() + " INTEGER, " +
                 TBL_CUSTOMER.indexType.name() + " TEXT, " +
+                TBL_CUSTOMER.PrevQuantity.name() + " REAL, " +
                 TBL_CUSTOMER.startDate.name() + " TEXT, " +
                 TBL_CUSTOMER.endDate.name() + " TEXT, " +
                 TBL_CUSTOMER.customerId.name() + " TEXT, " +
@@ -583,6 +588,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.year.name() + ", " +
                 TBL_CUSTOMER.indexType.name() + ", " +
                 TBL_CUSTOMER.startDate.name() + ", " +
+                TBL_CUSTOMER.PrevQuantity.name() + ", " +
                 TBL_CUSTOMER.endDate.name() + ", " +
 
                 TBL_CUSTOMER.customerId.name() + ", " +

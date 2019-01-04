@@ -34,6 +34,17 @@ public class SessionProxy extends CursorItemProxy {
         return mSESSION.getPASSWORD();
     }
 
+    public String getNAME_NVIEN() {
+        if (TextUtils.isEmpty(mSESSION.getNAME_NVIEN())) {
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String NAME_NVIEN = SqlQuery.TBL_SESSION.NAME_NVIEN.getNameCollumn();
+            mSESSION.setNAME_NVIEN(cursor.getString(cursor.getColumnIndex(NAME_NVIEN)));
+        }
+        return mSESSION.getNAME_NVIEN();
+    }
+
+
     public String getMA_NVIEN() {
         if (TextUtils.isEmpty(mSESSION.getMA_NVIEN())) {
             Cursor cursor = getmCursor();

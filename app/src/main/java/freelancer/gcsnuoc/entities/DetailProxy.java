@@ -278,6 +278,17 @@ public class DetailProxy extends CursorItemProxy {
         return mCustomerItem.getCoefficient();
     }
 
+    public double getPrevQuantity() {
+        if (mCustomerItem.getPrevQuantity() == 0.0d) {
+
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String PrevQuantity = SqlQuery.TBL_CUSTOMER.PrevQuantity.getNameCollumn();
+            mCustomerItem.setCoefficient(cursor.getDouble(cursor.getColumnIndex(PrevQuantity)));
+        }
+        return mCustomerItem.getPrevQuantity();
+    }
+
     public String getElectricityMeterId() {
         if (TextUtils.isEmpty(mCustomerItem.getElectricityMeterId())) {
 

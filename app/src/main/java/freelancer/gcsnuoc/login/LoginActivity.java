@@ -237,7 +237,7 @@ public class LoginActivity extends BaseActivity {
                             if (result.getResult() == true) {
                                 //convert list data server to data mtb
                                 String dateTime = Common.getDateTimeNow(Common.DATE_TIME_TYPE.sqlite2);
-                                SESSION session = new SESSION(userName, pass, dateTime, result.getData().toString());
+                                SESSION session = new SESSION(userName, pass, dateTime, result.getData().getFullName(), result.getData().getEmpId().toString());
 
                                 //save data sharepref
                                 mPrefManager.getSharePref(PREF_LOGIN, MODE_PRIVATE).edit()
