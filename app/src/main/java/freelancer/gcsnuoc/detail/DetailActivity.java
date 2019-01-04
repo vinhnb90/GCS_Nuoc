@@ -1088,7 +1088,7 @@ public class DetailActivity extends BaseActivity {
         DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
         super.showDialog(this, "Sản lượng hiện tăng hơn " +
                 (result - cal) +
-                " % " +
+                "% " +
                 "so với kỳ trước và đang vượt quá giới hạn cảnh báo " + settingObject.getPercent() + " %.", iDialog);
     }
 

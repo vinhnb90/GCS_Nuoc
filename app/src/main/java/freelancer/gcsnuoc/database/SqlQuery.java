@@ -587,8 +587,8 @@ public class SqlQuery {
                 TBL_CUSTOMER.month.name() + ", " +
                 TBL_CUSTOMER.year.name() + ", " +
                 TBL_CUSTOMER.indexType.name() + ", " +
-                TBL_CUSTOMER.startDate.name() + ", " +
                 TBL_CUSTOMER.PrevQuantity.name() + ", " +
+                TBL_CUSTOMER.startDate.name() + ", " +
                 TBL_CUSTOMER.endDate.name() + ", " +
 
                 TBL_CUSTOMER.customerId.name() + ", " +

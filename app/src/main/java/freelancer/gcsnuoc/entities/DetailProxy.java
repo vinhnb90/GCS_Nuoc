@@ -284,7 +284,7 @@ public class DetailProxy extends CursorItemProxy {
             Cursor cursor = getmCursor();
             cursor.moveToPosition(getmIndex());
             String PrevQuantity = SqlQuery.TBL_CUSTOMER.PrevQuantity.getNameCollumn();
-            mCustomerItem.setCoefficient(cursor.getDouble(cursor.getColumnIndex(PrevQuantity)));
+            mCustomerItem.setPrevQuantity(cursor.getDouble(cursor.getColumnIndex(PrevQuantity)));
         }
         return mCustomerItem.getPrevQuantity();
     }
