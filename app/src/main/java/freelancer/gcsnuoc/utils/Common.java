@@ -666,7 +666,7 @@ public class Common {
         return df.format(Calendar.getInstance().getTime());
     }
 
-    public static String convertDateToDate(String time, DATE_TIME_TYPE typeDefault, DATE_TIME_TYPE typeConvert) {
+    public static String convertDateToDate(String time, DATE_TIME_TYPE typeDefault, DATE_TIME_TYPE typeConvert) throws ParseException {
         if (time == null || time.trim().isEmpty())
             return "";
 
@@ -690,7 +690,7 @@ public class Common {
         return dateParse;
     }
 
-    public static long convertDateToLong(String date, DATE_TIME_TYPE typeDefault) {
+    public static long convertDateToLong(String date, DATE_TIME_TYPE typeDefault) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat(typeDefault.getContent());
 //        formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date dateParse;
@@ -698,7 +698,7 @@ public class Common {
             dateParse = (Date) formatter.parse(date);
         } catch (ParseException e) {
             e.printStackTrace();
-            return 0;
+            throw e;
         }
 
         return dateParse.getTime();
@@ -1167,7 +1167,7 @@ public class Common {
                 Rect khung3_1 = new Rect();
                 paint_text.getTextBounds(VI_TRI_3, 0, VI_TRI_3.length(), khung3_1);
                 int x_3_1 = 0;
-                int y_3_1 = soDongCuaTextVI_TRI_1 * (textHeight + paddingBetweenText) + textHeight  + paddingBetweenText + textHeight ;
+                int y_3_1 = soDongCuaTextVI_TRI_1 * (textHeight + paddingBetweenText) + textHeight + paddingBetweenText + textHeight;
                 canvas.drawRect(x_3_1, y_3_1 - textHeight, VI_TRI_3.length(), y_3_1 + paddingBetweenText, paint_background);
 
                 //Vẽ text TYPE IMAGE

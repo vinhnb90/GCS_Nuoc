@@ -516,7 +516,9 @@ public class BookManagerActivity extends BaseActivity {
         isChooseUpload = false;
         try {
             loadDataBook();
-            fillDataBook();
+            booksAdapter.setList(dataDump);
+            booksAdapter.notifyDataSetChanged();
+            mRvBook.postInvalidate();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -1392,7 +1394,7 @@ public class BookManagerActivity extends BaseActivity {
                                         customerItem.setCustomerName(indexValue.getName());
                                         customerItem.setCustomerAddress(indexValue.getAddress());
                                         customerItem.setStatusCustomer(CustomerItem.STATUS_Customer.NON_WRITING);
-                                        customerItem.setFocus(j == 0 ? true : false);
+                                        customerItem.setFocus(false);
                                         customerItem.setOldIndex(indexValue.getOldValue());
                                         customerItem.setNewIndex(0);
                                         customerItem.setMA_NVIEN(MA_NVIEN);

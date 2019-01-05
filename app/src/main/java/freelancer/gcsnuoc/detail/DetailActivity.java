@@ -21,7 +21,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -119,6 +118,7 @@ public class DetailActivity extends BaseActivity {
     private String PASS;
     private boolean isSearching;
     private int lengthTextSearch;
+    private String filePathTemp = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -441,6 +441,23 @@ public class DetailActivity extends BaseActivity {
                     }
 
                     int focusNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
+                    if (mData.size() <= focusNow) {
+                        mData.clear();
+                        mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+                        if (mData.size() <= focusNow) {
+                            Toast.makeText(this, "Gặp vấn đề khi lấy dữ liệu!\n Vui lòng quay lại màn hình chọn sổ và thao tác lại", Toast.LENGTH_SHORT).show();
+
+                            //delete file temp
+                            File fileImage = new File(filePathTemp);
+                            if (fileImage.isFile()) {
+                                fileImage.delete();
+                                flagChangeData = false;
+                            }
+
+                            return;
+                        }
+                    }
+
                     DetailProxy detailProxy = this.mData.get(focusNow);
                     int ID_BOOK = detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER();
                     int ID_CUSTOMER = detailProxy.getIDOfTBL_CUSTOMER();
@@ -454,8 +471,18 @@ public class DetailActivity extends BaseActivity {
                     String pathURICapturedAnh = getRecordDirectoryFolder("") + "/" + TEN_ANH;
 
                     //scale image
-                    if (TextUtils.isEmpty(pathURICapturedAnh))
+                    if (!pathURICapturedAnh.equals(filePathTemp)) {
+                        Toast.makeText(this, "Gặp vấn đề khi lấy dữ liệu ảnh!\n Vui lòng quay lại màn hình chọn sổ và thao tác lại", Toast.LENGTH_SHORT).show();
+
+                        //delete file temp
+                        File fileImage = new File(filePathTemp);
+                        if (fileImage.isFile()) {
+                            fileImage.delete();
+                            flagChangeData = false;
+                        }
+
                         return;
+                    }
 
                     scaleImage(pathURICapturedAnh, this);
 
@@ -487,8 +514,8 @@ public class DetailActivity extends BaseActivity {
                     mSqlDAO.deleteIMAGE(ID_TBL_IMAGE, MA_NVIEN);
 
                     ImageItem imageItem = new ImageItem();
-                    //TODO
-                    imageItem.setCREATE_DAY(Common.convertDateToDate(timeFileCaptureImage, type13, sqlite2));
+                    String convertDate = Common.convertDateToDate(timeFileCaptureImage, type13, sqlite2);
+                    imageItem.setCREATE_DAY(convertDate);
                     imageItem.setID_TBL_CUSTOMER(ID_TBL_CUSTOMER_Focus);
                     imageItem.setID_TBL_BOOK_OF_IMAGE(detailProxy.getID_TBL_BOOKOfTBL_CUSTOMER());
                     imageItem.setNAME(TEN_ANH);
@@ -507,11 +534,27 @@ public class DetailActivity extends BaseActivity {
                             mEtNewIndex.postInvalidate();
                         }
                     });
+                } else {
+                    if (!TextUtils.isEmpty(filePathTemp)) {
+                        //delete file temp
+                        File fileImage = new File(filePathTemp);
+                        if (fileImage.isFile()) {
+                            fileImage.delete();
+                            flagChangeData = false;
+                        }
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Gặp vấn đề khi chụp ảnh! " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "onActivityResult: " + e.getMessage());
+            } finally {
+                DetailActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFabCapture.setClickable(true);
+                    }
+                });
             }
         }
     }
@@ -596,12 +639,12 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void onClick(View v) {
                 try {
+                    mFabCapture.setClickable(false);
                     captureImage();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi chụp ảnh!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     e.printStackTrace();
+                    mFabCapture.setClickable(true);
+                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi chụp ảnh!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -633,6 +676,7 @@ public class DetailActivity extends BaseActivity {
 //    }
 
     private void captureImage() throws Exception {
+        filePathTemp = "";
         mData.clear();
         mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
 //    đsa
@@ -650,11 +694,11 @@ public class DetailActivity extends BaseActivity {
         int year = detailProxy.getYear();
         String PERIOD_Convert = term + "." + month + "." + year;
 
-        String fileName = getRecordDirectoryFolder("")
+        filePathTemp = getRecordDirectoryFolder("")
                 + "/"
                 + getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_TBL_CUSTOMER_Focus), timeFileCaptureImage);
 
-        File file = new File(fileName);
+        File file = new File(filePathTemp);
         if (file.exists()) {
             file.delete();
         }
