@@ -226,7 +226,6 @@ public class LoginActivity extends BaseActivity {
                 Response<LoginGet> modelServerResponse = null;
                 try {
                     modelServerResponse = loginModelServerCall.execute();
-                    visibleLoading(false);
 
                     LoginGet result = new LoginGet();
                     int statusCode = modelServerResponse.code();
@@ -271,16 +270,21 @@ public class LoginActivity extends BaseActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                     toastUI("Có vấn đề về ghi dữ liệu!\n" + e.getMessage());
+                } finally {
+                    visibleLoading(false);
                 }
             }
         }).start();
     }
 
-    private void visibleLoading(final boolean isVisible) {
+    private void visibleLoading(final boolean isLoading) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mPbarLogin.setVisibility(isVisible ? View.VISIBLE : View.INVISIBLE);
+                mPbarLogin.setVisibility(isLoading ? View.VISIBLE : View.INVISIBLE);
+                mEtUser.setEnabled(!isLoading);
+                mEtPass.setEnabled(!isLoading);
+                findViewById(R.id.ac_login_btn_setting).setEnabled(!isLoading);
             }
         });
     }

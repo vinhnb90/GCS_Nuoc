@@ -100,7 +100,7 @@ public class Common {
     private static final int SIZE_WIDTH_IMAGE_BASIC = 500;
 
     public static void setURLServer(String andressServer, int port) {
-        if (andressServer.contains(":") && port == 0)
+        if (andressServer.contains(":"))
             URLServer = "http://" + andressServer + "/api/MobileApi/";
         else
             URLServer = "http://" + andressServer + ":" + port + "/api/MobileApi/";

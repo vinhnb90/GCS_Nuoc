@@ -4,7 +4,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -92,6 +94,7 @@ public class SettingActivity extends BaseActivity {
 
         mEtMax = (EditText) findViewById(R.id.ac_setting_et_max);
         mBtnSave = (Button) findViewById(R.id.ac_setting_btn_save);
+
     }
 
     @Override
@@ -143,6 +146,44 @@ public class SettingActivity extends BaseActivity {
 
             }
         });
+
+        mEtURL.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().contains(":")) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEtPort.setEnabled(true);
+                            mEtPort.postInvalidate();
+                            mEtPort.setHint("Nhập cổng");
+                        }
+                    });
+
+                    return;
+                }
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mEtPort.setEnabled(false);
+                        mEtPort.setHint("Không cần nhập...");
+                        mEtPort.setText("");
+                        mEtPort.postInvalidate();
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
 
@@ -185,8 +226,17 @@ public class SettingActivity extends BaseActivity {
 
     private void fillSettingData() {
         mEtURL.setText(settingObject.getURL());
-        if (settingObject.getPort() != 0)
+
+        if (settingObject.getURL().contains(":")) {
+            mEtPort.setHint("Không cần nhập...");
+            mEtPort.setText("");
+            mEtPort.setEnabled(false);
+        }else {
+            mEtPort.setEnabled(true);
             mEtPort.setText(settingObject.getPort() + "");
+            mEtPort.setHint("Nhập cổng");
+        }
+
         boolean isMax = settingObject.isMaxNotPercent();
 
         mRadioMax.setSelected(isMax);
@@ -265,7 +315,7 @@ public class SettingActivity extends BaseActivity {
         }
 
         settingObject.setURL(mEtURL.getText().toString());
-        settingObject.setPort(TextUtils.isEmpty(mEtPort.getText().toString())? 0 : Integer.parseInt(mEtPort.getText().toString()));
+        settingObject.setPort(TextUtils.isEmpty(mEtPort.getText().toString()) ? 0 : Integer.parseInt(mEtPort.getText().toString()));
 
         //save data db
         if (!isSaveDatabaseSuccess(settingObject))
@@ -295,11 +345,6 @@ public class SettingActivity extends BaseActivity {
     private boolean isValidateInputSetting() {
         if (TextUtils.isEmpty(mEtURL.getText().toString())) {
             Toast.makeText(this, "Cần nhập đường dẫn máy chủ", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        if (mEtURL.getText().toString().contains(":") && !TextUtils.isEmpty(mEtPort.getText().toString())) {
-            Toast.makeText(this, "Địa chỉ máy chủ đã bao gồm cổng!. Vui lòng kiểm tra lại.", Toast.LENGTH_SHORT).show();
             return false;
         }
 
