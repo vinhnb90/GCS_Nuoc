@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +65,10 @@ public class Customer2Adapter extends RecyclerView.Adapter<Customer2Adapter.Cust
 
     @Override
     public void onBindViewHolder(final CustomerViewHolder holder, final int position) {
+        int ID_TBL_CUSTOMER_real = mList.get(position).getIDOfTBL_CUSTOMER();
+        int indexReal = DetailActivity.mIntegerIntegerHashMap.get(ID_TBL_CUSTOMER_real);
+        holder.tvIndex.setText(indexReal);
+
         DetailProxy detailProxy = mList.get(position);
         holder.tvNameCustomer.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
         holder.tvAddressCustomer.setText(detailProxy.getCustomerAddressOfTBL_CUSTOMER());
@@ -96,11 +101,12 @@ public class Customer2Adapter extends RecyclerView.Adapter<Customer2Adapter.Cust
         public TextView tvStatus, tvNameCustomer, tvAddressCustomer, tvIndexOld, tvIndexNew;
         public RelativeLayout mView;
         public ImageView mImageView;
+        public TextView tvIndex;
 
         public CustomerViewHolder(final View itemView) {
             super(itemView);
             tvStatus = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter2_tv_status);
-
+            tvIndex = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter2_tv_index);
             tvNameCustomer = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter2_tv_name_customer);
             tvAddressCustomer = (TextView) itemView.findViewById(R.id.item_rv_customer_adapter2_tv_address_customer);
 

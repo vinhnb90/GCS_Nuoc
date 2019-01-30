@@ -71,7 +71,10 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
     @Override
     public void onBindViewHolder(final CustomerViewHolder holder, final int position) {
-        holder.tvIndex.setText(String.valueOf(position + 1));
+        int ID_TBL_CUSTOMER_real = mList.get(position).getIDOfTBL_CUSTOMER();
+        int indexReal = DetailActivity.mIntegerIntegerHashMap.get(ID_TBL_CUSTOMER_real);
+        holder.tvIndex.setText(indexReal);
+
         DetailProxy detailProxy = mList.get(position);
         holder.tvNameCustomer.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
         holder.tvAddressCustomer.setText(detailProxy.getCustomerAddressOfTBL_CUSTOMER());

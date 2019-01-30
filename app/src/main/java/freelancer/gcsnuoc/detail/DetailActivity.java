@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import freelancer.gcsnuoc.BaseActivity;
@@ -119,6 +120,7 @@ public class DetailActivity extends BaseActivity {
     private boolean isSearching;
     private int lengthTextSearch;
     private String filePathTemp = "";
+    public static HashMap<Integer, Integer> mIntegerIntegerHashMap = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -223,6 +225,12 @@ public class DetailActivity extends BaseActivity {
             }
         });
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mIntegerIntegerHashMap.clear();
     }
 
     private void filterData(BookManagerActivity.TYPE_FILTER typeFilter, String dataFiltering) throws Exception {
@@ -744,8 +752,21 @@ public class DetailActivity extends BaseActivity {
                 }
             });
         }
+
+        //get index
+        //TODO khách hàng yêu cầu sắp xếp đồng bộ với index của tab 0
+        mData.clear();
+        mData = mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+        mIntegerIntegerHashMap.clear();
+        if (mData.size() != 0) {
+            for (int i = 0; i < mData.size(); i++) {
+                mIntegerIntegerHashMap.put(mData.get(i).getIDOfTBL_CUSTOMER(), i + 1);
+            }
+        }
+
         //load mData
         loadDataDetail();
+
         //fill mData
         fillDataDetail();
     }
@@ -1150,8 +1171,7 @@ public class DetailActivity extends BaseActivity {
             DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
             String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
             //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
-            if(!TextUtils.isEmpty(LOCAL_URI))
-            {
+            if (!TextUtils.isEmpty(LOCAL_URI)) {
                 String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
                 String MA_DDO = detailProxy.getPointcode();
                 String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite2, type7);
