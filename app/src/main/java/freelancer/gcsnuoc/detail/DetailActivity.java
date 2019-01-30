@@ -899,6 +899,11 @@ public class DetailActivity extends BaseActivity {
                     mRvCus2.scrollToPosition(posNow);
                     mRvCus.postInvalidate();
                     mRvCus2.postInvalidate();
+
+                    //TODO KH yêu cầu khi tìm kiếm xong click vào khách hàng thì nó về màn hình để gcs luôn
+                    mFabCapture.setVisibility(View.VISIBLE);
+                    mBottomBar.setDefaultTabPosition(0);
+                    mBottomBar.postInvalidate();
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
