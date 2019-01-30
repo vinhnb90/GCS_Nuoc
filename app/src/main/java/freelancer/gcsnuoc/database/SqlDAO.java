@@ -368,6 +368,18 @@ public class SqlDAO {
         mSqLiteDatabase.execSQL(getUpdateFocusTBL_CUSTOMER(), args);
     }
 
+    public void updateIsQuaVongTBL_CUSTOMER(int ID_TBL_CUSTOMER, boolean isQuaVong, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                ID_TBL_CUSTOMER
+                );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getUpdateIsQuaVongTBL_CUSTOMER(isQuaVong), args);
+    }
+
     public void updateStatusTBL_CUSTOMER(int ID_TBL_CUSTOMER, CustomerItem.STATUS_Customer statusCustomer, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());

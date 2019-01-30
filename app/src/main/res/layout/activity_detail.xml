@@ -98,8 +98,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/ac_book_manager_tv_title_perior"
-                            tools:text="25/6/2021"
-                            android:textColor="@color/barColorText" />
+                            android:textColor="@color/barColorText"
+                            tools:text="25/6/2021" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -119,8 +119,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_toRightOf="@+id/ac_book_manager_tv_title_cus_code"
-                            tools:text="BAC"
-                            android:textColor="@color/barColorText" />
+                            android:textColor="@color/barColorText"
+                            tools:text="BAC" />
                     </LinearLayout>
 
                 </RelativeLayout>
@@ -215,7 +215,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/_8sdp"
                             android:layout_toRightOf="@+id/ac_detail_tv2"
-                            android:text="78"
+                            android:text="0"
                             android:textStyle="bold" />
 
                     </RelativeLayout>
@@ -275,11 +275,19 @@
 
                     <RelativeLayout
                         android:id="@+id/ac_detail_rl6"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/ac_detail_rl3"
                         android:layout_marginLeft="@dimen/_8sdp"
                         android:layout_marginRight="@dimen/_8sdp">
+
+                        <TextView
+                            android:id="@+id/ac_detail_tv_isQuaVong"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:textStyle="bold"
+                            tools:text="...Công tơ quay vòng" />
 
                         <TextView
                             android:id="@+id/ac_detail_tv5"
@@ -294,7 +302,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="@dimen/_8sdp"
                             android:layout_toRightOf="@+id/ac_detail_tv5"
-                            android:text="78"
+                            android:text="0"
                             android:textStyle="bold" />
 
                     </RelativeLayout>

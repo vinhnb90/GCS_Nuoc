@@ -411,6 +411,7 @@ public class SqlQuery {
         year("year"),
         indexType("indexType"),
         PrevQuantity("PrevQuantity"),
+        isQuaVong("isQuaVong"),
         startDate("startDate"),
         endDate("endDate"),
         customerId("customerId"),
@@ -455,6 +456,8 @@ public class SqlQuery {
                 TBL_CUSTOMER.year.name() + " INTEGER, " +
                 TBL_CUSTOMER.indexType.name() + " TEXT, " +
                 TBL_CUSTOMER.PrevQuantity.name() + " REAL, " +
+                //only update not insert
+                TBL_CUSTOMER.isQuaVong.name() + " TEXT DEFAULT \"FALSE\"" +
                 TBL_CUSTOMER.startDate.name() + " TEXT, " +
                 TBL_CUSTOMER.endDate.name() + " TEXT, " +
                 TBL_CUSTOMER.customerId.name() + " TEXT, " +
@@ -588,6 +591,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.year.name() + ", " +
                 TBL_CUSTOMER.indexType.name() + ", " +
                 TBL_CUSTOMER.PrevQuantity.name() + ", " +
+//                isQuaVong
                 TBL_CUSTOMER.startDate.name() + ", " +
                 TBL_CUSTOMER.endDate.name() + ", " +
 
@@ -650,6 +654,19 @@ public class SqlQuery {
                 " = ? ";
     }
 
+    public static String getUpdateIsQuaVongTBL_CUSTOMER(boolean isQuaVong) {
+        return "UPDATE " +
+                TBL_CUSTOMER.getName() +
+                " SET " +
+                TBL_CUSTOMER.isQuaVong.name() +
+                " = '" + (isQuaVong ? "TRUE" : "FALSE") + "' " +
+                " WHERE " +
+                TBL_CUSTOMER.MA_NVIEN.name() +
+                " = ? " +
+                " AND " +
+                TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER.name() +
+                " = ?";
+    }
 
     public static String getUpdateStatusTBL_CUSTOMER() {
         return "UPDATE " +

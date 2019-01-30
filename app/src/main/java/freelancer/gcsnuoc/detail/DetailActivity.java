@@ -98,6 +98,7 @@ public class DetailActivity extends BaseActivity {
     private Button mBtnSave;
     private RelativeLayout mRlSluong;
     private TextView mTvSluong;
+    private TextView mTvIsQuayVong;
     /*ID_BOOK*/
     private int ID_TBL_BOOK_OF_CUSTOMER;
     private List<DetailProxy> mData = new ArrayList<>();
@@ -418,6 +419,7 @@ public class DetailActivity extends BaseActivity {
         mTvWarning = (TextView) findViewById(R.id.ac_detail_tv_warning);
         mBtnSave = (Button) findViewById(R.id.ac_detail_btn_save_new_index);
         mRlSluong = (RelativeLayout) findViewById(R.id.ac_detail_rl6);
+        mTvIsQuayVong = (TextView) findViewById(R.id.ac_detail_tv_isQuaVong);
         mTvSluong = (TextView) findViewById(R.id.ac_detail_tv_sluong);
         mRlSluong.setVisibility(View.GONE);
         showIncludeListCusView(mIsShowInCludeList);
@@ -993,6 +995,8 @@ public class DetailActivity extends BaseActivity {
         double co = detailProxy.getCoefficient();
         mRlSluong.setVisibility(newIndex - old > 0 ? View.VISIBLE : View.GONE);
         mTvSluong.setText(String.valueOf((newIndex - old) * co));
+        boolean isQuaVong = detailProxy.isQuaVongOfTBL_CUSTOMER();
+        mTvIsQuayVong.setVisibility(isQuaVong ? View.VISIBLE : View.INVISIBLE);
     }
 
     private int findPosFocusNow(int ID_TBL_CUSTOMER_Focus) {
@@ -1070,18 +1074,17 @@ public class DetailActivity extends BaseActivity {
             return;
         }
 
-        String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
         //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
+//        String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
 //        if (TextUtils.isEmpty(LOCAL_URI)) {
 //            Toast.makeText(this, "Cần chụp ảnh chỉ số trước khi lưu!", Toast.LENGTH_SHORT).show();
 //            return;
 //        }
 
         //get bitmap tu URI
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
-        //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+//        Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
 //        if (bitmap == null) {
 //            Toast.makeText(this, "Cần phải chụp ảnh trước khi lưu thông tin!", Toast.LENGTH_SHORT).show();
 //            return;
@@ -1090,11 +1093,21 @@ public class DetailActivity extends BaseActivity {
         double newIndex = TextUtils.isEmpty(mEtNewIndex.getText().toString()) ? 0.0d : Double.parseDouble(mEtNewIndex.getText().toString());
         double oldIndex = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
         double result = newIndex - oldIndex;
+        //TODO khách hàng yêu cầu  trường hợp công tơ qua vòng
+        //TODO lúc cảnh báo thêm 1 nút chọn công tơ qua vòng VÀ CHO LƯU
+        //TODO k cần tính sản lượng
         if (result < 0.0d) {
-            Toast.makeText(this, "Giá trị chỉ số yêu cầu phải lớn hơn giá trị cũ!", Toast.LENGTH_SHORT).show();
+            showDialogWarning_QUAYVONG();
             return;
         }
 
+        //không phải xoay vòng thì reset
+        try {
+            mSqlDAO.updateIsQuaVongTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, false, MA_NVIEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.e(TAG, "clickButtonSave: updateIsQuaVongTBL_CUSTOMER fail!");
+        }
         //warning
         loadSettingData();
 
@@ -1104,7 +1117,7 @@ public class DetailActivity extends BaseActivity {
                 return;
             }
 
-            saveData();
+            saveData(false);
 
         } else {
             double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
@@ -1115,7 +1128,7 @@ public class DetailActivity extends BaseActivity {
             double OldQuatity = detailProxy.getPrevQuantity();
             if (OldQuatity == 0) {
                 Toast.makeText(this, "Sản lượng tháng trước là 0. Chỉ số mới sẽ được ghi!", Toast.LENGTH_SHORT).show();
-                saveData();
+                saveData(false);
                 return;
             }
 
@@ -1126,7 +1139,7 @@ public class DetailActivity extends BaseActivity {
                 return;
             }
 
-            saveData();
+            saveData(false);
 
         }
 
@@ -1149,7 +1162,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             protected void clickOK() {
                 //save
-                saveData();
+                saveData(false);
             }
 
             @Override
@@ -1164,7 +1177,7 @@ public class DetailActivity extends BaseActivity {
                 "so với kỳ trước và đang vượt quá giới hạn cảnh báo " + settingObject.getPercent() + " %.", iDialog);
     }
 
-    private void saveData() {
+    private void saveData(boolean isQuaVong) {
         try {
             mSqlDAO.updateStatusTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, CustomerItem.STATUS_Customer.WRITED, MA_NVIEN);
             mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Double.parseDouble(mEtNewIndex.getText().toString()), MA_NVIEN);
@@ -1213,7 +1226,7 @@ public class DetailActivity extends BaseActivity {
             @Override
             protected void clickOK() {
                 //save
-                saveData();
+                saveData(false);
             }
 
             @Override
@@ -1226,5 +1239,28 @@ public class DetailActivity extends BaseActivity {
                 result +
                 " m3 " +
                 " đang vượt quá giới hạn cảnh báo " + GCSApplication.getSettingObject().getMax() + " m3.", iDialog);
+    }
+
+    private void showDialogWarning_QUAYVONG() {
+        IDialog iDialog = new IDialog() {
+            @Override
+            protected void clickOK() {
+                try {
+                    mSqlDAO.updateIsQuaVongTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, true, MA_NVIEN);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "clickButtonSave: updateIsQuaVongTBL_CUSTOMER fail!");
+                }
+                //save
+                saveData(true);
+            }
+
+            @Override
+            protected void clickCancel() {
+
+            }
+        }.setTextBtnOK("Tiếp tục ghi").setTextBtnCancel("Hủy thao tác");
+        super.showDialog(this, "Cảnh báo: Chỉ số mới đang nhỏ hơn chỉ số cũ." +
+                "\nTiếp tục ghi nếu đây là trường hợp công tơ qua vòng. Trường hợp này không được tính sản lượng.", iDialog);
     }
 }

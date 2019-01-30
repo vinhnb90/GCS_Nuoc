@@ -67,6 +67,15 @@ public class DetailProxy extends CursorItemProxy {
         return mImageItem.getNAME();
     }
 
+    public boolean isQuaVongOfTBL_CUSTOMER() {
+        Cursor cursor = getmCursor();
+        cursor.moveToPosition(getmIndex());
+        String isQuaVong = SqlQuery.TBL_CUSTOMER.isQuaVong.getNameCollumn();
+        boolean data = Boolean.parseBoolean(cursor.getString(cursor.getColumnIndex(isQuaVong)));
+        mCustomerItem.setQuaVong(data);
+        return mCustomerItem.isQuaVong();
+    }
+
     public String getLOCAL_URIOfTBL_IMAGE() {
         if (TextUtils.isEmpty(mImageItem.getLOCAL_URI())) {
             Cursor cursor = getmCursor();

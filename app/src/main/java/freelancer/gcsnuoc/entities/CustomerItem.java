@@ -28,6 +28,7 @@ public class CustomerItem implements Cloneable {
     private int year;
     private String indexType;
     private double PrevQuantity = 0.0d;
+    private boolean isQuaVong;
     private String startDate;
     private String endDate;
     private String customerId;
@@ -227,6 +228,14 @@ public class CustomerItem implements Cloneable {
 
     public void setFigureBookId_Customer(int figureBookId_Customer) {
         FigureBookId_Customer = figureBookId_Customer;
+    }
+
+    public boolean isQuaVong() {
+        return isQuaVong;
+    }
+
+    public void setQuaVong(boolean quaVong) {
+        isQuaVong = quaVong;
     }
 
     public enum STATUS_Customer {
