@@ -1045,19 +1045,21 @@ public class DetailActivity extends BaseActivity {
         }
 
         String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
-        if (TextUtils.isEmpty(LOCAL_URI)) {
-            Toast.makeText(this, "Cần chụp ảnh chỉ số trước khi lưu!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
+//        if (TextUtils.isEmpty(LOCAL_URI)) {
+//            Toast.makeText(this, "Cần chụp ảnh chỉ số trước khi lưu!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         //get bitmap tu URI
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inPreferredConfig = Bitmap.Config.ARGB_8888;
         Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
-        if (bitmap == null) {
-            Toast.makeText(this, "Cần phải chụp ảnh trước khi lưu thông tin!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
+//        if (bitmap == null) {
+//            Toast.makeText(this, "Cần phải chụp ảnh trước khi lưu thông tin!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         double newIndex = TextUtils.isEmpty(mEtNewIndex.getText().toString()) ? 0.0d : Double.parseDouble(mEtNewIndex.getText().toString());
         double oldIndex = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
@@ -1142,22 +1144,26 @@ public class DetailActivity extends BaseActivity {
             mSqlDAO.updateNEW_INDEXOfTBL_CUSTOMER(ID_TBL_CUSTOMER_Focus, Double.parseDouble(mEtNewIndex.getText().toString()), MA_NVIEN);
             DetailProxy detailProxy = mData.get(findPosFocusNow(ID_TBL_CUSTOMER_Focus));
             String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
-            String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
-            String MA_DDO = detailProxy.getPointcode();
-            String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite2, type7);
-            double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
-            double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());
-            double co = detailProxy.getCoefficient();
-            double sanluong = (NEW_INDEX - OLD_INDEX) * co;
-            Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã KH: " + detailProxy.getCustomerCode(), "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
+            //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
+            if(!TextUtils.isEmpty(LOCAL_URI))
+            {
+                String TEN_KHANG = detailProxy.getCustomerNameOfTBL_CUSTOMER();
+                String MA_DDO = detailProxy.getPointcode();
+                String CREATE_DAY = Common.convertDateToDate(detailProxy.getCREATE_DAYOfTBL_IMAGE(), sqlite2, type7);
+                double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
+                double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());
+                double co = detailProxy.getCoefficient();
+                double sanluong = (NEW_INDEX - OLD_INDEX) * co;
+                Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã KH: " + detailProxy.getCustomerCode(), "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
 
-            File file = new File(LOCAL_URI);
-            try (FileOutputStream out = new FileOutputStream(file)) {
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
-                // PNG is a lossless format, the compression factor (100) is ignored
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw e;
+                File file = new File(LOCAL_URI);
+                try (FileOutputStream out = new FileOutputStream(file)) {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                    // PNG is a lossless format, the compression factor (100) is ignored
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throw e;
+                }
             }
 
             mData.clear();

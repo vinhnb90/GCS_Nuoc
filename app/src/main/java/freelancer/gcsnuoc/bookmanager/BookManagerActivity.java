@@ -874,7 +874,11 @@ public class BookManagerActivity extends BaseActivity {
 
                         //get image
                         String uri = detailProxy.getLOCAL_URIOfTBL_IMAGE();
-                        item.setImg(Common.convertBitmapToByte64(uri));
+                        //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
+                        //TODO ảnh k bắt buộc chụp nữa thì khi đẩy lên để rỗng
+                        if (!TextUtils.isEmpty(uri)) {
+                            item.setImg(Common.convertBitmapToByte64(uri));
+                        }
                         mDataHashMapBookPostsUpload.put(detailProxy.getIDOfTBL_CUSTOMER(), item);
                     }
                 }
