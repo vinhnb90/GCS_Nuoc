@@ -12,6 +12,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.IdRes;
@@ -178,7 +179,24 @@ public class DetailActivity extends BaseActivity {
             public void onClick(View v) {
                 mFabCapture.setVisibility(View.GONE);
                 mBottomBar.setDefaultTabPosition(2);
+                mBottomBar.selectTabAtPosition(2);
                 mBottomBar.postInvalidate();
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                mBottomBar.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFabCapture.setVisibility(View.VISIBLE);
+                        mBottomBar.setDefaultTabPosition(0);
+                        mBottomBar.selectTabAtPosition(0);
+                        mBottomBar.postInvalidate();
+                    }
+                });
+                return false;
             }
         });
 
@@ -758,11 +776,12 @@ public class DetailActivity extends BaseActivity {
         //get index
         //TODO khách hàng yêu cầu sắp xếp đồng bộ với index của tab 0
         mData.clear();
-        mData = mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+//        mData = mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+        mData = mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
         mIntegerIntegerHashMap.clear();
         if (mData.size() != 0) {
             for (int i = 0; i < mData.size(); i++) {
-                mIntegerIntegerHashMap.put(mData.get(i).getIDOfTBL_CUSTOMER(), i + 1);
+                mIntegerIntegerHashMap.put(i + 1, mData.get(i).getIDOfTBL_CUSTOMER());
             }
         }
 
@@ -924,9 +943,34 @@ public class DetailActivity extends BaseActivity {
                     mRvCus2.postInvalidate();
 
                     //TODO KH yêu cầu khi tìm kiếm xong click vào khách hàng thì nó về màn hình để gcs luôn
-                    mFabCapture.setVisibility(View.VISIBLE);
-                    mBottomBar.setDefaultTabPosition(0);
-                    mBottomBar.postInvalidate();
+                    mBottomBar.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFabCapture.setVisibility(View.VISIBLE);
+                            mBottomBar.setDefaultTabPosition(0);
+                            mBottomBar.selectTabAtPosition(0);
+                            mBottomBar.postInvalidate();
+                        }
+                    });
+
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            int a = mBottomBar.getCurrentTabPosition();
+                            boolean b = mFabCapture.getVisibility() == View.VISIBLE;
+                            boolean c = mVListCustomer.getVisibility() == View.VISIBLE;
+                            if ((a == 0 && b) || (a == 0 && !c)) {
+                                showIncludeListCusView(false);
+                                DetailActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        hideKeyboard(DetailActivity.this);
+                                    }
+                                });
+                            }
+                        }
+                    }, 1);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
@@ -974,11 +1018,12 @@ public class DetailActivity extends BaseActivity {
         mTvPerior.setText(PERIOD_Convert);
 
         String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-        Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
-        mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
-
+        if (!TextUtils.isEmpty(LOCAL_URI)) {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
+            mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
+        }
         mTvInfoBill.setText("");
         mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_CUSTOMER() + "");
         if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED)

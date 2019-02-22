@@ -655,7 +655,7 @@ public class SqlQuery {
     }
 
     public static String getUpdateIsQuaVongTBL_CUSTOMER(boolean isQuaVong) {
-        return "UPDATE " +
+        String s=  "UPDATE " +
                 TBL_CUSTOMER.getName() +
                 " SET " +
                 TBL_CUSTOMER.isQuaVong.name() +
@@ -664,8 +664,9 @@ public class SqlQuery {
                 TBL_CUSTOMER.MA_NVIEN.name() +
                 " = ? " +
                 " AND " +
-                TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER.name() +
+                TBL_CUSTOMER.ID_TBL_CUSTOMER.name() +
                 " = ?";
+        return s;
     }
 
     public static String getUpdateStatusTBL_CUSTOMER() {

@@ -51,6 +51,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import freelancer.gcsnuoc.app.GCSApplication;
 
@@ -100,11 +102,17 @@ public class Common {
     private static final int SIZE_WIDTH_IMAGE_BASIC = 500;
 
     public static void setURLServer(String andressServer, int port) {
-        if (andressServer.contains(":"))
+        int count = word_count(andressServer, ":");
+        if (count == 2)
+            return;
+        else if (count == 1) {
             URLServer = "http://" + andressServer + "/api/MobileApi/";
-        else
-            URLServer = "http://" + andressServer + ":" + port + "/api/MobileApi/";
-//        URLServer = "http://103.74.120.18:8001/api/MobileApi/";
+        } else {
+            if (port == 0)
+                URLServer = "http://" + andressServer + "/api/MobileApi/";
+            else
+                URLServer = "http://" + andressServer + ":" + port + "/api/MobileApi/";
+        }
     }
 
     public static void setUserCommon(String userCommon, String MA_NVIEN) {
@@ -1273,5 +1281,30 @@ public class Common {
         byte[] imageByte = baos.toByteArray();
         String byteBimap = Base64.encodeToString(imageByte, Base64.NO_WRAP);
         return byteBimap;
+    }
+
+    public static int word_count(String text, String key) {
+        int count = 0;
+        while (text.contains(key)) {
+            count++;
+            text = text.substring(text.indexOf(key) + key.length());
+        }
+        return count;
+    }
+
+    public static String word_remove_last(String str, char key) {
+        StringBuilder sb = new StringBuilder(str);
+        int indextLast = sb.lastIndexOf(":");
+        return sb.deleteCharAt(indextLast).toString();
+    }
+
+    public static List<Object> getKeysFromValue(Map<?, ?> hm, Object value){
+        List <Object>list = new ArrayList<Object>();
+        for(Object o:hm.keySet()){
+            if(hm.get(o).equals(value)) {
+                list.add(o);
+            }
+        }
+        return list;
     }
 }

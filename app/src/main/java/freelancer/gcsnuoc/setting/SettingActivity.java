@@ -2,12 +2,16 @@ package freelancer.gcsnuoc.setting;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.NavUtils;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -32,6 +36,8 @@ import static freelancer.gcsnuoc.utils.Common.KEY_PREF_URL;
 import static freelancer.gcsnuoc.utils.Common.PREF_BOOK;
 import static freelancer.gcsnuoc.utils.Common.PREF_SETTING;
 import static freelancer.gcsnuoc.utils.Common.TIME_DELAY_ANIM;
+import static freelancer.gcsnuoc.utils.Common.word_count;
+import static freelancer.gcsnuoc.utils.Common.word_remove_last;
 import static freelancer.gcsnuoc.utils.Log.getInstance;
 
 public class SettingActivity extends BaseActivity {
@@ -49,6 +55,7 @@ public class SettingActivity extends BaseActivity {
     private SettingObject settingObject;
 
     private SharePrefManager mPrefManager;
+    private int iStart, iEnd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +88,11 @@ public class SettingActivity extends BaseActivity {
     protected void init() {
         mEtURL = (EditText) findViewById(R.id.ac_setting_et_url);
         mEtPort = (EditText) findViewById(R.id.ac_setting_et_port);
+//        mEtPort.setText("8080");
+//        mEtPort.setHint("8080");
+        mEtPort.setText("");
+        mEtPort.setHint("Nhập cổng nếu cần!");
+        mEtPort.setEnabled(true);
 
         mRadioPercent = (RadioButton) findViewById(R.id.ac_setting_radio_percent);
         mRadioMax = (RadioButton) findViewById(R.id.ac_setting_radio_detail);
@@ -146,6 +158,36 @@ public class SettingActivity extends BaseActivity {
 
             }
         });
+        mEtURL.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v("TAG", "iStart " + iStart + ", iEnd " + iEnd);
+                new Handler().postDelayed(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        String str = mEtURL.getText().toString();
+                        StringBuilder sb = new StringBuilder(str);
+                        int indextLast = sb.lastIndexOf(":");
+                        int indexSelectStart = mEtURL.getSelectionStart();
+                        int indexSelectEnd = mEtURL.getSelectionEnd();
+                        if (indextLast == -1)
+                            mEtURL.setInputType(InputType.TYPE_CLASS_TEXT);
+                        else {
+                            if (indexSelectStart == indexSelectEnd) {
+                                if (indexSelectStart > indextLast) {
+                                    mEtURL.setInputType(InputType.TYPE_CLASS_NUMBER);
+                                } else {
+                                    mEtURL.setInputType(InputType.TYPE_CLASS_TEXT);
+                                }
+                            }
+                        }
+
+                        mEtURL.postInvalidate();
+                    }
+                }, 11);
+            }
+        });
 
         mEtURL.addTextChangedListener(new TextWatcher() {
             @Override
@@ -154,34 +196,44 @@ public class SettingActivity extends BaseActivity {
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().contains(":")) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mEtPort.setEnabled(true);
-                            mEtPort.postInvalidate();
-                            mEtPort.setHint("Nhập cổng");
-                        }
-                    });
-
-                    return;
-                }
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mEtPort.setEnabled(false);
-                        mEtPort.setHint("Không cần nhập...");
-                        mEtPort.setText("");
-                        mEtPort.postInvalidate();
-                    }
-                });
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(final Editable s) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String s = mEtURL.getText().toString();
+                        int count = word_count(s.toString(), ":");
+                        if (count == 2) {
+                            mEtURL.setText(word_remove_last(s.toString(), ':'));
+                            mEtURL.setSelection(mEtURL.getText().length());
+                            Toast.makeText(SettingActivity.this, "Không cho phép nhập 2 kí tự này", Toast.LENGTH_SHORT).show();
+                            if (mEtURL.getSelectionEnd() == mEtURL.getText().length()) {
+                                mEtURL.setInputType(InputType.TYPE_CLASS_NUMBER);
+                            } else {
+                                mEtURL.setInputType(InputType.TYPE_CLASS_TEXT);
+                            }
+                        } else if (1 == count) {
+                            mEtPort.setText("");
+                            mEtPort.setHint("Không cần nhập");
+                            mEtPort.setEnabled(false);
+                            if (mEtURL.getSelectionEnd() == mEtURL.getText().length()) {
+                                mEtURL.setInputType(InputType.TYPE_CLASS_NUMBER);
+                            } else {
+                                mEtURL.setInputType(InputType.TYPE_CLASS_TEXT);
+                            }
 
+                        } else {
+                            mEtPort.setEnabled(true);
+                            mEtPort.setHint(TextUtils.isEmpty(mEtPort.getText().toString()) ? "Nhập cổng nếu cần!" : mEtPort.getText().toString());
+                            mEtURL.setInputType(InputType.TYPE_CLASS_TEXT);
+                        }
+
+                        mEtPort.postInvalidate();
+                    }
+                });
             }
         });
     }
@@ -226,15 +278,18 @@ public class SettingActivity extends BaseActivity {
 
     private void fillSettingData() {
         mEtURL.setText(settingObject.getURL());
-
-        if (settingObject.getURL().contains(":")) {
-            mEtPort.setHint("Không cần nhập...");
+        int count = word_count(settingObject.getURL(), ":");
+        if (count == 2) {
+            Toast.makeText(this, "Gặp vấn đề khi khôi phục cấu hình.\n Vui lòng kiểm tra lại cấu hình", Toast.LENGTH_SHORT).show();
+            return;
+        } else if (1 == count) {
             mEtPort.setText("");
             mEtPort.setEnabled(false);
-        }else {
+            mEtPort.setHint("Không cần nhập");
+        } else {
+            mEtPort.setText(settingObject.getPort() == 0 ? "" : settingObject.getPort() + "");
+            mEtPort.setHint(settingObject.getPort() == 0 ? "Nhập cổng nếu cần!" : settingObject.getPort() + "");
             mEtPort.setEnabled(true);
-            mEtPort.setText(settingObject.getPort() + "");
-            mEtPort.setHint("Nhập cổng");
         }
 
         boolean isMax = settingObject.isMaxNotPercent();
@@ -348,8 +403,16 @@ public class SettingActivity extends BaseActivity {
             return false;
         }
 
-        if (TextUtils.isEmpty(mEtPort.getText()) && !mEtURL.getText().toString().contains(":")) {
-            Toast.makeText(this, "Cần nhập cổng máy chủ", Toast.LENGTH_SHORT).show();
+        int count = word_count(settingObject.getURL(), ":");
+        if (count == 0) {
+
+        } else if (count == 1) {
+            if (!TextUtils.isEmpty(mEtPort.getText())) {
+                Toast.makeText(this, "Không cần nhập cổng máy chủ", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        } else {
+            Toast.makeText(this, "Không cần nhập cổng máy chủ", Toast.LENGTH_SHORT).show();
             return false;
         }
 

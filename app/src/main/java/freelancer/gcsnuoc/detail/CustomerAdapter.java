@@ -9,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,7 @@ import static freelancer.gcsnuoc.entities.CustomerItem.STATUS_Customer.NON_WRITI
 import static freelancer.gcsnuoc.entities.CustomerItem.STATUS_Customer.UPLOADED;
 import static freelancer.gcsnuoc.entities.CustomerItem.STATUS_Customer.WRITED;
 import static freelancer.gcsnuoc.utils.Common.TIME_DELAY_ANIM;
+import static freelancer.gcsnuoc.utils.Common.getKeysFromValue;
 
 public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.CustomerViewHolder> {
 
@@ -72,8 +74,13 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
     @Override
     public void onBindViewHolder(final CustomerViewHolder holder, final int position) {
         int ID_TBL_CUSTOMER_real = mList.get(position).getIDOfTBL_CUSTOMER();
-        int indexReal = DetailActivity.mIntegerIntegerHashMap.get(ID_TBL_CUSTOMER_real);
-        holder.tvIndex.setText(indexReal);
+
+        List<Object> objects = getKeysFromValue(DetailActivity.mIntegerIntegerHashMap, ID_TBL_CUSTOMER_real);
+        if (objects.size() != 1)
+            return;
+        int indexReal = (int) objects.get(0);
+
+        holder.tvIndex.setText(indexReal + "");
 
         DetailProxy detailProxy = mList.get(position);
         holder.tvNameCustomer.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
@@ -117,6 +124,8 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
+                    if (position >= mList.size())
+                        return;
                     mICustomerAdapterCallback.clickItem(position, mList.get(position).getIDOfTBL_CUSTOMER());
                 }
             });

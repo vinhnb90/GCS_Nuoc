@@ -507,8 +507,10 @@ public class LoginActivity extends BaseActivity {
             return false;
         }
 
-        if (!settingObject.getURL().contains(":") && settingObject.getPort() == 0) {
-            Toast.makeText(this, "Cần nhập cổng máy chủ tại màn hình cấu hình", Toast.LENGTH_SHORT).show();
+        int count = Common.word_count(settingObject.getURL(), ":");
+        if(count == 1 && settingObject.getPort()!= 0)
+        {
+            Toast.makeText(this, "Kiểm tra lại cấu hình.\nKhông cần nhập cổng!", Toast.LENGTH_SHORT).show();
             return false;
         }
 

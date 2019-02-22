@@ -274,36 +274,44 @@
                     </RelativeLayout>
 
                     <RelativeLayout
-                        android:id="@+id/ac_detail_rl6"
+                        android:id="@+id/ac_detail_rl6_1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/ac_detail_rl3"
                         android:layout_marginLeft="@dimen/_8sdp"
                         android:layout_marginRight="@dimen/_8sdp">
-
                         <TextView
                             android:id="@+id/ac_detail_tv_isQuaVong"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
                             android:textStyle="bold"
-                            tools:text="...Công tơ quay vòng" />
+                            android:text="...Công tơ quay vòng" />
 
-                        <TextView
-                            android:id="@+id/ac_detail_tv5"
-                            android:layout_width="wrap_content"
+                        <RelativeLayout
+                            android:layout_toLeftOf="@+id/ac_detail_tv_isQuaVong"
+                            android:id="@+id/ac_detail_rl6"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="Sản lượng (m3):"
-                            android:textStyle="bold" />
+                            android:layout_marginRight="@dimen/_8sdp">
 
-                        <TextView
-                            android:id="@+id/ac_detail_tv_sluong"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/_8sdp"
-                            android:layout_toRightOf="@+id/ac_detail_tv5"
-                            android:text="0"
-                            android:textStyle="bold" />
+                            <TextView
+                                android:id="@+id/ac_detail_tv5"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Sản lượng (m3):"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/ac_detail_tv_sluong"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/_8sdp"
+                                android:layout_toRightOf="@+id/ac_detail_tv5"
+                                android:text="0"
+                                android:textStyle="bold" />
+                        </RelativeLayout>
+
 
                     </RelativeLayout>
 

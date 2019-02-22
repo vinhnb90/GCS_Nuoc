@@ -25,6 +25,7 @@ import freelancer.gcsnuoc.entities.DetailProxy;
 import static freelancer.gcsnuoc.entities.CustomerItem.STATUS_Customer.NON_WRITING;
 import static freelancer.gcsnuoc.entities.CustomerItem.STATUS_Customer.UPLOADED;
 import static freelancer.gcsnuoc.entities.CustomerItem.STATUS_Customer.WRITED;
+import static freelancer.gcsnuoc.utils.Common.getKeysFromValue;
 
 public class Customer2Adapter extends RecyclerView.Adapter<Customer2Adapter.CustomerViewHolder> {
 
@@ -66,8 +67,11 @@ public class Customer2Adapter extends RecyclerView.Adapter<Customer2Adapter.Cust
     @Override
     public void onBindViewHolder(final CustomerViewHolder holder, final int position) {
         int ID_TBL_CUSTOMER_real = mList.get(position).getIDOfTBL_CUSTOMER();
-        int indexReal = DetailActivity.mIntegerIntegerHashMap.get(ID_TBL_CUSTOMER_real);
-        holder.tvIndex.setText(indexReal);
+        List<Object> objects = getKeysFromValue(DetailActivity.mIntegerIntegerHashMap, ID_TBL_CUSTOMER_real);
+        if (objects.size() != 1)
+            return;
+        int indexReal = (int) objects.get(0);
+        holder.tvIndex.setText(indexReal + "");
 
         DetailProxy detailProxy = mList.get(position);
         holder.tvNameCustomer.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
