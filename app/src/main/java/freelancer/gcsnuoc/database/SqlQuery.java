@@ -457,7 +457,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.indexType.name() + " TEXT, " +
                 TBL_CUSTOMER.PrevQuantity.name() + " REAL, " +
                 //only update not insert
-                TBL_CUSTOMER.isQuaVong.name() + " TEXT DEFAULT \"FALSE\"" +
+                TBL_CUSTOMER.isQuaVong.name() + " TEXT DEFAULT \"FALSE\", " +
                 TBL_CUSTOMER.startDate.name() + " TEXT, " +
                 TBL_CUSTOMER.endDate.name() + " TEXT, " +
                 TBL_CUSTOMER.customerId.name() + " TEXT, " +
