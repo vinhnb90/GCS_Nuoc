@@ -154,7 +154,6 @@ public class BookManagerActivity extends BaseActivity {
     private List<DataBookPostReceived> listPostDisConnectServer = new ArrayList<>();
     private List<DataBookPost> listPostErrorClient = new ArrayList<>();
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -450,7 +449,6 @@ public class BookManagerActivity extends BaseActivity {
         }
     }
 
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -739,6 +737,8 @@ public class BookManagerActivity extends BaseActivity {
                 message.append("\n");
                 message.append("Số khách hàng đẩy bị lỗi do kết nối chờ quá lâu: " + listPostTimeoutServer.size());
                 message.append("\n");
+                message.append("Số khách hàng đẩy bị lỗi do xử lý lỗi từ máy chủ: " + listPostDisConnectServer.size());
+                message.append("\n");
                 message.append("Số khách hàng đẩy bị lỗi do xử lý lỗi từ smartphone: " + listPostErrorClient.size());
 
                 messageNotifyResult = message.toString();
@@ -763,7 +763,12 @@ public class BookManagerActivity extends BaseActivity {
     private void startGetTokenAndUploadDataBook() {
         try {
             if (!Common.isNetworkConnected(BookManagerActivity.this)) {
-                setUIUpload("Không có kết nối internet!", 0);
+                BookManagerActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(BookManagerActivity.this, "Không có kết nối internet!", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return;
             }
         } catch (Exception e) {
@@ -960,131 +965,6 @@ public class BookManagerActivity extends BaseActivity {
         }
     }
 
-    /*{
-                            //convert list data server to data mtb
-
-                            //get all data book delivery
-                            List<DeliveryBook> deliveryBooks = result.getData().getDeliveryBook();
-                            bookItemList = new ArrayList<>();
-                            deliveryBookSize = deliveryBooks.size(); // == 100 %
-
-                            List<IndexValue> indexValues = result.getData().getIndexValue();
-                            customnerItemList = new ArrayList<>();
-                            indexCustomerSize = indexValues.size();
-
-                            List<BookAvailable> bookAvailables = result.getData().getBookAvailable();
-
-                            boolean flag = false;
-
-                            for (int i = 0; i < deliveryBookSize; i++) {
-                                DeliveryBook deliveryBook = deliveryBooks.get(i);
-                                BookItem bookItem = null;
-                                //get data book item
-
-                                //search all availble book
-                                for (BookAvailable bookAvailable : bookAvailables) {
-                                    //1 book
-                                    if (bookAvailable.getFigureBookId().intValue() == deliveryBook.getId().intValue()) {
-                                        bookItem = new BookItem();
-                                        bookItem.setBookName(deliveryBook.getName());
-                                        bookItem.setStatusBook(BookItem.STATUS_BOOK.NON_WRITING);
-                                        bookItem.setCustomerWrited(0);
-                                        bookItem.setCustomerNotWrite(0);
-                                        bookItem.setPeriod("");
-                                        bookItem.setFocus(i == 0 ? true : false);
-                                        bookItem.setChoose(false);
-                                        bookItem.setCODE(deliveryBook.getId().intValue());
-                                        bookItem.setMA_NVIEN(MA_NVIEN);
-                                    }
-                                }
-
-                                //seatch all index
-                                for (int j = 0; j < indexCustomerSize; j++) {
-                                    IndexValue indexValue = indexValues.get(j);
-                                    CustomerItem customerItem = null;
-                                    if (indexValue.getFigureBookId().intValue() == deliveryBook.getId().intValue()) {
-                                        customerItem = new CustomerItem();
-                                        customerItem.setIDBook(bookItem.getCODE());
-                                        customerItem.setCustomerName(indexValue.getName());
-                                        customerItem.setCustomerAddress(indexValue.getAddress());
-                                        customerItem.setStatusCustomer(CustomerItem.STATUS_Customer.NON_WRITING);
-                                        customerItem.setFocus(j == 0 ? true : false);
-                                        customerItem.setOldIndex(indexValue.getOldValue());
-                                        customerItem.setNewIndex(0);
-                                        customerItem.setMA_NVIEN(MA_NVIEN);
-
-                                        customerItem.setIndexId(indexValue.getIndexId().intValue());
-                                        customerItem.setDepartmentId(String.valueOf(indexValue.getDepartmentId()));
-                                        customerItem.setPointId(String.valueOf(indexValue.getPointId()));
-                                        customerItem.setTimeOfUse(String.valueOf(indexValue.getTimeOfUse()));
-                                        customerItem.setCoefficient(indexValue.getCoefficient());
-                                        customerItem.setElectricityMeterId(String.valueOf(indexValue.getElectricityMeterId()));
-                                        customerItem.setTerm(indexValue.getTerm());
-                                        customerItem.setMonth(indexValue.getMonth());
-                                        customerItem.setYear(indexValue.getYear());
-                                        customerItem.setIndexType(indexValue.getIndexType());
-                                        customerItem.setStartDate(indexValue.getStartDate());
-                                        customerItem.setEndDate(indexValue.getEndDate());
-                                        customerItem.setCustomerId(String.valueOf(indexValue.getCustomerId()));
-                                        customerItem.setCustomerCode(String.valueOf(indexValue.getPointId()));
-                                        flag = true;
-                                    } else {
-                                        if (i == bookItemList.size() - 1) {
-                                            if (!flag)
-                                                Log.d(TAG, "startDownloadBook: indexValues.getCustomerCode = " + indexValues.get(j).getCustomerCode());
-                                            else
-                                                flag = false;
-                                        }
-                                    }
-                                    if (customerItem != null) {
-                                        customnerItemList.add(customerItem);
-                                    }
-                                }
-
-                                if (bookItem != null) {
-                                    bookItem.setCustomerNotWrite(customnerItemList.size());
-                                    bookItem.setCustomerNotWrite(0);
-                                    bookItemList.add(bookItem);
-                                }
-
-                                setUIUpload("Đã cập nhật ...", (i + 1) / deliveryBookSize);
-                                Thread.sleep(50);
-                            }
-                            setUIUpload("Tải về dữ liệu thành công!", 100);
-                            Thread.sleep(150);
-
-                            setUIUpload("Đang xử lý lưu dữ liệu!", 0);
-                            //save data
-
-                            for (int i = 0; i < bookItemList.size(); i++) {
-                                int id = mSqlDAO.insertTBL_BOOK(bookItemList.get(i));
-                                bookItemList.get(i).setID(id);
-                            }
-                            //save data
-                            setUIUpload("Đang xử lý lưu dữ liệu!", 50);
-                            try {
-                                for (int i = 0; i < customnerItemList.size(); i++) {
-                                    for (int j = 0; j < bookItemList.size(); j++) {
-                                        if (customnerItemList.get(i).getIDBook() == bookItemList.get(j).getCODE()) {
-                                            customnerItemList.get(i).setIDBook(bookItemList.get(j).getID());
-                                            mSqlDAO.insertTBL_CUSTOMER(customnerItemList.get(i));
-                                        }
-                                    }
-                                }
-
-                                for (int j = 0; j < bookItemList.size(); j++) {
-                                    int count = mSqlDAO.countAllByStatusTBL_CUSTOMER(bookItemList.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
-                                    mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(bookItemList.get(j).getID(), count, MA_NVIEN, false);
-                                }
-
-                            } catch (Exception e) {
-                                mSqlDAO.deleteAllRowTBL_BOOK(MA_NVIEN);
-                                throw e;
-                            }
-                            setUIUpload("Hoàn thành quá trình tải sổ!", 100);
-
-                            return;
-                        }*/
 
     private void showDialogWarningUpload(StringBuilder warningMessage) {
         IDialog iDialog = new IDialog() {
@@ -1351,14 +1231,35 @@ public class BookManagerActivity extends BaseActivity {
 
                             //get all data book delivery
                             List<DeliveryBook> deliveryBooks = result.getData().getDeliveryBook();
+
                             bookItemList = new ArrayList<>();
                             deliveryBookSize = deliveryBooks.size(); // == 100 %
+                            if (deliveryBookSize == 0) {
+                                BookManagerActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(BookManagerActivity.this, "Không có sổ nào được phân công từ máy chủ!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
 
+                                setUIDownload("Hoàn thành quá trình tải sổ!", 100);
+                                return;
+                            }
                             List<IndexValue> indexValues = result.getData().getIndexValue();
                             customnerItemList = new ArrayList<>();
                             indexCustomerSize = indexValues.size();
 
                             List<BookAvailable> bookAvailables = result.getData().getBookAvailable();
+                            if (bookAvailables.size() == 0) {
+                                BookManagerActivity.this.runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(BookManagerActivity.this, "Không có sổ nào có sẵn được nhận từ máy chủ!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                setUIDownload("Hoàn thành quá trình tải sổ!", 100);
+                                return;
+                            }
 
                             boolean flag = false;
 

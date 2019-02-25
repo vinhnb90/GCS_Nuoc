@@ -122,6 +122,7 @@ public class DetailActivity extends BaseActivity {
     private boolean isSearching;
     private int lengthTextSearch;
     private String filePathTemp = "";
+    private boolean isClickApadater2;
     public static HashMap<Integer, Integer> mIntegerIntegerHashMap = new HashMap<>();
 
     @Override
@@ -225,10 +226,17 @@ public class DetailActivity extends BaseActivity {
                         isSearching = false;
                     }
 
-                    showIncludeListCusView(true);
+                    if (lengthTextSearch == 0 && isClickApadater2)
+                        showIncludeListCusView(false);
+                    else
+                        showIncludeListCusView(true);
 
                     fillDataDetail();
-                    filterData(FILTER_BY_SEARCH, newText);
+
+                    if (lengthTextSearch == 0 && isClickApadater2) {
+
+                    } else
+                        filterData(FILTER_BY_SEARCH, newText);
                     DetailActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -272,7 +280,13 @@ public class DetailActivity extends BaseActivity {
                 for (DetailProxy detailProxy : customerAdapter.getList()) {
 
                     //search by name book
-                    if (removeAccent(detailProxy.getCustomerNameOfTBL_CUSTOMER().toLowerCase()).contains(dataFiltering))
+                    List<Object> objects = getKeysFromValue(DetailActivity.mIntegerIntegerHashMap, detailProxy.getIDOfTBL_CUSTOMER());
+                    if (objects.size() != 1)
+                        return;
+                    int indexReal = (int) objects.get(0);
+
+                    if (removeAccent(detailProxy.getCustomerNameOfTBL_CUSTOMER().toLowerCase()).contains(dataFiltering)
+                            || String.valueOf(indexReal).contains(dataFiltering))
                         dataFilter.add(detailProxy);
                 }
                 break;
@@ -680,6 +694,8 @@ public class DetailActivity extends BaseActivity {
 
     private void showIncludeListCusView(boolean isShow) {
         mIsShowInCludeList = isShow;
+        if (isShow)
+            isClickApadater2 = false;
         mVListCustomer.setVisibility(isShow ? View.VISIBLE : View.GONE);
         mRlDetail.setVisibility(isShow ? View.GONE : View.VISIBLE);
         mFabCapture.setVisibility(isShow ? View.GONE : View.VISIBLE);
@@ -829,13 +845,17 @@ public class DetailActivity extends BaseActivity {
             @Override
             public void clickItem(final int pos, int ID_TBL_CUSTOMER) {
                 try {
+                    ID_TBL_CUSTOMER_Focus = mData.get(pos).getIDOfTBL_CUSTOMER();
                     refocusItem(pos, ID_TBL_CUSTOMER);
-                    int posNow = findPosFocusNow(ID_TBL_CUSTOMER);
-//                    mRvCus.scrollToPosition(posNow);
-//                    mRvCus2.scrollToPosition(posNow);
-                    mRvCus.postInvalidate();
-                    mRvCus2.postInvalidate();
-                    closeSearchView();
+//                    mRvCus.postInvalidate();
+//                    mRvCus2.postInvalidate();
+                    DetailActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            closeSearchView();
+                        }
+                    });
+                    refreshData(ID_TBL_CUSTOMER_Focus);
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
@@ -872,52 +892,6 @@ public class DetailActivity extends BaseActivity {
                 return finalTargetPosition;
             }
         };
-
-//                new LinearSnapHelper() {
-//            @Override
-//            public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX, int velocityY) {
-//                View centerView = findSnapView(layoutManager);
-//                if (centerView == null)
-//                    return RecyclerView.NO_POSITION;
-//
-//                int position = layoutManager.getPosition(centerView);
-//                int targetPosition = -1;
-//                if (layoutManager.canScrollHorizontally()) {
-//                    if (velocityX < 0) {
-//                        targetPosition = position - 1;
-//                    } else {
-//                        targetPosition = position + 1;
-//                    }
-//                }
-//
-//                if (layoutManager.canScrollVertically()) {
-//                    if (velocityY < 0) {
-//                        targetPosition = position - 1;
-//                    } else {
-//                        targetPosition = position + 1;
-//                    }
-//                }
-//
-//                final int firstItem = 0;
-//                final int lastItem = layoutManager.getItemCount() - 1;
-//                targetPosition = Math.min(lastItem, Math.max(targetPosition, firstItem));
-//                final int finalTargetPosition = targetPosition;
-//                DetailActivity.this.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            ID_TBL_CUSTOMER_Focus = mData.get(finalTargetPosition).getIDOfTBL_CUSTOMER();
-//                            refocusItem(finalTargetPosition, ID_TBL_CUSTOMER_Focus);
-//                            refreshData(ID_TBL_CUSTOMER_Focus);
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                    }
-//                });
-//
-//                return finalTargetPosition;
-//            }
-//        };
 
         try {
             snapHelper.attachToRecyclerView(mRvCus);
@@ -971,6 +945,8 @@ public class DetailActivity extends BaseActivity {
                         }
                     }, 1);
 
+                    isClickApadater2 = true;
+
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "clickCbChoose: Gặp vấn đề khi chọn sổ! " + e.getMessage());
@@ -1018,18 +994,19 @@ public class DetailActivity extends BaseActivity {
         mTvPerior.setText(PERIOD_Convert);
 
         String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
+        Bitmap bitmap = null;
         if (!TextUtils.isEmpty(LOCAL_URI)) {
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
-            mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
+            bitmap = BitmapFactory.decodeFile(LOCAL_URI, options);
         }
+        mImageView.setImageBitmap(bitmap == null ? icon : bitmap);
         mTvInfoBill.setText("");
         mTvOldIndex.setText(detailProxy.getOLD_INDEXOfTBL_CUSTOMER() + "");
         if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED)
             mEtNewIndex.setClickable(false);
         else mEtNewIndex.setClickable(true);
-        mEtNewIndex.setText(detailProxy.getNEW_INDEXOfTBL_CUSTOMER() + "");
+        mEtNewIndex.setText(String.valueOf(detailProxy.getNEW_INDEXOfTBL_CUSTOMER()));
 
         showTvSanLuong(detailProxy);
     }
@@ -1118,6 +1095,12 @@ public class DetailActivity extends BaseActivity {
             Toast.makeText(this, "Không cho phép! Chỉ số khách hàng đã được gửi lên máy chủ!", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (mEtNewIndex.getText().toString().isEmpty()) {
+            Toast.makeText(this, "Chỉ số mới không được phép rỗng!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
 
         //TODO khách hàng bắt bỏ bỏ phần bắt buộc chụp ảnh
 //        String LOCAL_URI = detailProxy.getLOCAL_URIOfTBL_IMAGE();
@@ -1236,7 +1219,7 @@ public class DetailActivity extends BaseActivity {
                 double OLD_INDEX = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
                 double NEW_INDEX = Double.parseDouble(mEtNewIndex.getText().toString());
                 double co = detailProxy.getCoefficient();
-                double sanluong = (NEW_INDEX - OLD_INDEX) * co;
+                String sanluong = isQuaVong ? "0.0 (Qua vòng)" : "" + (NEW_INDEX - OLD_INDEX) * co;
                 Bitmap bitmap = Common.drawTextOnBitmapCongTo(this, LOCAL_URI, "Tên KH: " + TEN_KHANG, "CS mới: " + NEW_INDEX, "CS cũ: " + OLD_INDEX, "Sản lượng: " + sanluong, "Mã KH: " + detailProxy.getCustomerCode(), "Mã Đ.Đo: " + MA_DDO, "Ngày: " + CREATE_DAY);
 
                 File file = new File(LOCAL_URI);
@@ -1251,12 +1234,19 @@ public class DetailActivity extends BaseActivity {
 
             mData.clear();
             mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
-            if (isFilteringBottomMenu)
-                Toast.makeText(this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
-            else
-                Toast.makeText(this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
-
+            double OldQuatity = detailProxy.getPrevQuantity();
             refreshData(ID_TBL_CUSTOMER_Focus);
+            if (OldQuatity == 0) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isFilteringBottomMenu)
+                            Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
+                    }
+                }, 2000);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

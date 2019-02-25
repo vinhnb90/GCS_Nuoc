@@ -286,7 +286,7 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
                             android:textStyle="bold"
-                            android:text="...Công tơ quay vòng" />
+                            android:text="...Công tơ qua vòng" />
 
                         <RelativeLayout
                             android:layout_toLeftOf="@+id/ac_detail_tv_isQuaVong"

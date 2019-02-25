@@ -116,10 +116,8 @@ public class Common {
     }
 
     public static void setUserCommon(String userCommon, String MA_NVIEN) {
-        if (TextUtils.isEmpty(Common.USER)) {
             Common.USER = userCommon;
             Common.MA_NVIEN = MA_NVIEN;
-        }
     }
 
     public static void scaleImage(String fileName, Context context) throws Exception {
