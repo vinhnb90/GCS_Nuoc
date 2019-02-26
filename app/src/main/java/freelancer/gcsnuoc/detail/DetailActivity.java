@@ -298,16 +298,19 @@ public class DetailActivity extends BaseActivity {
 
         if (dataFilter.size() > 0) {
             refocusItem(0, dataFilter.get(0).getIDOfTBL_CUSTOMER());
+            //update database by ID
+//            mSqlDAO.updateResetFocusTBL_CUSTOMER(MA_NVIEN, ID_TBL_BOOK_OF_CUSTOMER);
+//            mSqlDAO.updateFocusTBL_CUSTOMER(dataFilter.get(0).getIDOfTBL_CUSTOMER(), true, MA_NVIEN);
             dataFilter.get(0).setFocusCustomer(true);
             updateUI(dataFilter.get(0).getIDOfTBL_CUSTOMER());
         }
 
         customerAdapter.updateList(dataFilter);
-        mRvCus.invalidate();
         customerAdapter2.updateList(dataFilter);
+        mRvCus.scrollToPosition(0);
+        mRvCus2.scrollToPosition(0);
+        mRvCus.invalidate();
         mRvCus2.invalidate();
-
-
     }
 
     @Override
@@ -1246,6 +1249,11 @@ public class DetailActivity extends BaseActivity {
                             Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
                     }
                 }, 2000);
+            }else {
+                if (isFilteringBottomMenu)
+                    Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
             }
 
         } catch (Exception e) {

@@ -883,6 +883,8 @@ public class BookManagerActivity extends BaseActivity {
                         //TODO ảnh k bắt buộc chụp nữa thì khi đẩy lên để rỗng
                         if (!TextUtils.isEmpty(uri)) {
                             item.setImg(Common.convertBitmapToByte64(uri));
+                        }else{
+                            item.setImg("");
                         }
                         mDataHashMapBookPostsUpload.put(detailProxy.getIDOfTBL_CUSTOMER(), item);
                     }
