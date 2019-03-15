@@ -380,10 +380,10 @@ public class DetailActivity extends BaseActivity {
         //TODO
         mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
         if (mData.size() == 0)
-            return 0;
+            return -1;
 
         int posNow = findPosFocusNow(ID_TBL_CUSTOMER_Focus);
-        if (posNow == -1) {
+        if (posNow < 0) {
             posNow = 0;
             ID_TBL_CUSTOMER_Focus = mData.get(0).getIDOfTBL_CUSTOMER();
         }
@@ -409,7 +409,7 @@ public class DetailActivity extends BaseActivity {
         });
 
 
-        return ID_TBL_CUSTOMER_Focus;
+        return posNow;
     }
 
     @Override
@@ -1235,11 +1235,16 @@ public class DetailActivity extends BaseActivity {
                 }
             }
 
-            mData.clear();
-            mData = isFilteringBottomMenu ? mSqlDAO.getSelectAllDetailProxyNOTWrite(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN) : mSqlDAO.getSelectAllDetailProxy(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
             double OldQuatity = detailProxy.getPrevQuantity();
-            refreshData(ID_TBL_CUSTOMER_Focus);
+            final int posNow = refreshData(ID_TBL_CUSTOMER_Focus);
+            boolean isNextOk = false;
+            if (posNow >= 0 && posNow < mData.size() - 1) {
+                isNextOk = true;
+
+            }
+            final boolean finalIsNextOk = isNextOk;
             if (OldQuatity == 0) {
+
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -1247,13 +1252,35 @@ public class DetailActivity extends BaseActivity {
                             Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
                         else
                             Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
+
+                        if (finalIsNextOk) {
+                            try {
+                                ID_TBL_CUSTOMER_Focus = mData.get(posNow + 1).getIDOfTBL_CUSTOMER();
+                                refocusItem(posNow + 1, ID_TBL_CUSTOMER_Focus);
+                                refreshData(ID_TBL_CUSTOMER_Focus);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
                 }, 2000);
-            }else {
+            } else {
                 if (isFilteringBottomMenu)
                     Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
+
+                if (finalIsNextOk) {
+                    try {
+                        ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
+                        refocusItem(posNow, ID_TBL_CUSTOMER_Focus);
+                        refreshData(ID_TBL_CUSTOMER_Focus);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
 
         } catch (Exception e) {
