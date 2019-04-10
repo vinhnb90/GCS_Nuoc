@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -33,6 +34,8 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -56,7 +59,6 @@ import java.util.Map;
 
 import freelancer.gcsnuoc.app.GCSApplication;
 
-import static android.support.v4.app.ActivityCompat.requestPermissions;
 import static android.support.v4.content.PermissionChecker.PERMISSION_GRANTED;
 import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 import static freelancer.gcsnuoc.database.SqlHelper.DB_NAME;
@@ -67,8 +69,6 @@ import static freelancer.gcsnuoc.database.SqlHelper.PATH_FOLDER_DB;
  */
 
 public class Common {
-    public static final String PATH_LOG = Environment.getExternalStorageDirectory() + File.separator + "BARCODE_HY" + File.separator;
-    public static final String NAME_FILE_LOG = "LogFile.txt";
     public static final int TIME_DELAY_ANIM = 150;
 
     public static final String PREF_BOOK = "PREF_BOOK";
@@ -76,6 +76,8 @@ public class Common {
     public static final String PREF_DETAIL = "PREF_DETAIL";
     public static final String PREF_CONFIG = "PREF_CONFIG";
     public static final String PREF_LOGIN = "PREF_LOGIN";
+    public static final String PREF_INSTALL = "PREF_INSTALL";
+    private static final String TAG = "Common";
     public static String MA_NVIEN = "";
     public static String USER = "";
     public static int ID_TBL_BOOK;
@@ -92,7 +94,9 @@ public class Common {
     public static final String KEY_PREF_MAX = "KEY_PREF_MAX";
     public static final String KEY_PREF_USER_NAME = "KEY_PREF_USER_NAME";
     public static final String KEY_PREF_USER_PASS = "KEY_PREF_USER_PASS";
+    public static final String KEY_PREF_INSTALL_DATE = "KEY_PREF_INSTALL_DATE";
     public static final String PROGRAM_PHOTOS_PATH = "/GCSh2o/PHOTOS/";
+    public static final String PROGRAM_PATH = "/GCSh2o/";
     public static final String INTENT_KEY_MANHANVIEN = "INTENT_KEY_MANHANVIEN";
     public static final String INTENT_KEY_USER = "INTENT_KEY_USER";
     public static final String INTENT_KEY_PASS = "INTENT_KEY_PASS";
@@ -164,7 +168,7 @@ public class Common {
     public static byte[] encodeTobase64Byte(Bitmap image) {
         Bitmap immagex = image;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immagex.compress(Bitmap.CompressFormat.JPEG, 90, baos);
+        immagex.compress(Bitmap.CompressFormat.JPEG, 45, baos);
         byte[] b = baos.toByteArray();
         return b;
     }
@@ -184,6 +188,18 @@ public class Common {
 
     public static void setID_TBL_BOOK(int id) {
         Common.ID_TBL_BOOK = id;
+    }
+
+    public static boolean deleteFolderSDcard(String programPath) {
+
+        File dir = new File(Environment.getExternalStorageDirectory().getPath() + programPath);
+        try {
+            FileUtils.deleteDirectory(dir);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e(TAG, "deleteFolderSDcard: " + e.getMessage());
+        }
+        return true;
     }
 
 
@@ -366,79 +382,15 @@ public class Common {
         return name.toString();
     }
 
-    public enum KIEU_CHUONG_TRINH {
-        PHAN_BO(0, "Chức năng phân bổ"),
-        KIEM_DINH(1, "Chức năng gửi kiểm định");
-
-        private int code;
-        private String name;
-
-        KIEU_CHUONG_TRINH(int code, String name) {
-            this.code = code;
-            this.name = name;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public String getName() {
-            return name;
-        }
+    public static void openFolderExternal_1(Context context, String dir){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath()
+                +  dir);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setDataAndType(uri, "*/*");
+        context.startActivity(Intent.createChooser(intent, "Open folder"));
     }
 
-    public enum MENU_BOTTOM_KD {
-        ALL(0, "Danh sách thiết bị"),
-        DS_GHIM(1, "Danh sách chọn"),
-        LICH_SU(2, "Lịch sử"),
-        THONG_KE(3, "Thống kê");
-
-        private int code;
-        private String name;
-
-        MENU_BOTTOM_KD(int code, String name) {
-            this.code = code;
-            this.name = name;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    public enum CHON {
-        CHUA_GUI(0, "Chưa gửi"),
-        GUI_THANH_CONG(1, "Đã gửi"),
-        GUI_THAT_BAI(2, "Đã tồn tại");
-        private int code;
-        private String name;
-
-        CHON(int code, String name) {
-            this.code = code;
-            this.name = name;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public static CHON findNameBy(int code) {
-            for (CHON v : values()) {
-                if (v.getCode() == code) {
-                    return v;
-                }
-            }
-            return null;
-        }
-    }
 
     public static void hideSoftKeyboard(Activity activity) {
         InputMethodManager inputMethodManager =
@@ -883,6 +835,7 @@ public class Common {
 //    }
 
     public static final int REQUEST_CODE_PERMISSION = 100;
+    public static final int REQUEST_CODE_OPEN_FOLDER = 101;
     public static final String[] SPECIAL_PERMISSION = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA};
 
     public static String[] needPermission(Activity activity) {
@@ -1275,7 +1228,7 @@ public class Common {
 
         Bitmap immagex = imageBitmap;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        immagex.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        immagex.compress(Bitmap.CompressFormat.JPEG, 45, baos);
         byte[] imageByte = baos.toByteArray();
         String byteBimap = Base64.encodeToString(imageByte, Base64.NO_WRAP);
         return byteBimap;
@@ -1304,5 +1257,20 @@ public class Common {
             }
         }
         return list;
+    }
+
+    public static long logInstallDate(Context context) {
+        PackageManager pm = context.getPackageManager();
+        ApplicationInfo appInfo = null;
+        try {
+            appInfo = pm.getApplicationInfo(context.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+            Log.e(TAG, "logInstallDate: " + e.getMessage());
+        }
+        String appFile = appInfo.sourceDir;
+        long installed = new File(appFile).lastModified();
+        Log.d(TAG, "logInstallDate: installed = " + installed);
+        return installed;
     }
 }

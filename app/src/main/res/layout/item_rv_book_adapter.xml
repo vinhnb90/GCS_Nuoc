@@ -142,6 +142,30 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:background="@drawable/xml_border_full_type7"
+                android:padding="@dimen/_6sdp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/_8sdp"
+                    android:text="Khách hàng đã gửi thành công"
+                    android:textColor="@color/barColorText" />
+
+                <TextView
+                    android:id="@+id/item_rv_book_adapter_tv_uploaded"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="@dimen/_8sdp"
+                    android:textColor="@color/barColorText"
+                    tools:text="75" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <LinearLayout

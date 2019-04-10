@@ -17,7 +17,7 @@ public class SqlHelper extends SQLiteOpenHelper {
 
     public static final String PATH_FOLDER_DB = Environment.getExternalStorageDirectory() + File.separator + "GCSh2o" + File.separator + "DB" + File.separator;
     public static final String DB_NAME = "GCSh2o.s3db";
-    private static final int DB_VER = 106;
+    private static final int DB_VER = 107;
 
     public SqlHelper(Context context) {
         super(context, PATH_FOLDER_DB + DB_NAME, null, DB_VER);

@@ -96,6 +96,7 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
 
         holder.tvWriteOk.setText(bookItemProxy.getCustomerWrited() + "");
         holder.tvNotWriteOK.setText(bookItemProxy.getCustomerNotWrite() + "");
+        holder.tvUploaded.setText(bookItemProxy.getCustomerUploaded() + "");
         holder.tvPeriod.setText("Kỳ " + bookItemProxy.getTerm_book() + " Tháng " + bookItemProxy.getMonth_book() + "/" + bookItemProxy.getYear_book());
         holder.tvMaSo.setText(bookItemProxy.getCODE());
 
@@ -112,7 +113,7 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
     public class BookViewHolder extends ViewHolder {
         private final TextView tvPeriod;
         private final TextView tvMaSo;
-        public TextView tvStatus, tvNameBook, tvWriteOk, tvNotWriteOK;
+        public TextView tvStatus, tvNameBook, tvWriteOk, tvNotWriteOK, tvUploaded;
         public ImageButton ibtnChoose;
         public RelativeLayout mView;
         public View mView1;
@@ -126,6 +127,7 @@ public class BooksAdapter extends RecyclerView.Adapter<BooksAdapter.BookViewHold
             tvNameBook = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_name_book);
             tvWriteOk = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_write_ok);
             tvNotWriteOK = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_not_write);
+            tvUploaded= (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_uploaded);
             tvPeriod = (TextView) itemView.findViewById(R.id.item_rv_book_adapter_tv_period);
             tvMaSo = (TextView) itemView.findViewById(R.id.ac_book_manager_rv_item_tv_maso);
 

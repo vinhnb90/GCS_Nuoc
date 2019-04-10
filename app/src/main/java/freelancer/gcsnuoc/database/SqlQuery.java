@@ -127,6 +127,7 @@ public class SqlQuery {
         STATUS("STATUS"),
         CUS_WRITED("CUS_WRITED"),
         CUS_NOT_WRITED("CUS_NOT_WRITED"),
+        CUS_UPLOADED("CUS_UPLOADED"),
         //        PERIOD("PERIOD"),
         term_book("term_book"),
         month_book("month_book"),
@@ -160,6 +161,7 @@ public class SqlQuery {
                 TBL_BOOK.STATUS.name() + " TEXT, " +
                 TBL_BOOK.CUS_WRITED.name() + " INTEGER, " +
                 TBL_BOOK.CUS_NOT_WRITED.name() + " INTEGER, " +
+                TBL_BOOK.CUS_UPLOADED.name() + " INTEGER, " +
 //                TBL_BOOK.PERIOD.name() + " TEXT, " +
                 TBL_BOOK.term_book.name() + " INTEGER, " +
                 TBL_BOOK.month_book.name() + " TEXT, " +
@@ -219,6 +221,7 @@ public class SqlQuery {
                 TBL_BOOK.STATUS.name() + ", " +
                 TBL_BOOK.CUS_WRITED.name() + ", " +
                 TBL_BOOK.CUS_NOT_WRITED.name() + ", " +
+                TBL_BOOK.CUS_UPLOADED.name() + ", " +
 //                TBL_BOOK.PERIOD.name() + ", " +
                 TBL_BOOK.term_book.name() + ", " +
                 TBL_BOOK.month_book.name() + ", " +
@@ -229,7 +232,7 @@ public class SqlQuery {
                 TBL_BOOK.CHOOSE.name() + ", " +
                 TBL_BOOK.MA_NVIEN.name() + ", " +
                 TBL_BOOK.CODE.name() +
-                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
+                ") " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?" +
                 ");"
                 ;
     }
@@ -248,6 +251,10 @@ public class SqlQuery {
                 ", " +
 
                 TBL_BOOK.CUS_NOT_WRITED.name() +
+                " = ? " +
+                ", " +
+
+                TBL_BOOK.CUS_UPLOADED.name() +
                 " = ? " +
                 ", " +
 
@@ -743,6 +750,24 @@ public class SqlQuery {
 
     public static String getUpdateCUS_WRITEDOfTBL_BOOK(boolean isCUS_WRITED) {
         String collumn = isCUS_WRITED ? TBL_BOOK.CUS_WRITED.name() : TBL_BOOK.CUS_NOT_WRITED.name();
+
+        return "UPDATE " +
+                TBL_BOOK.getName() +
+                " SET " +
+                collumn +
+                " = ? " +
+                " WHERE " +
+                TBL_BOOK.ID_TBL_BOOK.name() +
+                " = ? " +
+                " AND " +
+                TBL_BOOK.MA_NVIEN.name() +
+                " = ?"
+                ;
+    }
+
+
+    public static String getUpdateCUS_UploadedDOfTBL_BOOK() {
+        String collumn = TBL_BOOK.CUS_UPLOADED.name();
 
         return "UPDATE " +
                 TBL_BOOK.getName() +

@@ -6,6 +6,7 @@ public class BookItem implements Cloneable{
     private STATUS_BOOK mStatusBook;
     private int mCustomerWrited;
     private int mCustomerNotWrite;
+    private int mCustomerUploaded;
 //    private String mPeriod;
     private int term_book;
     private int month_book;
@@ -22,7 +23,7 @@ public class BookItem implements Cloneable{
     public BookItem() {
     }
 
-    public BookItem(int ID, String bookName, STATUS_BOOK statusBook, int customerWrited, int customerNotWrite, int term_book, int month_book, int year_book, String bookCode, boolean isFocus, boolean isChoose, String CODE, String MA_NVIEN, int figureBookId) {
+    public BookItem(int ID, String bookName, STATUS_BOOK statusBook, int customerWrited, int customerNotWrite, int term_book, int month_book, int year_book, String bookCode, boolean isFocus, boolean isChoose, String CODE, String MA_NVIEN, int figureBookId, int customerUploaded) {
         this.ID = ID;
         mBookName = bookName;
         mStatusBook = statusBook;
@@ -37,6 +38,7 @@ public class BookItem implements Cloneable{
         this.CODE = CODE;
         this.MA_NVIEN = MA_NVIEN;
         FigureBookId = figureBookId;
+        mCustomerUploaded = customerUploaded;
     }
 
     public int getID() {
@@ -73,6 +75,14 @@ public class BookItem implements Cloneable{
 
     public int getCustomerNotWrite() {
         return mCustomerNotWrite;
+    }
+
+    public int getCustomerUploaded() {
+        return mCustomerUploaded;
+    }
+
+    public void setCustomerUploaded(int customerUploaded) {
+        mCustomerUploaded = customerUploaded;
     }
 
     public void setCustomerNotWrite(int customerNotWrite) {

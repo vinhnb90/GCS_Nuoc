@@ -101,6 +101,16 @@ public class BookItemProxy extends CursorItemProxy {
         return mBookItem.getCustomerNotWrite();
     }
 
+    public int getCustomerUploaded() {
+        if (mBookItem.getCustomerUploaded() == 0) {
+            Cursor cursor = getmCursor();
+            cursor.moveToPosition(getmIndex());
+            String getCustomerUploaded = SqlQuery.TBL_BOOK.CUS_UPLOADED.getNameCollumn();
+            mBookItem.setCustomerUploaded(cursor.getInt(cursor.getColumnIndex(getCustomerUploaded)));
+        }
+        return mBookItem.getCustomerUploaded();
+    }
+
     public boolean isFocus() {
         Cursor cursor = getmCursor();
         cursor.moveToPosition(getmIndex());

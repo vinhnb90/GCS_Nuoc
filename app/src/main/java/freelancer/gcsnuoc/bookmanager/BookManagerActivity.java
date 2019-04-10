@@ -343,7 +343,6 @@ public class BookManagerActivity extends BaseActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-
     private void showDialogWarningDelete() {
         IDialog iDialog = new IDialog() {
             @Override
@@ -965,6 +964,7 @@ public class BookManagerActivity extends BaseActivity {
             listPostErrorClient.add(dataBookPost);
 //            setUIUpload("Có vấn đề về ghi dữ liệu!\n" + e.getMessage(), 0);
         }
+        Log.d(TAG, "uploadCustomer: ");
     }
 
 
@@ -1099,7 +1099,7 @@ public class BookManagerActivity extends BaseActivity {
                     apiInterface = GCSApi.getClient().create(GCSAPIInterface.class);
 
                     startGetTokenAndGetDataBook();
-                    startDeleteAllOldData();
+//                    startDeleteAllOldData();
                 } catch (final Exception e) {
                     e.printStackTrace();
 
@@ -1279,6 +1279,7 @@ public class BookManagerActivity extends BaseActivity {
                                         bookItem.setStatusBook(BookItem.STATUS_BOOK.NON_WRITING);
                                         bookItem.setCustomerWrited(0);
                                         bookItem.setCustomerNotWrite(0);
+                                        bookItem.setCustomerUploaded(0);
 //                                        bookItem.setPeriod("");
                                         bookItem.setTerm_book(bookAvailable.getTerm());
                                         bookItem.setYear_book(bookAvailable.getYear());
@@ -1339,7 +1340,6 @@ public class BookManagerActivity extends BaseActivity {
 
                                 if (bookItem != null) {
                                     bookItem.setCustomerNotWrite(customnerItemList.size());
-                                    bookItem.setCustomerNotWrite(0);
                                     bookItemList.add(bookItem);
                                 }
 
@@ -1384,6 +1384,10 @@ public class BookManagerActivity extends BaseActivity {
                                 for (int j = 0; j < bookItemList.size(); j++) {
                                     int count = mSqlDAO.countAllByStatusTBL_CUSTOMER(bookItemList.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.NON_WRITING);
                                     mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(bookItemList.get(j).getID(), count, MA_NVIEN, false);
+                                    int countCUS_WRITED = mSqlDAO.countAllByStatusTBL_CUSTOMER(bookItemList.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.WRITED);
+                                    mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(bookItemList.get(j).getID(), countCUS_WRITED, MA_NVIEN, true);
+                                    int countUploaded = mSqlDAO.countAllByStatusTBL_CUSTOMER(bookItemList.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED);
+                                    mSqlDAO.updateCUS_UPLOADEDOfTBL_BOOK(bookItemList.get(j).getID(), countUploaded, MA_NVIEN);
                                 }
 
                             } catch (Exception e) {
@@ -1552,9 +1556,9 @@ public class BookManagerActivity extends BaseActivity {
             mSqlDAO.updateCUS_WRITEDOfTBL_BOOK(dataDump.get(j).getID(), countWRITED, MA_NVIEN, true);
 
             int countUPLOADED = mSqlDAO.countAllByStatusTBL_CUSTOMER(dataDump.get(j).getID(), MA_NVIEN, CustomerItem.STATUS_Customer.UPLOADED);
-
-            if (countNON_WRITING == 0 && countWRITED == 0)
-                mSqlDAO.updateStatusTBL_BOOK(dataDump.get(j).getID(), BookItem.STATUS_BOOK.UPLOADED, MA_NVIEN);
+            mSqlDAO.updateCUS_UPLOADEDOfTBL_BOOK(dataDump.get(j).getID(), countUPLOADED, MA_NVIEN);
+//            if (countNON_WRITING == 0 && countWRITED == 0)
+//                mSqlDAO.updateStatusTBL_BOOK(dataDump.get(j).getID(), BookItem.STATUS_BOOK.UPLOADED, MA_NVIEN);
         }
     }
 }

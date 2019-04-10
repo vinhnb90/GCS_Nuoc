@@ -75,7 +75,6 @@ import static freelancer.gcsnuoc.utils.Log.getInstance;
 
 public class DetailActivity extends BaseActivity {
     private static final String TAG = "DetailActivity";
-    private static final String MANHANVIEN1 = "MANHANVIEN1";
     private SQLiteDatabase mDatabase;
     private SqlDAO mSqlDAO;
     private static boolean isLoadedFolder = false;
@@ -512,7 +511,7 @@ public class DetailActivity extends BaseActivity {
                     int month = detailProxy.getMonth();
                     int year = detailProxy.getYear();
                     String PERIOD_Convert = term + "." + month + "." + year;
-                    String TEN_ANH = getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
+                    String TEN_ANH = getImageName(PERIOD_Convert, MA_NVIEN, String.valueOf(ID_BOOK), String.valueOf(ID_CUSTOMER), timeFileCaptureImage);
                     String pathURICapturedAnh = getRecordDirectoryFolder("") + "/" + TEN_ANH;
 
                     //scale image
@@ -743,7 +742,7 @@ public class DetailActivity extends BaseActivity {
 
         filePathTemp = getRecordDirectoryFolder("")
                 + "/"
-                + getImageName(PERIOD_Convert, MANHANVIEN1, String.valueOf(ID_BOOK), String.valueOf(ID_TBL_CUSTOMER_Focus), timeFileCaptureImage);
+                + getImageName(PERIOD_Convert, MA_NVIEN, String.valueOf(ID_BOOK), String.valueOf(ID_TBL_CUSTOMER_Focus), timeFileCaptureImage);
 
         File file = new File(filePathTemp);
         if (file.exists()) {
@@ -1158,7 +1157,6 @@ public class DetailActivity extends BaseActivity {
 
             double OldQuatity = detailProxy.getPrevQuantity();
             if (OldQuatity == 0) {
-                Toast.makeText(this, "Sản lượng tháng trước là 0. Chỉ số mới sẽ được ghi!", Toast.LENGTH_SHORT).show();
                 saveData(false);
                 return;
             }
@@ -1227,7 +1225,7 @@ public class DetailActivity extends BaseActivity {
 
                 File file = new File(LOCAL_URI);
                 try (FileOutputStream out = new FileOutputStream(file)) {
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out); // bmp is your Bitmap instance
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 45, out); // bmp is your Bitmap instance
                     // PNG is a lossless format, the compression factor (100) is ignored
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -1249,38 +1247,68 @@ public class DetailActivity extends BaseActivity {
                     @Override
                     public void run() {
                         if (isFilteringBottomMenu)
-                            Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
-
-                        if (finalIsNextOk) {
-                            try {
-                                ID_TBL_CUSTOMER_Focus = mData.get(posNow + 1).getIDOfTBL_CUSTOMER();
-                                refocusItem(posNow + 1, ID_TBL_CUSTOMER_Focus);
-                                refreshData(ID_TBL_CUSTOMER_Focus);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        {
+                            if (finalIsNextOk) {
+                                try {
+                                    ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
+                                    refocusItem(posNow, ID_TBL_CUSTOMER_Focus);
+                                    refreshData(ID_TBL_CUSTOMER_Focus);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                             }
+                            Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
                         }
+                        else
+                        {
+                            if (finalIsNextOk) {
+                                try {
+                                    ID_TBL_CUSTOMER_Focus = mData.get(posNow + 1).getIDOfTBL_CUSTOMER();
+                                    refocusItem(posNow + 1, ID_TBL_CUSTOMER_Focus);
+                                    refreshData(ID_TBL_CUSTOMER_Focus);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
+                        }
+
+
                     }
                 }, 2000);
             } else {
                 if (isFilteringBottomMenu)
-                    Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
-                else
-                    Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
-
-                if (finalIsNextOk) {
-                    try {
-                        ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
-                        refocusItem(posNow, ID_TBL_CUSTOMER_Focus);
-                        refreshData(ID_TBL_CUSTOMER_Focus);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                {
+                    if (finalIsNextOk) {
+                        try {
+                            ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
+                            refocusItem(posNow, ID_TBL_CUSTOMER_Focus);
+                            refreshData(ID_TBL_CUSTOMER_Focus);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
+                    Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
                 }
+                else
+                {
+                    if (finalIsNextOk) {
+                        try {
+                            ID_TBL_CUSTOMER_Focus = mData.get(posNow + 1).getIDOfTBL_CUSTOMER();
+                            refocusItem(posNow + 1, ID_TBL_CUSTOMER_Focus);
+                            refreshData(ID_TBL_CUSTOMER_Focus);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tự động chuyển sang khách hàng kế tiếp \n" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công.", Toast.LENGTH_SHORT).show();
+                }
+
+
             }
 
         } catch (Exception e) {

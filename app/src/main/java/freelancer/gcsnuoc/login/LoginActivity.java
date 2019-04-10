@@ -1,9 +1,12 @@
 package freelancer.gcsnuoc.login;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
@@ -18,15 +21,17 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
 import freelancer.gcsnuoc.bookmanager.BookManagerActivity;
 import freelancer.gcsnuoc.database.SqlConnect;
 import freelancer.gcsnuoc.database.SqlDAO;
-import freelancer.gcsnuoc.detail.DetailActivity;
+import freelancer.gcsnuoc.entities.ImageItemProxy;
 import freelancer.gcsnuoc.entities.SESSION;
 import freelancer.gcsnuoc.entities.SessionProxy;
 import freelancer.gcsnuoc.entities.SettingObject;
@@ -40,6 +45,7 @@ import freelancer.gcsnuoc.utils.Common;
 import retrofit2.Call;
 import retrofit2.Response;
 
+import static freelancer.gcsnuoc.utils.Common.KEY_PREF_INSTALL_DATE;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_IS_MAX_NOT_PERCENT;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_MAX;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_PERCENT;
@@ -47,8 +53,11 @@ import static freelancer.gcsnuoc.utils.Common.KEY_PREF_PORT;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_URL;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_USER_NAME;
 import static freelancer.gcsnuoc.utils.Common.KEY_PREF_USER_PASS;
+import static freelancer.gcsnuoc.utils.Common.PREF_INSTALL;
 import static freelancer.gcsnuoc.utils.Common.PREF_LOGIN;
 import static freelancer.gcsnuoc.utils.Common.PREF_SETTING;
+import static freelancer.gcsnuoc.utils.Common.PROGRAM_PATH;
+import static freelancer.gcsnuoc.utils.Common.REQUEST_CODE_OPEN_FOLDER;
 import static freelancer.gcsnuoc.utils.Common.REQUEST_CODE_PERMISSION;
 import static freelancer.gcsnuoc.utils.Common.TIME_DELAY_ANIM;
 import static freelancer.gcsnuoc.utils.Log.getInstance;
@@ -123,6 +132,15 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_OPEN_FOLDER) {
+            showDialogWarningDeleteDB();
+        }
+
+    }
 
     public void clickSettingButton(View view) {
         Common.runAnimationClickView(view, R.anim.twinking_view, TIME_DELAY_ANIM);
@@ -315,7 +333,7 @@ public class LoginActivity extends BaseActivity {
         //init shared pref
         mPrefManager = SharePrefManager.getInstance(this);
 
-        this.checkSharePreference();
+        this.checkSharePreferenceLogin();
         if (mPrefManager == null)
             mPrefManager = SharePrefManager.getInstance(this);
         mUser = mPrefManager.getSharePref(PREF_LOGIN, MODE_PRIVATE).getString(KEY_PREF_USER_NAME, "");
@@ -324,8 +342,6 @@ public class LoginActivity extends BaseActivity {
         mEtPass.setText(mPass);
         //setup data
         //create database
-        mDatabase = SqlConnect.getInstance(this).open();
-        mSqlDAO = new SqlDAO(mDatabase, this);
     }
 
 //    @Override
@@ -404,9 +420,88 @@ public class LoginActivity extends BaseActivity {
 
     @Override
     protected void setAction(Bundle savedInstanceState) throws Exception {
+        //check install date
+        boolean isNeedDeleteDBFile = false;
+        long installDate = Common.logInstallDate(this);
+        if (!mPrefManager.checkExistSharePref(PREF_INSTALL)) {
+            mPrefManager.addSharePref(PREF_INSTALL, MODE_PRIVATE);
+            mPrefManager.getSharePref(PREF_INSTALL, MODE_PRIVATE)
+                    .edit()
+                    .putLong(Common.KEY_PREF_INSTALL_DATE, 0l)
+                    .commit();
+            isNeedDeleteDBFile = true;
+
+        } else {
+            long installDateOld = mPrefManager.getSharePref(PREF_INSTALL, MODE_PRIVATE).getLong(KEY_PREF_INSTALL_DATE, 0l);
+            if (installDate != installDateOld)
+                isNeedDeleteDBFile = true;
+        }
+
+        if (isNeedDeleteDBFile) {
+            showDialogWarningDeleteDB();
+        } else {
+            mDatabase = SqlConnect.getInstance(LoginActivity.this).open();
+            mSqlDAO = new SqlDAO(mDatabase, LoginActivity.this);
+        }
+
     }
 
-    private void checkSharePreference() {
+    private void showDialogWarningDeleteDB() {
+        IDialog iDialog = new IDialog() {
+            @Override
+            protected void clickOK() {
+                if (Common.deleteFolderSDcard(PROGRAM_PATH)) {
+                    //write time install app
+                    mPrefManager.getSharePref(PREF_INSTALL, MODE_PRIVATE)
+                            .edit()
+                            .putLong(Common.KEY_PREF_INSTALL_DATE, Common.logInstallDate(LoginActivity.this))
+                            .commit();
+                }
+
+                try {
+                    Thread.sleep(100);
+                    mDatabase = SqlConnect.getInstance(LoginActivity.this).open();
+                    mSqlDAO = new SqlDAO(mDatabase, LoginActivity.this);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            protected void clickCancel() {
+//                mDatabase = SqlConnect.getInstance(LoginActivity.this).open();
+//                mSqlDAO = new SqlDAO(mDatabase, LoginActivity.this);
+
+//                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath()
+//                        +  Common.PROGRAM_PATH);
+//                intent.setDataAndType(uri, "*/*");
+//                startActivityForResult(Intent.createChooser(intent, "Open folder"), REQUEST_CODE_OPEN_FOLDER);
+
+
+
+                Uri selectedUri = Uri.parse(Environment.getExternalStorageDirectory() + Common.PROGRAM_PATH);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setDataAndType(selectedUri, "resource/folder");
+
+                if (intent.resolveActivityInfo(getPackageManager(), 0) != null) {
+                    startActivityForResult(intent, REQUEST_CODE_OPEN_FOLDER);
+                } else {
+                    // if you reach this place, it means there is no any file
+                    // explorer app installed on your device
+                }
+            }
+        }.setTextBtnOK("Xóa tất cả và tiếp tục").setTextBtnCancel("Hủy thao tác, mở folder để sao lưu.");
+        super.showDialog(this, "Việc cài mới app sẽ yêu cầu xóa hết dữ liệu cũ." +
+                "\n" +
+                "\n\"Hủy thao tác, mở folder để sao lưu\": Copy dữ liệu trong thư mục /sdcard/GCSh2o gồm file và ảnh sang nơi khác." +
+                "\n\"Xóa tất cả và tiếp tục\": Nếu bạn đã lưu thì chương trình sẽ tiếp tục cài đặt ", iDialog);
+    }
+
+
+    private void checkSharePreferenceLogin() {
         if (!mPrefManager.checkExistSharePref(PREF_LOGIN)) {
             mPrefManager.addSharePref(PREF_LOGIN, MODE_PRIVATE);
             mPrefManager.getSharePref(PREF_LOGIN, MODE_PRIVATE)
@@ -436,7 +531,6 @@ public class LoginActivity extends BaseActivity {
             }
         }
     }
-
 
     @Override
     protected void doTaskOnResume() {
@@ -508,8 +602,7 @@ public class LoginActivity extends BaseActivity {
         }
 
         int count = Common.word_count(settingObject.getURL(), ":");
-        if(count == 1 && settingObject.getPort()!= 0)
-        {
+        if (count == 1 && settingObject.getPort() != 0) {
             Toast.makeText(this, "Kiểm tra lại cấu hình.\nKhông cần nhập cổng!", Toast.LENGTH_SHORT).show();
             return false;
         }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="freelancer.gcsnuoc">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -10,7 +11,10 @@
 
     <application
         android:name=".app.GCSApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
+        android:fullBackupOnly="false"
+        android:fullBackupContent="false"
+        tools:replace="android:label,android:icon,android:name,android:allowBackup,android:fullBackupOnly,android:fullBackupContent"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -50,7 +54,7 @@
             android:parentActivityName=".bookmanager.BookManagerActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".login.BookManagerActivity" />
+                android:value=".bookmanager.BookManagerActivity" />
         </activity>
     </application>
 

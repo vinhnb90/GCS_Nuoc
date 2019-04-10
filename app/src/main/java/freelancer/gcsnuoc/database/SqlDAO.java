@@ -72,6 +72,7 @@ public class SqlDAO {
                 bookItem.getStatusBook().getStatus(),
                 bookItem.getCustomerWrited(),
                 bookItem.getCustomerNotWrite(),
+                bookItem.getCustomerUploaded(),
 //                bookItem.getPeriod(),
                 bookItem.getTerm_book(),
                 bookItem.getMonth_book(),
@@ -289,19 +290,33 @@ public class SqlDAO {
     }
 
 
-    public void updateCUS_WRITEDOfTBL_BOOK(int CUS_WRITED, int ID, String MA_NVIEN, boolean isCUS_WRITED) throws FileNotFoundException {
+    public void updateCUS_WRITEDOfTBL_BOOK(int ID, int CUS_WRITED, String MA_NVIEN, boolean isCUS_WRITED) throws FileNotFoundException {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
 
         String[] args = SqlDAO.build(
-                ID,
                 CUS_WRITED,
+                ID,
                 MA_NVIEN
         );
 
         mSqLiteDatabase.execSQL(SqlQuery.getUpdateCUS_WRITEDOfTBL_BOOK(isCUS_WRITED), args);
 
     }
+
+    public void updateCUS_UPLOADEDOfTBL_BOOK(int ID, int CUS_UPLOADED, String MA_NVIEN) throws FileNotFoundException {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+
+        String[] args = SqlDAO.build(
+                CUS_UPLOADED,
+                ID,
+                MA_NVIEN
+        );
+
+        mSqLiteDatabase.execSQL(SqlQuery.getUpdateCUS_UploadedDOfTBL_BOOK(), args);
+    }
+
     //endregion
 
     //region TBL_CUSTOMER
