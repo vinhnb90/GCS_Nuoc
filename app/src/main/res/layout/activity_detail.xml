@@ -19,7 +19,14 @@
         app:contentInsetStart="0dp"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ToolbarColoredBackArrow"
-        app:titleTextColor="@color/barColorWhenSelected" />
+        app:titleTextColor="@color/barColorWhenSelected" >
+        <Spinner
+            android:id="@+id/ac_detail_toolbar_spnCategory"
+            style="@style/miComboBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </android.support.v7.widget.Toolbar>
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/main_content"
