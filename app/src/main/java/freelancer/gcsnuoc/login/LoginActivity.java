@@ -178,6 +178,8 @@ public class LoginActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
             try {
+                if(mSqlDAO == null)
+                    mSqlDAO = new SqlDAO(mDatabase, this);
                 mSqlDAO.deleteAllTBL_SESSIONByUSER_NAME(mUser);
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();

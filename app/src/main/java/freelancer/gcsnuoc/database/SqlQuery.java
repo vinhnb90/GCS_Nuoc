@@ -556,7 +556,6 @@ public class SqlQuery {
                 "";
     }
 
-
 //    public static String getNumberRowStatusTBL_CUSTOMERByBook() {
 //        return "SELECT * " +
 //                " FROM " +
@@ -609,7 +608,6 @@ public class SqlQuery {
                 ");"
                 ;
     }
-
 
     //other post
 
@@ -704,7 +702,6 @@ public class SqlQuery {
                 " = ? ";
     }
 
-
     public static String getUpdateResetFocusTBL_CUSTOMER() {
         return "UPDATE " +
                 TBL_CUSTOMER.getName() +
@@ -765,7 +762,6 @@ public class SqlQuery {
                 ;
     }
 
-
     public static String getUpdateCUS_UploadedDOfTBL_BOOK() {
         String collumn = TBL_BOOK.CUS_UPLOADED.name();
 
@@ -800,7 +796,6 @@ public class SqlQuery {
                 CustomerItem.STATUS_Customer.UPLOADED
                 ;
     }
-
 
     public static String deleteAllRowUploadedTBL_CUSTOMERByStatus() {
         return "DELETE FROM TBL_CUSTOMER WHERE " +
@@ -847,6 +842,7 @@ public class SqlQuery {
                 TBL_CUSTOMER.MA_NVIEN +
                 " = ?";
     }
+
     //endregion
 
     //region TBL_IMAGE
@@ -1003,6 +999,49 @@ public class SqlQuery {
                 "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
                 " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY Index_Cus ASC";
     }
+
+    public static String getSelectAllDetailProxyWRITED_UPLOADED_BySanLuong() {
+        return "select * from\n" +
+                "(\n" +
+                "select * FROM TBL_CUSTOMER LEFT join TBL_BOOK on TBL_BOOK.ID_TBL_BOOK = TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER" +
+                " where TBL_CUSTOMER.MA_NVIEN = ? and (TBL_CUSTOMER.STATUS_CUSTOMER = " +
+                "'" +
+                CustomerItem.STATUS_Customer.WRITED.getStatus() +
+                "'" +
+                " or " +
+                " TBL_CUSTOMER.STATUS_CUSTOMER = " +
+                "'" +
+                CustomerItem.STATUS_Customer.UPLOADED.getStatus() +
+                "')" +
+                " \n" +
+                ") as e\n" +
+                "LEFT join TBL_IMAGE\n" +
+                "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
+                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? ORDER BY Index_Cus ASC";
+    }
+
+    public static String getSelectAllDetailProxyWRITED_UPLOADEDBySL(String SAN_LUONG) {
+        return "select *, ((NEW_INDEX - OLD_INDEX) * coefficient) as [SAN_LUONG] from\n" +
+                "(\n" +
+                "select * FROM TBL_CUSTOMER LEFT join TBL_BOOK on TBL_BOOK.ID_TBL_BOOK = TBL_CUSTOMER.ID_TBL_BOOK_OF_CUSTOMER" +
+                " where TBL_CUSTOMER.MA_NVIEN = ? and (TBL_CUSTOMER.STATUS_CUSTOMER = " +
+                "'" +
+                CustomerItem.STATUS_Customer.WRITED.getStatus() +
+                "'" +
+                " or " +
+                " TBL_CUSTOMER.STATUS_CUSTOMER = " +
+                "'" +
+                CustomerItem.STATUS_Customer.UPLOADED.getStatus() +
+                "')" +
+                " \n" +
+                ") as e\n" +
+                "LEFT join TBL_IMAGE\n" +
+                "on e.ID_TBL_CUSTOMER = TBL_IMAGE.ID_TBL_CUSTOMER_OF_IMAGE" +
+                " where e.ID_TBL_BOOK_OF_CUSTOMER = ? and SAN_LUONG = " +
+                SAN_LUONG +
+                "";
+    }
+
 
     public static String getSelectAllDetailProxyNotWrite() {
         return "select * from\n" +

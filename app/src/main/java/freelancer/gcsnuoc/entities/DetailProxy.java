@@ -407,6 +407,5 @@ public class DetailProxy extends CursorItemProxy {
         return mCustomerItem.getCustomerCode();
     }
 
-
     //endregion
 }

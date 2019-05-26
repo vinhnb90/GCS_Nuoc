@@ -25,18 +25,24 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PagerSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,8 +53,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import freelancer.gcsnuoc.BaseActivity;
 import freelancer.gcsnuoc.R;
@@ -65,6 +75,7 @@ import freelancer.gcsnuoc.utils.Common;
 import freelancer.gcsnuoc.utils.zoomiamgeview.ImageViewTouch;
 
 import static freelancer.gcsnuoc.bookmanager.BookManagerActivity.TYPE_FILTER.FILTER_BY_SEARCH;
+import static freelancer.gcsnuoc.bookmanager.BookManagerActivity.TYPE_FILTER.FILTER_BY_SL;
 import static freelancer.gcsnuoc.bookmanager.BookManagerActivity.trimChildMargins;
 import static freelancer.gcsnuoc.utils.Common.*;
 import static freelancer.gcsnuoc.utils.Common.DATE_TIME_TYPE.*;
@@ -124,6 +135,14 @@ public class DetailActivity extends BaseActivity {
     private boolean isClickApadater2;
     public static HashMap<Integer, Integer> mIntegerIntegerHashMap = new HashMap<>();
 
+    private boolean isClickMenuSearch;
+    private Spinner spnCategory;
+    private List<String> listGroup = new ArrayList<>();
+    private List<Double> listGroupKey = new ArrayList<>();
+    private List<Double> listGroupDouble = new ArrayList<>();
+    private DetailProxy mDetailProxyFocusLast;
+    private MenuItem filterSlItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -131,6 +150,7 @@ public class DetailActivity extends BaseActivity {
         super.hideBar();
         Toolbar myToolbar = (Toolbar) findViewById(R.id.ac_detail_toolbar);
         myToolbar.setTitle("Ghi chỉ số");
+        spnCategory = (Spinner) findViewById(R.id.ac_detail_toolbar_spnCategory);
         setSupportActionBar(myToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -168,6 +188,8 @@ public class DetailActivity extends BaseActivity {
         MenuInflater menuInflater = getMenuInflater();
         menuInflater.inflate(R.menu.ac_detail_actionbar_menu, menu);
 
+        filterSlItem = menu.findItem(R.id.ac_detail_menu_filter_sl);
+
         MenuItem menuItem = menu.findItem(R.id.ac_detail_menu_search);
         searchView = (SearchView) menuItem.getActionView();
         int id = searchView.getContext().getResources().getIdentifier("android:id/search_src_text", null, null);
@@ -177,6 +199,9 @@ public class DetailActivity extends BaseActivity {
         searchView.setOnSearchClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                spnCategory.setAdapter(null);
+                spnCategory.postInvalidate();
+                isClickMenuSearch = true;
                 mFabCapture.setVisibility(View.GONE);
                 mBottomBar.setDefaultTabPosition(2);
                 mBottomBar.selectTabAtPosition(2);
@@ -187,6 +212,9 @@ public class DetailActivity extends BaseActivity {
         searchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
+                spnCategory.setAdapter(null);
+                spnCategory.postInvalidate();
+                isClickMenuSearch = false;
                 mBottomBar.post(new Runnable() {
                     @Override
                     public void run() {
@@ -250,8 +278,95 @@ public class DetailActivity extends BaseActivity {
                 return false;
             }
         });
+
+        filterSlItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                showDialogGroupFilterSanLuong();
+                return false;
+            }
+        });
+
         return super.onCreateOptionsMenu(menu);
     }
+
+    private void showDialogGroupFilterSanLuong() {
+        listGroup.clear();
+        listGroupDouble.clear();
+        listGroupKey.clear();
+        List<DetailProxy> dataSearch = null;
+        try {
+            dataSearch = mSqlDAO.getSelectAllDetailProxyWRITED_UPLOADED(ID_TBL_BOOK_OF_CUSTOMER, MA_NVIEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(DetailActivity.this, "Gặp vấn đề khi gom nhóm KH theo sản lượng!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for (DetailProxy detailProxy : dataSearch
+        ) {
+            listGroupDouble.add(tinhSanLuong(detailProxy, null));
+        }
+
+        if (listGroupDouble.size() == 0) {
+            Toast.makeText(this, "Hiện tại chưa có khách hàng nào có sản lượng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Collections.sort(listGroupDouble);
+        Collections.reverse(listGroupDouble);
+
+        int count = 1;
+        double value = listGroupDouble.get(0);
+        for (int i = 1; i < listGroupDouble.size(); i++) {
+            if (value == listGroupDouble.get(i)) {
+                count++;
+                if (i == listGroupDouble.size() - 1) {
+                    listGroup.add("Mức SL: " + value + " có [" + count + "]");
+                    listGroupKey.add(value);
+                } else
+                    continue;
+            } else {
+                listGroup.add("Mức SL: " + value + " có [" + count + "]");
+                listGroupKey.add(value);
+                value = listGroupDouble.get(i);
+                count = 1;
+            }
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter(this, R.layout.spinner_item, listGroup);
+        adapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+        spnCategory.setAdapter(adapter);
+        spnCategory.setClickable(false);
+        spnCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    mFabCapture.setVisibility(View.GONE);
+                    mBottomBar.setDefaultTabPosition(2);
+                    mBottomBar.selectTabAtPosition(2);
+                    mBottomBar.postInvalidate();
+                    DetailActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                filterData(FILTER_BY_SL, listGroupKey.get(i).toString());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                e.printStackTrace();
+                                Toast.makeText(DetailActivity.this, "Gặp vấn đề khi tìm kiếm theo sản lượng!\n " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        spnCategory.performClick();
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -292,6 +407,10 @@ public class DetailActivity extends BaseActivity {
 
             case NONE_FILTER:
                 dataFilter = mData;
+                break;
+
+            case FILTER_BY_SL:
+                dataFilter = mSqlDAO.getSelectAllDetailProxyWRITED_UPLOADEDBySL(ID_TBL_BOOK_OF_CUSTOMER, dataFiltering, MA_NVIEN);
                 break;
         }
 
@@ -613,6 +732,36 @@ public class DetailActivity extends BaseActivity {
             }
         });
 
+        mEtNewIndex.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mDetailProxyFocusLast == null) {
+                            Log.d(TAG, "run: mDetailProxyFocusLast = null");
+//                            Toast.makeText(DetailActivity.this, "Gặp vấn đề khi lấy dữ liệu khách hàng hiện tại", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        mRlSluong.setVisibility(View.VISIBLE);
+                        Double s = TextUtils.isEmpty(mEtNewIndex.getText().toString()) ? 0.0d : Double.parseDouble(mEtNewIndex.getText().toString());
+                        mTvSluong.setText(String.valueOf(tinhSanLuong(mDetailProxyFocusLast, s)));
+                    }
+                });
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
         //set menu bottom
         mBottomBar.setOnTabSelectListener(new OnTabSelectListener() {
             @Override
@@ -910,6 +1059,8 @@ public class DetailActivity extends BaseActivity {
                     return;
 
                 try {
+                    spnCategory.setAdapter(null);
+                    spnCategory.postInvalidate();
                     //update rv 1, rv2
                     refocusItem(pos, ID_TBL_CUSTOMER);
                     int posNow = findPosFocusNow(ID_TBL_CUSTOMER);
@@ -985,6 +1136,8 @@ public class DetailActivity extends BaseActivity {
 
     private void updateUI(final int varID_TBL_CUSTOMER_Focus) throws Exception {
         int mPos = findPosFocusNow(varID_TBL_CUSTOMER_Focus);
+        if(mPos == -1)
+            return;
         final DetailProxy detailProxy = mData.get(mPos);
         mTvNameEmp.setText(detailProxy.getCustomerNameOfTBL_CUSTOMER());
         mTvCusCode.setText(detailProxy.getCustomerCode());
@@ -1014,13 +1167,25 @@ public class DetailActivity extends BaseActivity {
     }
 
     private void showTvSanLuong(DetailProxy detailProxy) {
-        double old = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
-        double newIndex = detailProxy.getNEW_INDEXOfTBL_CUSTOMER();
-        double co = detailProxy.getCoefficient();
-        mRlSluong.setVisibility(newIndex - old > 0 ? View.VISIBLE : View.GONE);
-        mTvSluong.setText(String.valueOf((newIndex - old) * co));
+        double sl = tinhSanLuong(detailProxy, null);
+        //TODO KH Muốn show sản lượng
+        mRlSluong.setVisibility(View.VISIBLE);
+        mTvSluong.setText(String.valueOf(sl));
+        if (detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.WRITED || detailProxy.getStatusCustomerOfTBL_CUSTOMER() == CustomerItem.STATUS_Customer.UPLOADED)
+            mRlSluong.setVisibility(View.VISIBLE);
+        else
+            mRlSluong.setVisibility(View.GONE);
         boolean isQuaVong = detailProxy.isQuaVongOfTBL_CUSTOMER();
         mTvIsQuayVong.setVisibility(isQuaVong ? View.VISIBLE : View.INVISIBLE);
+        mDetailProxyFocusLast = detailProxy;
+    }
+
+    private double tinhSanLuong(DetailProxy detailProxy, @Nullable Double newIndex) {
+        double old = detailProxy.getOLD_INDEXOfTBL_CUSTOMER();
+        if (newIndex == null)
+            newIndex = detailProxy.getNEW_INDEXOfTBL_CUSTOMER();
+        double co = detailProxy.getCoefficient();
+        return (newIndex - old) * co;
     }
 
     private int findPosFocusNow(int ID_TBL_CUSTOMER_Focus) {
@@ -1246,8 +1411,7 @@ public class DetailActivity extends BaseActivity {
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (isFilteringBottomMenu)
-                        {
+                        if (isFilteringBottomMenu) {
                             if (finalIsNextOk) {
                                 try {
                                     ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
@@ -1259,9 +1423,7 @@ public class DetailActivity extends BaseActivity {
                                 }
                             }
                             Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
-                        }
-                        else
-                        {
+                        } else {
                             if (finalIsNextOk) {
                                 try {
                                     ID_TBL_CUSTOMER_Focus = mData.get(posNow + 1).getIDOfTBL_CUSTOMER();
@@ -1279,8 +1441,7 @@ public class DetailActivity extends BaseActivity {
                     }
                 }, 2000);
             } else {
-                if (isFilteringBottomMenu)
-                {
+                if (isFilteringBottomMenu) {
                     if (finalIsNextOk) {
                         try {
                             ID_TBL_CUSTOMER_Focus = mData.get(posNow).getIDOfTBL_CUSTOMER();
@@ -1292,9 +1453,7 @@ public class DetailActivity extends BaseActivity {
                         }
                     }
                     Toast.makeText(DetailActivity.this, "Lưu dữ liệu thành công. \nKhách hàng đã được loại khỏi mục LỌC KHÁCH HÀNG CHƯA GHI", Toast.LENGTH_SHORT).show();
-                }
-                else
-                {
+                } else {
                     if (finalIsNextOk) {
                         try {
                             ID_TBL_CUSTOMER_Focus = mData.get(posNow + 1).getIDOfTBL_CUSTOMER();

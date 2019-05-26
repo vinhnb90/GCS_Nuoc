@@ -28,6 +28,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -95,7 +96,6 @@ public class BookManagerActivity extends BaseActivity {
     private List<BookItemProxy> dataChooseUpload = new ArrayList<>();
     private SqlDAO mSqlDAO;
     private SQLiteDatabase mDatabase;
-
     private Common.TRIGGER_NEED_ALLOW_PERMISSION mTrigger = Common.TRIGGER_NEED_ALLOW_PERMISSION.NONE;
     private TYPE_FILTER mTYPEFilter = TYPE_FILTER.NONE_FILTER;
     private boolean isFilteringBottomMenu;
@@ -143,7 +143,8 @@ public class BookManagerActivity extends BaseActivity {
     public enum TYPE_FILTER {
         FILTER_BY_BOTTOM_MENU,
         FILTER_BY_SEARCH,
-        NONE_FILTER;
+        NONE_FILTER,
+        FILTER_BY_SL;
     }
 
     private static boolean isLoadedFolder = false;

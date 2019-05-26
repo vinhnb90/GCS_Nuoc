@@ -720,6 +720,62 @@ public class SqlDAO {
         return CustomerItemProxies;
     }
 
+    public List<DetailProxy> getSelectAllDetailProxyWRITED_UPLOADED(int ID_TBL_BOOK_OF_CUSTOMER, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                ID_TBL_BOOK_OF_CUSTOMER
+        );
+
+        List<DetailProxy> CustomerItemProxies = new ArrayList<>(ID_TBL_BOOK_OF_CUSTOMER);
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectAllDetailProxyWRITED_UPLOADED_BySanLuong(), args);
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return CustomerItemProxies;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            CustomerItemProxies.add(new DetailProxy(cursor, cursor.getPosition()));
+            cursor.moveToNext();
+        }
+
+        if (CustomerItemProxies.isEmpty())
+            closeCursor(cursor);
+        return CustomerItemProxies;
+    }
+
+    public List<DetailProxy> getSelectAllDetailProxyWRITED_UPLOADEDBySL(int ID_TBL_BOOK_OF_CUSTOMER, String SAN_LUONG, String MA_NVIEN) throws Exception {
+        if (!Common.isExistDB())
+            throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
+        String[] args = SqlDAO.build(
+                MA_NVIEN,
+                ID_TBL_BOOK_OF_CUSTOMER
+        );
+
+        List<DetailProxy> CustomerItemProxies = new ArrayList<>(ID_TBL_BOOK_OF_CUSTOMER);
+
+        Cursor cursor = null;
+        cursor = mSqLiteDatabase.rawQuery(SqlQuery.getSelectAllDetailProxyWRITED_UPLOADEDBySL(SAN_LUONG), args);
+        if (cursor == null) {
+            Log.d(TAG, "getAllCongTo: null cursor");
+            return CustomerItemProxies;
+        }
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            CustomerItemProxies.add(new DetailProxy(cursor, cursor.getPosition()));
+            cursor.moveToNext();
+        }
+
+        if (CustomerItemProxies.isEmpty())
+            closeCursor(cursor);
+        return CustomerItemProxies;
+    }
+
     public List<DetailProxy> getSelectAllDetailProxyNOTWrite(int ID_TBL_BOOK_OF_CUSTOMER, String MA_NVIEN) throws Exception {
         if (!Common.isExistDB())
             throw new FileNotFoundException(Common.MESSAGE.ex01.getContent());
